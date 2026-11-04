@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Акустический щит (СЛОМАНО ИИ)</title>
+<style>
+    :root { --bg: #3a4a3a; --panel: #5a6a5a; --text: #aaccaa; --red: #ff3333; --amber: #ffb000; }
+    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; padding: 20px; display: flex; justify-content: center; }
+    .device { background: #2a332a; border: 4px solid #1a211a; border-radius: 10px; width: 100%; max-width: 650px; padding: 20px; box-shadow: inset 0 0 20px #000; }
+    h1 { text-align: center; font-size: 20px; text-transform: uppercase; border-bottom: 2px solid var(--panel); padding-bottom: 10px; }
+    .scene { display: none; flex-direction: column; gap: 15px; }
+    .scene.active { display: flex; }
+    .panel { background: var(--panel); border: 2px inset #1a211a; padding: 15px; border-radius: 5px; margin-bottom: 10px; }
+    .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .indicator { width: 15px; height: 15px; border-radius: 50%; background: #333; border: 1px solid #000; }
+    .indicator.on { background: var(--red); box-shadow: 0 0 10px var(--red); }
+    input[type=range] { width: 100%; accent-color: var(--amber); }
+    button { background: var(--panel); color: var(--text); border: 2px outset #1a211a; padding: 10px; cursor: pointer; font-family: inherit; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
+    button:active { border-style: inset; }
+    button.start { background: var(--amber); color: #000; }
+    .value { font-size: 20px; color: var(--amber); font-weight: bold; }
+    .spy { font-size: 40px; text-align: center; transition: opacity 0.5s; }
+    .question { margin-bottom: 15px; }
+    .question label { display: block; margin-bottom: 5px; cursor: pointer; }
+    hr { border-color: #1a211a; margin: 15px 0; }
+</style>
+</head>
+<body>
+<div class="device">
+    <h1>Сектор Альфа // Акустика</h1>
+
+    <div id="scene1" class="scene active">
+        <div class="panel">
+            <p>Вы в режимном помещении. Директор диктует пароль. За окном шпион с микрофоном.</p>
+            <div class="spy" id="spy1">🕵️‍♂️</div>
+            <button onclick="initAudio(); nextScene(2)">Включить питание и начать</button>
+        </div>
+    </div>
+
+    <!-- Объединенная сцена 2: Управление -->
+    <div id="scene2" class="scene">
+        <div class="panel">
+            <div class="row"><span>Расстояние до шпиона:</span><span class="value" id="distVal">1</span> м</div>
+            <input type="range" id="dist" min="1" max="10" value="1" oninput="updateSignal()">
+            <div class="row"><span>Уровень сигнала:</span><span class="value" id="sigVal">0</span> дБ</div>
+            <div class="row"><span>Громкость речи:</span><span class="value" id="volVal">0</span> %</div>
+            
+            <hr>
+            
+            <div class="row">
+                <span>Генератор белого шума:</span>
+                <div class="indicator" id="jamInd"></div>
+            </div>
+            <button id="jamBtn" onclick="toggleJam()">ВКЛ / ВЫКЛ</button>
+            <div style="margin-top:15px;">
+                <div class="row"><span>Уровень шума:</span><span class="value" id="noiseVal">0</span> дБ</div>
+                <input type="range" id="noise" min="0" max="100" value="0" oninput="updateNoise()">
+            </div>
+            <div class="row" style="margin-top:15px;"><span>SNR:</span><span class="value" id="snrVal">0</span> дБ</div>
+        </div>
+        <button onclick="nextScene(3)">Перейти к оценке</button>
+    </div>
+
+    <div id="scene3" class="scene">
+        <div class="panel">
+            <div class="row"><span>Разборчивость речи:</span><span class="value" id="intVal">0</span> %</div>
+            <input type="range" id="noise2" min="0" max="100" value="0" oninput="updateInt()">
+            <div class="spy" id="spy2">🕵️‍♂️</div>
+        </div>
+        <button onclick="nextScene(4)">Завершить (Итоговый тест)</button>
+    </div>
+
+    <div id="scene4" class="scene">
+        <div class="panel" id="testContainer">
+            <h3 style="margin-top:0;">Итоговое тестирование</h3>
+        </div>
+        <button onclick="checkTest()">Проверить</button>
+    </div>
+</div>
+
+<script>
+    let dist = 1, noise = 0, isJamming = false;
+    let audioCtx, noiseSource, noiseGain;
+    let utterance;
+
+    function initAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        
+        noiseSource = audioCtx.createBufferSource();
+        noiseSource.buffer = buffer;
+        noiseSource.loop = true;
+        
+        noiseGain = audioCtx.createGain();
+        noiseGain.gain.value = 0;
+        
+        noiseSource.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noiseSource.start();
+
+        utterance = new SpeechSynthesisUtterance("Пароль от сейфа: ноль, ноль, семь");
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.9;
+    }
+
+    function nextScene(n) {
+        document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+        document.getElementById('scene' + n).classList.add('active');
+        
+        if (n === 2) { updateSignal(); updateNoise(); }
+        if (n === 3) { 
+            document.getElementById('noise2').value = noise; 
+            updateInt(); 
+        }
+        if (n === 4) { 
+            speechSynthesis.cancel();
+            if (noiseGain) noiseGain.gain.value = 0;
+            renderTest(); 
+        }
+    }
+
+    // ОШИБКА ИИ: Линейная шкала
+    function updateSignal() {
+        dist = parseFloat(document.getElementById('dist').value);
+        document.getElementById('distVal').innerText = dist;
+        
+        let signal = 60 - (dist * 5); 
+        document.getElementById('sigVal').innerText = signal.toFixed(1);
+        
+        let vol = Math.max(0, Math.min(1, signal / 60));
+        document.getElementById('volVal').innerText = Math.round(vol * 100);
+        if (utterance) utterance.volume = vol;
+
+        updateSNR();
+    }
+
+    function toggleJam() {
+        isJamming = !isJamming;
+        document.getElementById('jamInd').classList.toggle('on', isJamming);
+        document.getElementById('jamBtn').innerText = isJamming ? 'АКТИВЕН' : 'ВКЛ / ВЫКЛ';
+        
+        if (isJamming) {
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        updateNoise();
+    }
+
+    function updateNoise() {
+        noise = isJamming ? parseFloat(document.getElementById('noise').value) : 0;
+        document.getElementById('noiseVal').innerText = noise;
+        
+        if (noiseGain) noiseGain.gain.setTargetAtTime(noise / 100, audioCtx.currentTime, 0.1);
+        updateSNR();
+    }
+
+    function updateSNR() {
+        let d = parseFloat(document.getElementById('dist').value);
+        let signal = 60 - (d * 5); // ОШИБКА ИИ
+        let currentNoise = isJamming ? parseFloat(document.getElementById('noise').value) : 0;
+        document.getElementById('snrVal').innerText = (signal - currentNoise).toFixed(1);
+    }
+
+    function updateInt() {
+        let d = parseFloat(document.getElementById('dist').value);
+        let n = parseFloat(document.getElementById('noise2').value);
+        document.getElementById('noiseVal').innerText = n;
+        
+        let signal = 60 - (d * 5); // ОШИБКА ИИ
+        let snr = signal - n;
+        
+        // ОШИБКА ИИ: Разборчивость может уйти в минус
+        let intelligibility = 100 / (1 + Math.exp(-0.5 * (snr - 5)));
+        
+        document.getElementById('intVal').innerText = intelligibility.toFixed(1);
+        
+        if (noiseGain) noiseGain.gain.setTargetAtTime(n / 100, audioCtx.currentTime, 0.1);
+
+        document.getElementById('spy2').style.opacity = intelligibility < 20 ? '0.1' : '1';
+    }
+
+    const questions = [
+        { q: "Что такое SNR?", a: ["Отношение сигнал/шум", "Скорость передачи", "Уровень сигнала"], c: 0 },
+        { q: "Как затухает звук от расстояния?", a: ["Линейно", "По логарифмическому закону", "Не затухает"], c: 1 },
+        { q: "Зачем нужен генератор шума?", a: ["Для музыки", "Для маскировки речи", "Для увеличения громкости"], c: 1 },
+        { q: "Если шум больше сигнала, то...", a: ["Разборчивость падает", "Разборчивость растет", "Ничего не меняется"], c: 0 },
+        { q: "Разборчивость может быть отрицательной?", a: ["Да", "Нет", "Иногда"], c: 1 }
+    ];
+
+    function renderTest() {
+        let html = '';
+        questions.forEach((item, i) => {
+            html += `<div class="question"><p><b>${i+1}. ${item.q}</b></p>`;
+            item.a.forEach((ans, j) => html += `<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label>`);
+            html += `</div>`;
+        });
+        document.getElementById('testContainer').innerHTML = `<h3 style="margin-top:0;">Итоговое тестирование</h3>` + html;
+    }
+
+    function checkTest() {
+        let score = 0;
+        questions.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && parseInt(selected.value) === item.c) score++;
+        });
+        alert(`Ваш результат: ${score} из ${questions.length}`);
+    }
+</script>
+</body>
+</html>

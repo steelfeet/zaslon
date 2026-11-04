@@ -1,0 +1,2399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Электромагнитный канал утечки информации</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --paper: #f2e9d6;
+        --paper-dark: #e6dac2;
+        --ink: #1a2a4a;
+        --ink-light: #4a5a7a;
+        --red: #8b1a1a;
+        --red-light: #b84242;
+        --blue: #1a4a6a;
+        --blue-light: #3a7aa0;
+        --green: #2a5a2a;
+        --line: #c4b8a0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+        background:
+            repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(0,0,0,0.03) 24px),
+            var(--paper);
+        color: var(--ink);
+        font-family: 'PT Serif', Georgia, serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        line-height: 1.6;
+    }
+    .app {
+        width: 100%;
+        max-width: 900px;
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        box-shadow: 6px 6px 0 rgba(26,42,74,0.15);
+        position: relative;
+    }
+    .app::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border: 1px solid var(--line);
+        pointer-events: none;
+        z-index: 1;
+    }
+    .header {
+        padding: 20px 30px 15px;
+        border-bottom: 2px solid var(--ink);
+        position: relative;
+        z-index: 2;
+    }
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 8px;
+    }
+    .header h1 {
+        font-family: 'Oswald', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        color: var(--ink);
+    }
+    .header .sub {
+        font-family: 'PT Serif', serif;
+        font-style: italic;
+        font-size: 14px;
+        color: var(--ink-light);
+        margin-top: 4px;
+    }
+    .progress {
+        display: flex;
+        gap: 3px;
+        padding: 12px 30px;
+        background: var(--paper-dark);
+        border-bottom: 1px solid var(--line);
+        position: relative;
+        z-index: 2;
+    }
+    .progress-step {
+        flex: 1;
+        height: 4px;
+        background: var(--line);
+        transition: background 0.3s;
+    }
+    .progress-step.done { background: var(--blue); }
+    .progress-step.current { background: var(--red); }
+    .content {
+        padding: 30px;
+        position: relative;
+        z-index: 2;
+        min-height: 400px;
+    }
+    .scene { display: none; animation: fadeIn 0.4s ease-out; }
+    .scene.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .scene-num {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--red);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .scene-title {
+        font-family: 'Oswald', sans-serif;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        margin: 0 0 16px;
+        text-transform: uppercase;
+    }
+    .scene p {
+        font-size: 15px;
+        margin: 0 0 12px;
+    }
+    .scene p.lead {
+        font-size: 16px;
+        color: var(--ink-light);
+        font-style: italic;
+    }
+    .notebook {
+        background: #fffef8;
+        border: 1px solid var(--red);
+        border-left: 6px solid var(--red);
+        padding: 16px 20px;
+        margin: 20px 0;
+        position: relative;
+        background-image: repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(139,26,26,0.08) 24px);
+    }
+    .notebook::before {
+        content: 'ЗАПИШИ В ТЕТРАДЬ';
+        position: absolute;
+        top: -10px;
+        left: 12px;
+        background: var(--red);
+        color: #fff;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        padding: 2px 8px;
+    }
+    .notebook p {
+        margin: 6px 0;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+    .notebook p:first-child { margin-top: 4px; }
+    .notebook strong { color: var(--red); }
+    .notebook .formula {
+        font-family: 'Roboto Mono', monospace;
+        background: rgba(139,26,26,0.08);
+        padding: 2px 6px;
+        font-size: 13px;
+        border-radius: 2px;
+    }
+    .viz {
+        background: #fffef8;
+        border: 1px solid var(--line);
+        padding: 16px;
+        margin: 20px 0;
+        position: relative;
+    }
+    .viz canvas { display: block; width: 100%; }
+    .viz-caption {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        color: var(--ink-light);
+        text-align: center;
+        margin-top: 8px;
+        letter-spacing: 0.5px;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+    .control-group { margin: 14px 0; }
+    .control-label {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    .control-label .val { color: var(--blue); font-weight: 700; }
+    input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, var(--line), var(--ink-light));
+        border-radius: 3px;
+        outline: none;
+        margin: 6px 0;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .indicator {
+        background: var(--ink);
+        color: #4af626;
+        font-family: 'Roboto Mono', monospace;
+        padding: 10px 16px;
+        border-radius: 3px;
+        letter-spacing: 1px;
+        text-shadow: 0 0 8px rgba(74,246,38,0.6);
+        margin: 12px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .indicator .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+    .indicator .main {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .indicator .secondary {
+        font-size: 16px;
+        opacity: 0.8;
+        font-weight: 700;
+    }
+    .indicator small { font-size: 11px; color: #8aa; letter-spacing: 1px; font-weight: 400; }
+    .feedback {
+        background: rgba(26,74,106,0.06);
+        border-left: 3px solid var(--blue);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ink-light);
+        margin: 12px 0;
+        min-height: 40px;
+    }
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 30px;
+        border-top: 2px solid var(--ink);
+        background: var(--paper-dark);
+        position: relative;
+        z-index: 2;
+    }
+    button {
+        font-family: 'Oswald', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 10px 24px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        color: var(--ink);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    button:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
+    button.primary { background: var(--red); color: #fff; border-color: var(--red); }
+    button.primary:hover:not(:disabled) { background: var(--red-light); border-color: var(--red-light); }
+    button.ghost { background: transparent; }
+    .channel-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin: 24px 0;
+        flex-wrap: wrap;
+    }
+    .channel-block {
+        background: #fffef8;
+        border: 2px solid var(--ink);
+        padding: 12px 20px;
+        text-align: center;
+        min-width: 140px;
+    }
+    .channel-block .label {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: var(--ink-light);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .channel-block .name {
+        font-family: 'Oswald', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    .channel-arrow { font-size: 24px; color: var(--red); padding: 0 8px; font-family: 'Roboto Mono', monospace; }
+    .channel-block.source { border-color: var(--red); }
+    .channel-block.medium { border-color: var(--blue); }
+    .channel-block.receiver { border-color: var(--green); }
+    .mechanisms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+    @media (max-width: 640px) { .mechanisms { grid-template-columns: 1fr; } }
+    .mech-card { border: 1px solid var(--line); background: #fffef8; padding: 12px; }
+    .mech-card .mech-title { font-family: 'Oswald', sans-serif; font-size: 14px; text-transform: uppercase; margin-bottom: 6px; }
+    .mech-card .mech-env { font-size: 12px; color: var(--ink-light); font-style: italic; }
+    .mech-card.ind { border-top: 4px solid var(--red); }
+    .mech-card.cap { border-top: 4px solid var(--blue); }
+    .mech-card.gal { border-top: 4px solid var(--green); }
+    .protection-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .protection-table th {
+        background: var(--ink); color: var(--paper); padding: 8px 10px; text-align: left;
+        font-family: 'Oswald', sans-serif; font-weight: 500; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;
+    }
+    .protection-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .protection-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+    .question { margin: 20px 0; padding: 16px; background: #fffef8; border: 1px solid var(--line); }
+    .question .q-num { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--red); letter-spacing: 1px; margin-bottom: 4px; }
+    .question .q-text { font-weight: 700; margin-bottom: 10px; font-size: 15px; }
+    .question label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border: 1px solid transparent; border-radius: 2px; font-size: 14px; }
+    .question label:hover { background: rgba(26,42,74,0.05); }
+    .question input[type=radio] { margin-right: 8px; accent-color: var(--red); }
+    .question .explain { display: none; margin-top: 10px; padding: 10px; background: rgba(26,74,106,0.08); border-left: 3px solid var(--blue); font-size: 13px; font-style: italic; }
+    .question .explain.show { display: block; }
+    .question.correct { border-color: var(--green); }
+    .question.incorrect { border-color: var(--red); }
+    .question .result-mark { font-family: 'Roboto Mono', monospace; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .question .result-mark.ok { color: var(--green); }
+    .question .result-mark.bad { color: var(--red); }
+    .checklist { background: #fffef8; border: 1px solid var(--line); padding: 16px; margin: 20px 0; }
+    .checklist h4 { font-family: 'Oswald', sans-serif; font-size: 14px; text-transform: uppercase; margin: 0 0 10px; letter-spacing: 0.5px; }
+    .checklist label { display: block; padding: 4px 0; font-size: 13px; cursor: pointer; }
+    .checklist input[type=checkbox] { margin-right: 8px; accent-color: var(--green); }
+    .final-score { text-align: center; padding: 30px 20px; background: #fffef8; border: 2px solid var(--ink); margin: 20px 0; }
+    .final-score .num { font-family: 'Oswald', sans-serif; font-size: 56px; font-weight: 700; color: var(--red); line-height: 1; }
+    .final-score .of { font-family: 'Roboto Mono', monospace; font-size: 14px; color: var(--ink-light); margin-top: 4px; }
+    .final-score .verdict { font-family: 'Oswald', sans-serif; font-size: 18px; text-transform: uppercase; margin-top: 12px; letter-spacing: 1px; }
+    #inductionCanvas { cursor: grab; touch-action: none; }
+    #inductionCanvas.dragging { cursor: grabbing; }
+    #inductiveViz { cursor: default; touch-action: none; }
+    #capacitiveViz { cursor: default; touch-action: none; }
+    #galvanicViz { cursor: default; touch-action: none; }
+    .hint { font-size: 12px; color: var(--ink-light); font-style: italic; margin-top: 8px; }
+    @media (max-width: 640px) {
+        body { padding: 10px; }
+        .header { padding: 16px 20px 12px; }
+        .header h1 { font-size: 20px; }
+        .content { padding: 20px; }
+        .nav { padding: 12px 20px; }
+        button { padding: 8px 16px; font-size: 12px; }
+        .channel-diagram { gap: 4px; }
+        .channel-block { min-width: 100px; padding: 8px 10px; }
+        .channel-arrow { font-size: 18px; padding: 0 2px; }
+    }
+</style>
+</head>
+<body>
+<div class="app">
+
+    <div class="header">
+        <div class="header-top">
+            <span>ПМ.03.01 · Техническая защита информации</span>
+            <span>3.1.400</span>
+        </div>
+        <h1>Электромагнитный канал утечки информации</h1>
+        <div class="sub">Один канал — три механизма</div>
+    </div>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="content" id="content">
+
+        <div class="scene active" data-scene="1">
+            <div class="scene-num">Цель</div>
+            <h2 class="scene-title">Что вы узнаете</h2>
+            <p class="lead">Пройдите интерактив последовательно: сначала вспомним физику, потом разберём структуру канала, затем — три механизма наводок и защиту от каждого.</p>
+            <div class="notebook">
+                <p><strong>После прохождения вы сможете:</strong></p>
+                <p>1. Объяснить, какие электромагнитные явления лежат в основе передачи информации и перехвата.</p>
+                <p>2. Описать структуру канала: источник → среда → приёмник.</p>
+                <p>3. Различить три механизма наводок по физической природе, а не по названию.</p>
+                <p>4. Объяснить, почему защита от разных механизмов разная.</p>
+            </div>
+            <p class="hint">Ключевая мысль: электромагнитный канал один. Структура одна. Механизмов связи — три, и они разные физически.</p>
+        </div>
+
+        <div class="scene" data-scene="2">
+            <div class="scene-num">Актуализация · 1 из 4</div>
+            <h2 class="scene-title">Электрическое и магнитное поле</h2>
+            <p>Вспомним два фундаментальных понятия. Они понадобятся, чтобы понять, почему наводки бывают разными.</p>
+            <div class="two-col">
+                <div class="viz">
+                    <canvas id="fieldE" width="400" height="180"></canvas>
+                    <div class="viz-caption">Электрическое поле: линии от зарядов</div>
+                </div>
+                <div class="viz">
+                    <canvas id="fieldB" width="400" height="180"></canvas>
+                    <div class="viz-caption">Магнитное поле: линии вокруг тока</div>
+                </div>
+            </div>
+            <div class="notebook">
+                <p><strong>Электрическое поле</strong> — создаётся электрическими зарядами, действует на заряды силой.</p>
+                <p><strong>Магнитное поле</strong> — создаётся движущимися зарядами (током), действует на движущиеся заряды.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="3">
+            <div class="scene-num">Актуализация · 2 из 4</div>
+            <h2 class="scene-title">Магнитное поле вокруг проводника с током</h2>
+            <p>Подвигайте ползунок: чем больше ток, тем сильнее поле.</p>
+            <div class="viz">
+                <canvas id="wireB" width="800" height="220"></canvas>
+                <div class="viz-caption">Концентрические линии магнитного поля вокруг провода</div>
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>Ток, А</span><span class="val" id="currentVal2">5</span></div>
+                <input type="range" id="currentSlider2" min="0" max="10" step="0.5" value="5">
+            </div>
+            <div class="notebook">
+                <p>Вокруг проводника с током возникает магнитное поле. Чем больше ток, тем сильнее поле.</p>
+                <p>Направление — по правилу буравчика: если вкручивать буравчик по току, рукоятка вращается по линиям поля.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="4">
+            <div class="scene-num">Актуализация · 3 из 4</div>
+            <h2 class="scene-title">Возникновение тока при изменении магнитного поля</h2>
+            <p>Зажмите магнит и тяните его к катушке или от неё. Чем ближе магнит — тем больше линий поля пронизывают катушку и тем они ярче. Стрелка гальванометра отклоняется, пока магнит движется. Остановите магнит — линии перестают меняться, стрелка возвращается в нуль.</p>
+            <div class="viz">
+                <canvas id="inductionCanvas" width="800" height="320"></canvas>
+                <div class="viz-caption">Линии магнитного поля: чем ближе магнит, тем гуще и ярче · гальванометр показывает ЭДС</div>
+            </div>
+            <div class="indicator">
+                <div class="row">
+                    <small>ЭДС = −dФ/dt</small>
+                    <span class="main"><span id="emfValue">0.0</span> мВ</span>
+                </div>
+            </div>
+            <div class="feedback" id="inductionFeedback">Зажмите магнит и двигайте его.</div>
+            <div class="notebook">
+                <p><strong>Электромагнитная индукция</strong> — при изменении магнитного потока через контур в нём возникает ЭДС (и ток, если контур замкнут).</p>
+                <p>Закон Фарадея: <span class="formula">ЭДС = −dФ/dt</span>. Важно: ток возникает только при <em>изменении</em> потока, а не при постоянном поле.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="5">
+            <div class="scene-num">Актуализация · 4 из 4</div>
+            <h2 class="scene-title">Конденсатор и индуктивность</h2>
+            <p>Два элемента, которые накапливают энергию поля. Подвигайте ползунки — увидите, как меняется поле внутри и вокруг элемента.</p>
+            <div class="two-col">
+                <div class="viz">
+                    <canvas id="capacitorViz" width="400" height="200"></canvas>
+                    <div class="viz-caption">Конденсатор в разрезе: заряд и поле E между пластинами</div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Заряд на пластинах</span><span class="val" id="capChargeVal">50</span>%</div>
+                        <input type="range" id="capCharge" min="0" max="100" step="5" value="50">
+                    </div>
+                </div>
+                <div class="viz">
+                    <canvas id="inductorViz" width="400" height="200"></canvas>
+                    <div class="viz-caption">Катушка индуктивности: ток и поле B вокруг витков</div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Ток через катушку</span><span class="val" id="indCurrentVal3">50</span>%</div>
+                        <input type="range" id="indCurrent3" min="0" max="100" step="5" value="50">
+                    </div>
+                </div>
+            </div>
+            <div class="notebook">
+                <p><strong>Конденсатор</strong> — две проводящие пластины, разделённые диэлектриком. Накапливает заряд, создаёт электрическое поле между пластинами. Чем больше заряд — тем сильнее поле.</p>
+                <p><strong>Индуктивность</strong> — свойство проводника накапливать энергию магнитного поля при протекании тока. Чем больше ток — тем сильнее поле.</p>
+            </div>
+            <p class="hint">Связь с наводками: два провода рядом образуют паразитный конденсатор (ёмкостная связь). Провод с током рядом с другим создаёт магнитное поле (индуктивная связь).</p>
+        </div>
+
+        <div class="scene" data-scene="6">
+            <div class="scene-num">Новая тема · структура</div>
+            <h2 class="scene-title">Структура канала передачи информации</h2>
+            <p>Любой канал — от полезного сигнала до утечки — устроен одинаково: есть источник, среда и приёмник.</p>
+            <div class="channel-diagram">
+                <div class="channel-block source">
+                    <div class="label">Источник</div>
+                    <div class="name">Создаёт сигнал</div>
+                </div>
+                <div class="channel-arrow">→</div>
+                <div class="channel-block medium">
+                    <div class="label">Среда</div>
+                    <div class="name">Переносит</div>
+                </div>
+                <div class="channel-arrow">→</div>
+                <div class="channel-block receiver">
+                    <div class="label">Приёмник</div>
+                    <div class="name">Принимает</div>
+                </div>
+            </div>
+            <div class="notebook">
+                <p><strong>Канал передачи информации</strong> — путь от источника к приёмнику.</p>
+                <p>Структура: <strong>источник</strong> (создаёт сигнал) → <strong>среда</strong> (переносит) → <strong>приёмник</strong> (принимает).</p>
+                <p>В электромагнитном канале среда — это электрическое или магнитное поле, либо общий проводник.</p>
+            </div>
+            <p><strong>Ключевая мысль:</strong> те же явления злоумышленник использует для перехвата. Канал тот же, но работает против вас.</p>
+        </div>
+
+        <div class="scene" data-scene="7">
+            <div class="scene-num">Новая тема · механизмы</div>
+            <h2 class="scene-title">Наводки: три механизма одного канала</h2>
+            <p>Наводка — это помеха в сигнальной цепи. Механизмов три, и они разные физически, хотя структура канала общая.</p>
+            <div class="mechanisms">
+                <div class="mech-card ind">
+                    <div class="mech-title">Индуктивный</div>
+                    <div class="mech-env">Среда — магнитное поле</div>
+                </div>
+                <div class="mech-card cap">
+                    <div class="mech-title">Ёмкостный</div>
+                    <div class="mech-env">Среда — электрическое поле</div>
+                </div>
+                <div class="mech-card gal">
+                    <div class="mech-title">Гальванический</div>
+                    <div class="mech-env">Среда — общий проводник</div>
+                </div>
+            </div>
+            <div class="notebook">
+                <p><strong>Наводка</strong> — помеха, наведённая в сигнальной цепи за счёт паразитной связи с другой цепью.</p>
+                <p>Виды: <strong>индуктивная</strong> (через магнитное поле), <strong>ёмкостная</strong> (через электрическое поле), <strong>гальваническая</strong> (через общий проводник).</p>
+                <p>Это один канал, три разных физических механизма. Структура общая: источник → среда → приёмник.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="8">
+            <div class="scene-num">Механизм 1 · индуктивный</div>
+            <h2 class="scene-title">Индуктивная наводка</h2>
+            <p>Источник — провод с переменным током. Среда — магнитное поле. Приёмник — петля сигнального провода. Меняйте ток, частоту, расстояние и площадь петли. Провод можно перетаскивать мышью, углы петли — тянуть и менять площадь.</p>
+            <div class="viz">
+                <canvas id="inductiveViz" width="800" height="440"></canvas>
+                <div class="viz-caption">Плотность линий = интенсивность поля · мерцание = частота · длина дуги в петле = амплитуда ЭДС</div>
+            </div>
+            <div class="two-col">
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Ток источника, А</span><span class="val" id="indCurrentVal">5</span></div>
+                        <input type="range" id="indCurrent" min="0" max="10" step="0.5" value="5">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Частота, Гц</span><span class="val" id="indFreqVal">500</span></div>
+                        <input type="range" id="indFreq" min="0" max="1000" step="50" value="500">
+                    </div>
+                </div>
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Расстояние, см</span><span class="val" id="indDistVal">10</span></div>
+                        <input type="range" id="indDist" min="1" max="20" step="1" value="10">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Площадь петли, см²</span><span class="val" id="indAreaVal">50</span></div>
+                        <input type="range" id="indArea" min="0" max="100" step="5" value="50">
+                    </div>
+                </div>
+            </div>
+            <div class="indicator">
+                <div class="row">
+                    <small>Мгновенная ЭДС = −dФ/dt</small>
+                    <span class="main"><span id="indResult">0.0</span> мВ</span>
+                </div>
+                <div class="row">
+                    <small>Амплитуда (средняя)</small>
+                    <span class="secondary"><span id="indPeak">0.0</span> мВ</span>
+                </div>
+            </div>
+            <div class="feedback" id="indFeedback">Двигайте ползунки или перетаскивайте провод и углы петли.</div>
+            <div class="notebook">
+                <p><strong>Индуктивная наводка</strong> — наведение ЭДС в контуре за счёт изменения магнитного потока от соседнего проводника с током.</p>
+                <p>Зависит от тока, частоты, площади петли и расстояния. При постоянном токе (частота = 0) наводки нет — поток не меняется.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="9">
+            <div class="scene-num">Механизм 2 · ёмкостный</div>
+            <h2 class="scene-title">Ёмкостная наводка</h2>
+            <p>Источник — провод с переменным напряжением. Среда — электрическое поле. Приёмник — провод или плата. Меняйте напряжение, частоту, расстояние и площадь. Провод можно перетаскивать мышью, углы приёмника — тянуть и менять площадь.</p>
+            <div class="viz">
+                <canvas id="capacitiveViz" width="800" height="440"></canvas>
+                <div class="viz-caption">Плотность линий = напряжённость поля E · мерцание = частота · длина стрелки = амплитуда наводки</div>
+            </div>
+            <div class="two-col">
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Напряжение источника, В</span><span class="val" id="capVoltVal">500</span></div>
+                        <input type="range" id="capVolt" min="0" max="1000" step="50" value="500">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Частота, Гц</span><span class="val" id="capFreqVal">500</span></div>
+                        <input type="range" id="capFreq" min="0" max="1000" step="50" value="500">
+                    </div>
+                </div>
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Расстояние, см</span><span class="val" id="capDistVal">10</span></div>
+                        <input type="range" id="capDist" min="1" max="20" step="1" value="10">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Площадь приёмника, см²</span><span class="val" id="capAreaVal">50</span></div>
+                        <input type="range" id="capArea" min="0" max="100" step="5" value="50">
+                    </div>
+                </div>
+            </div>
+            <div class="indicator">
+                <div class="row">
+                    <small>Мгновенное наведённое напряжение</small>
+                    <span class="main"><span id="capResult">0.0</span> мВ</span>
+                </div>
+                <div class="row">
+                    <small>Амплитуда (средняя)</small>
+                    <span class="secondary"><span id="capPeak">0.0</span> мВ</span>
+                </div>
+            </div>
+            <div class="feedback" id="capFeedback">Двигайте ползунки или перетаскивайте провод и углы приёмника.</div>
+            <div class="notebook">
+                <p><strong>Ёмкостная наводка</strong> — наведение напряжения в проводнике за счёт электрического поля соседнего проводника с переменным напряжением.</p>
+                <p>Зависит от напряжения, частоты, площади и расстояния. При постоянном напряжении (частота = 0) наводки нет — заряд не меняется.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="10">
+            <div class="scene-num">Механизм 3 · гальванический</div>
+            <h2 class="scene-title">Гальваническая наводка</h2>
+            <p>Источник — силовая нагрузка, которая потребляет ток. Приёмник — сигнальная цепь. Среда — общий проводник (земля или питание), по которому ток от нагрузки течёт к земле. На сопротивлении общего участка падает напряжение, и оно смещает потенциал сигнальной цепи — это и есть помеха. Тяните нагрузку или сигнальную цепь мышью: расстояние между ними определяет сопротивление общего участка.</p>
+            <div class="viz">
+                <canvas id="galvanicViz" width="800" height="440"></canvas>
+                <div class="viz-caption">Толщина общего участка = сопротивление · длина стрелки U = I·R = падение · полоса в приёмнике = помеха</div>
+            </div>
+            <div class="two-col">
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Ток в общей цепи, А</span><span class="val" id="galCurrentVal">5</span></div>
+                        <input type="range" id="galCurrent" min="0" max="10" step="0.5" value="5">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Сопротивление общего участка, Ом</span><span class="val" id="galResVal">0.60</span></div>
+                        <input type="range" id="galRes" min="0" max="1" step="0.05" value="0.6">
+                    </div>
+                </div>
+                <div>
+                    <div class="control-group">
+                        <div class="control-label"><span>Качество заземления, %</span><span class="val" id="galGroundVal">50</span></div>
+                        <input type="range" id="galGround" min="0" max="100" step="5" value="50">
+                    </div>
+                </div>
+            </div>
+            <div class="indicator">
+                <div class="row">
+                    <small>Помеха в сигнальной цепи U = I·R<sub>эфф</sub></small>
+                    <span class="main"><span id="galResult">0.0</span> мВ</span>
+                </div>
+                <div class="row">
+                    <small>Эффективное сопротивление (с учётом заземления)</small>
+                    <span class="secondary"><span id="galReff">0.00</span> Ом</span>
+                </div>
+            </div>
+            <div class="feedback" id="galFeedback">Тяните нагрузку или сигнальную цепь, или двигайте ползунки.</div>
+            <div class="notebook">
+                <p><strong>Гальваническая наводка</strong> — помеха, попадающая в сигнальную цепь через общий проводник (землю, питание) за счёт падения напряжения на его сопротивлении.</p>
+                <p>Зависит от тока, сопротивления общего участка и качества заземления. По закону Ома: <span class="formula">U = I·R</span>. Это <em>постоянная</em> помеха, не зависящая от частоты — ключевое отличие от индуктивной и ёмкостной.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="11">
+            <div class="scene-num">Применение · защита</div>
+            <h2 class="scene-title">Как защищаться от каждого механизма</h2>
+            <p>Механизмы разные — значит, и защита разная. Один и тот же способ не работает одинаково против всех трёх.</p>
+            <table class="protection-table">
+                <thead>
+                    <tr>
+                        <th>Механизм</th>
+                        <th>От чего зависит</th>
+                        <th>Защита</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Индуктивный</strong></td>
+                        <td>Ток, частота, площадь петли, расстояние</td>
+                        <td>Разнос, витая пара, экран из магнитного материала</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ёмкостный</strong></td>
+                        <td>Напряжение, частота, площадь, расстояние</td>
+                        <td>Экран (электростатический), разнос, заземление экрана</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Гальванический</strong></td>
+                        <td>Ток, сопротивление общего участка, заземление</td>
+                        <td>Разрыв общей цепи (оптрон, трансформатор), правильное заземление</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="notebook">
+                <p><strong>От индуктивной</strong> — разнос, витая пара, экран из магнитного материала.</p>
+                <p><strong>От ёмкостной</strong> — экран (электростатический), разнос, заземление экрана.</p>
+                <p><strong>От гальванической</strong> — разрыв общей цепи (оптрон, трансформатор), правильное заземление.</p>
+            </div>
+            <p><strong>Ключевая мысль:</strong> защита разная, потому что механизмы разные. Экран от ёмкостной работает, от гальванической — нет.</p>
+        </div>
+
+        <div class="scene" data-scene="12">
+            <div class="scene-num">Проверка</div>
+            <h2 class="scene-title">Тест: проверьте понимание</h2>
+            <p>Ответьте на вопросы. После каждого ответа — пояснение. В конце — результат и чек-лист конспекта.</p>
+            <div id="quizContainer"></div>
+            <div id="quizResult" style="display:none;"></div>
+            <div class="checklist" id="finalChecklist" style="display:none;">
+                <h4>Проверь, что записал в тетрадь</h4>
+                <label><input type="checkbox"> Определение электрического и магнитного поля</label>
+                <label><input type="checkbox"> Электромагнитная индукция (закон Фарадея)</label>
+                <label><input type="checkbox"> Конденсатор и индуктивность</label>
+                <label><input type="checkbox"> Структура канала: источник → среда → приёмник</label>
+                <label><input type="checkbox"> Определение наводки</label>
+                <label><input type="checkbox"> Три механизма: индуктивный, ёмкостный, гальванический</label>
+                <label><input type="checkbox"> Зависимости каждого механизма</label>
+                <label><input type="checkbox"> Защита от каждого механизма</label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav">
+        <button id="prevBtn" class="ghost" disabled>← Назад</button>
+        <span id="navLabel" style="font-family: 'Roboto Mono', monospace; font-size: 12px; color: var(--ink-light);"></span>
+        <button id="nextBtn" class="primary">Дальше →</button>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const scenes = document.querySelectorAll('.scene');
+    const totalScenes = scenes.length;
+    const progress = document.getElementById('progress');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const navLabel = document.getElementById('navLabel');
+    let current = 0;
+
+    for (let i = 0; i < totalScenes; i++) {
+        const step = document.createElement('div');
+        step.className = 'progress-step';
+        progress.appendChild(step);
+    }
+    const progressSteps = progress.querySelectorAll('.progress-step');
+
+    function showScene(index) {
+        scenes.forEach((s, i) => s.classList.toggle('active', i === index));
+        progressSteps.forEach((s, i) => {
+            s.classList.toggle('done', i < index);
+            s.classList.toggle('current', i === index);
+        });
+        prevBtn.disabled = index === 0;
+        nextBtn.textContent = index === totalScenes - 1 ? 'К началу' : 'Дальше →';
+        navLabel.textContent = (index + 1) + ' / ' + totalScenes;
+
+        if (index === 1) initFields();
+        if (index === 2) drawWireB();
+        if (index === 3) initInductionScene();
+        if (index === 4) { drawCapacitor(); drawInductor(); }
+        if (index === 7) initInductive();
+        if (index === 8) initCapacitive8();
+        if (index === 9) initGal8();
+        if (index === 11) initQuiz();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (current > 0) { current--; showScene(current); }
+    });
+    nextBtn.addEventListener('click', () => {
+        if (current < totalScenes - 1) { current++; showScene(current); }
+        else { current = 0; showScene(0); }
+    });
+
+    function initFields() {
+        const eCanvas = document.getElementById('fieldE');
+        const eCtx = eCanvas.getContext('2d');
+        const bCanvas = document.getElementById('fieldB');
+        const bCtx = bCanvas.getContext('2d');
+        eCtx.clearRect(0, 0, 400, 180);
+        eCtx.fillStyle = '#f2e9d6';
+        eCtx.fillRect(0, 0, 400, 180);
+        eCtx.fillStyle = '#8b1a1a';
+        eCtx.beginPath(); eCtx.arc(100, 90, 14, 0, Math.PI*2); eCtx.fill();
+        eCtx.fillStyle = '#1a4a6a';
+        eCtx.beginPath(); eCtx.arc(300, 90, 14, 0, Math.PI*2); eCtx.fill();
+        eCtx.fillStyle = '#fff';
+        eCtx.font = 'bold 16px serif';
+        eCtx.textAlign = 'center'; eCtx.textBaseline = 'middle';
+        eCtx.fillText('+', 100, 90);
+        eCtx.fillText('−', 300, 90);
+        eCtx.strokeStyle = 'rgba(139,26,26,0.4)';
+        eCtx.lineWidth = 1.5;
+        for (let i = 0; i < 8; i++) {
+            const y = 30 + i * 18;
+            eCtx.beginPath();
+            eCtx.moveTo(114, 90);
+            eCtx.quadraticCurveTo(200, y, 286, 90);
+            eCtx.stroke();
+        }
+        bCtx.clearRect(0, 0, 400, 180);
+        bCtx.fillStyle = '#f2e9d6';
+        bCtx.fillRect(0, 0, 400, 180);
+        bCtx.fillStyle = '#1a2a4a';
+        bCtx.fillRect(190, 20, 20, 140);
+        bCtx.fillStyle = '#fff';
+        bCtx.font = '12px monospace';
+        bCtx.textAlign = 'center';
+        bCtx.fillText('I', 200, 95);
+        bCtx.strokeStyle = 'rgba(26,74,106,0.4)';
+        bCtx.lineWidth = 1.5;
+        for (let r = 30; r <= 90; r += 15) {
+            bCtx.beginPath();
+            bCtx.arc(200, 90, r, 0, Math.PI*2);
+            bCtx.stroke();
+        }
+    }
+
+    function drawWireB() {
+        const canvas = document.getElementById('wireB');
+        const ctx = canvas.getContext('2d');
+        const current = parseFloat(document.getElementById('currentSlider2').value);
+        const w = canvas.width, h = canvas.height;
+        ctx.fillStyle = '#f2e9d6';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#1a2a4a';
+        ctx.fillRect(390, 20, 20, h - 40);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('I', 400, h/2);
+        const maxR = 200;
+        const lineCount = Math.floor(current * 2);
+        ctx.strokeStyle = 'rgba(139,26,26,0.35)';
+        ctx.lineWidth = 1.5;
+        for (let i = 1; i <= lineCount; i++) {
+            const r = (i / lineCount) * maxR;
+            ctx.beginPath();
+            ctx.ellipse(400, h/2, r * 0.6, r * 1.1, 0, 0, Math.PI*2);
+            ctx.stroke();
+        }
+        ctx.fillStyle = '#4a5a7a';
+        ctx.font = '13px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Ток: ' + current + ' А', 400, h - 12);
+    }
+    document.getElementById('currentSlider2').addEventListener('input', function() {
+        document.getElementById('currentVal2').textContent = this.value;
+        drawWireB();
+    });
+
+    // === СЦЕНА 4 ===
+    const induction = {
+        canvas: null, ctx: null,
+        magnet: { x: 100, y: 130, w: 70, h: 60, dragging: false, offsetX: 0 },
+        coil: { x: 520, y: 110, w: 100, h: 100 },
+        flux: 0, lastTime: 0, emf: 0, displayEmf: 0,
+        initialized: false, minX: 20, maxX: 440
+    };
+
+    function initInductionScene() {
+        const c = document.getElementById('inductionCanvas');
+        if (!c) return;
+        if (induction.initialized) { induction.canvas = c; induction.ctx = c.getContext('2d'); return; }
+        induction.canvas = c;
+        induction.ctx = c.getContext('2d');
+        induction.initialized = true;
+        c.addEventListener('mousedown', onIndDown);
+        c.addEventListener('mousemove', onIndMove);
+        c.addEventListener('mouseup', onIndUp);
+        c.addEventListener('mouseleave', onIndUp);
+        c.addEventListener('touchstart', onIndDown, { passive: false });
+        c.addEventListener('touchmove', onIndMove, { passive: false });
+        c.addEventListener('touchend', onIndUp);
+        c.addEventListener('touchcancel', onIndUp);
+        induction.lastTime = performance.now();
+        requestAnimationFrame(drawInduction);
+    }
+    function getCanvasCoords(e, canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+        let cx, cy;
+        if (e.touches && e.touches.length) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+    }
+    function onIndDown(e) {
+        e.preventDefault();
+        const p = getCanvasCoords(e, induction.canvas);
+        const m = induction.magnet;
+        if (p.x >= m.x && p.x <= m.x + m.w && p.y >= m.y && p.y <= m.y + m.h) {
+            m.dragging = true; m.offsetX = p.x - m.x;
+            induction.canvas.classList.add('dragging');
+        }
+    }
+    function onIndMove(e) {
+        if (!induction.magnet.dragging) return;
+        e.preventDefault();
+        const p = getCanvasCoords(e, induction.canvas);
+        let newX = p.x - induction.magnet.offsetX;
+        newX = Math.max(induction.minX, Math.min(induction.maxX, newX));
+        induction.magnet.x = newX;
+    }
+    function onIndUp() {
+        if (induction.magnet.dragging) { induction.magnet.dragging = false; induction.canvas.classList.remove('dragging'); }
+    }
+    function drawInduction() {
+        const sceneEl = document.querySelector('.scene[data-scene="4"]');
+        if (!sceneEl || !sceneEl.classList.contains('active')) { requestAnimationFrame(drawInduction); return; }
+        if (!induction.ctx) { requestAnimationFrame(drawInduction); return; }
+        const now = performance.now();
+        const dt = (now - induction.lastTime) / 1000;
+        induction.lastTime = now;
+        const m = induction.magnet, c = induction.coil;
+        const magnetCenterX = m.x + m.w / 2, coilCenterX = c.x + c.w / 2;
+        const dist = Math.abs(magnetCenterX - coilCenterX);
+        const flux = 1000 / (dist * dist + 5000);
+        if (dt > 0.001 && dt < 0.3) {
+            const dflux = flux - induction.flux;
+            const emfRaw = -(dflux / dt) * 2000;
+            induction.emf = Math.max(-100, Math.min(100, emfRaw));
+        } else { induction.emf = induction.emf * 0.9; }
+        induction.flux = flux;
+        induction.displayEmf += (induction.emf - induction.displayEmf) * 0.25;
+        if (Math.abs(induction.displayEmf) < 0.5) induction.displayEmf = 0;
+        renderInduction();
+        const emfEl = document.getElementById('emfValue');
+        if (emfEl) emfEl.textContent = induction.displayEmf.toFixed(1);
+        const fbEl = document.getElementById('inductionFeedback');
+        if (fbEl) {
+            const speed = Math.abs(induction.displayEmf);
+            if (speed < 1) fbEl.textContent = 'Магнит неподвижен → поток не меняется → ЭДС = 0.';
+            else if (speed < 30) fbEl.textContent = 'Магнит движется медленно → поток меняется медленно → ЭДС небольшая.';
+            else fbEl.textContent = 'Магнит движется быстро → поток меняется быстро → ЭДС большая.';
+        }
+        requestAnimationFrame(drawInduction);
+    }
+    function renderInduction() {
+        const c = induction.canvas, ctx = induction.ctx;
+        if (!c || !ctx) return;
+        const w = c.width, h = c.height;
+        ctx.fillStyle = '#f2e9d6'; ctx.fillRect(0, 0, w, h);
+        const m = induction.magnet, coil = induction.coil;
+        const magnetCenterX = m.x + m.w / 2, coilCenterX = coil.x + coil.w / 2;
+        const dist = Math.abs(magnetCenterX - coilCenterX);
+        const reach = Math.max(0, Math.min(1, 1 - (dist - 60) / 400));
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 3;
+        for (let i = 0; i < 5; i++) {
+            const rx = 15 + i * 2;
+            const x = coil.x + 20 + i * 12;
+            ctx.beginPath(); ctx.ellipse(x, coil.y + coil.h/2, rx, coil.h/2, 0, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '12px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('катушка', coil.x + coil.w/2, coil.y + coil.h + 20);
+        if (reach > 0.4) {
+            const glow = (reach - 0.4) / 0.6;
+            const grad = ctx.createRadialGradient(coilCenterX, coil.y + coil.h/2, 20, coilCenterX, coil.y + coil.h/2, coil.w);
+            grad.addColorStop(0, `rgba(255,140,50,${glow * 0.25})`);
+            grad.addColorStop(1, 'rgba(255,140,50,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(coil.x - 80, coil.y - 60, coil.w + 160, coil.h + 120);
+        }
+        const nX = m.x + m.w, sX = m.x, myCenter = m.y + m.h / 2;
+        const numFlux = Math.max(3, Math.round(3 + reach * 10));
+        const spread = m.h * (0.35 + reach * 0.35);
+        const rightEndX = coil.x + 15;
+        const rightLen = rightEndX - nX;
+        const leftEndX = Math.max(10, sX - rightLen);
+        const alpha = 0.1 + reach * 0.9;
+        const lineWidth = 0.8 + reach * 2.2;
+        const rCol = Math.floor(139 + reach * 80);
+        const gCol = Math.floor(20 + reach * 130);
+        const bCol = Math.floor(20 + reach * 30);
+        const shadowCol = `rgba(255,140,50,${reach * 0.7})`;
+        const shadowBlur = reach * 12;
+        function drawFluxLine(x1, startY, x2, endY, curvature) {
+            ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${alpha})`;
+            ctx.lineWidth = lineWidth;
+            if (reach > 0.3) { ctx.shadowColor = shadowCol; ctx.shadowBlur = shadowBlur; }
+            ctx.beginPath(); ctx.moveTo(x1, startY);
+            const midX = (x1 + x2) / 2, midY = (startY + endY) / 2 + curvature;
+            ctx.quadraticCurveTo(midX, midY, x2, endY);
+            ctx.stroke();
+            ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+        }
+        for (let i = 0; i < numFlux; i++) {
+            const t = numFlux === 1 ? 0.5 : i / (numFlux - 1);
+            const rel = (t - 0.5) * 2;
+            const startY = myCenter + rel * spread;
+            const rightEndY = myCenter + rel * (spread + coil.h * 0.3 * reach);
+            drawFluxLine(nX, startY, rightEndX, rightEndY, rel * 15);
+            const leftEndY = myCenter + rel * spread;
+            drawFluxLine(sX, startY, leftEndX, leftEndY, rel * 15);
+        }
+        ctx.fillStyle = '#1a4a6a'; ctx.fillRect(m.x, m.y, m.w / 2, m.h);
+        ctx.fillStyle = '#8b1a1a'; ctx.fillRect(m.x + m.w / 2, m.y, m.w / 2, m.h);
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 2; ctx.strokeRect(m.x, m.y, m.w, m.h);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 20px "PT Serif", serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('S', m.x + m.w / 4, m.y + m.h / 2);
+        ctx.fillText('N', m.x + 3 * m.w / 4, m.y + m.h / 2);
+        ctx.textBaseline = 'alphabetic';
+        const gx = 700, gy = 200, gr = 50;
+        ctx.beginPath(); ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+        ctx.fillStyle = '#fffef8'; ctx.fill();
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.strokeStyle = '#4a5a7a'; ctx.lineWidth = 1;
+        for (let a = -60; a <= 60; a += 15) {
+            const rad = (a - 90) * Math.PI / 180;
+            const x1 = gx + Math.cos(rad) * (gr - 10), y1 = gy + Math.sin(rad) * (gr - 10);
+            const x2 = gx + Math.cos(rad) * (gr - 2), y2 = gy + Math.sin(rad) * (gr - 2);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '10px monospace';
+        ctx.textAlign = 'center'; ctx.fillText('0', gx, gy - gr + 12);
+        const angle = (induction.displayEmf / 100) * 45;
+        const rad = (angle - 90) * Math.PI / 180;
+        const arrowLen = gr - 8;
+        ctx.strokeStyle = '#8b1a1a'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(gx, gy);
+        ctx.lineTo(gx + Math.cos(rad) * arrowLen, gy + Math.sin(rad) * arrowLen);
+        ctx.stroke();
+        ctx.fillStyle = '#1a2a4a'; ctx.beginPath(); ctx.arc(gx, gy, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '12px "Roboto Mono", monospace';
+        ctx.fillText('гальванометр', gx, gy + gr + 18);
+        ctx.font = '14px "Roboto Mono", monospace'; ctx.fillStyle = '#8b1a1a';
+        ctx.fillText('−', gx - gr - 12, gy - 5);
+        ctx.fillText('+', gx + gr + 12, gy - 5);
+    }
+
+    // === СЦЕНА 5 ===
+    function drawCapacitor() {
+        const c = document.getElementById('capacitorViz');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const charge = parseFloat(document.getElementById('capCharge').value);
+        const w = c.width, h = c.height;
+        ctx.fillStyle = '#f2e9d6'; ctx.fillRect(0, 0, w, h);
+        const plateW = 16, plateH = 120, leftX = 80, rightX = w - 80 - plateW;
+        const topY = (h - plateH) / 2;
+        ctx.fillStyle = '#8b1a1a'; ctx.fillRect(leftX, topY, plateW, plateH);
+        ctx.fillStyle = '#1a4a6a'; ctx.fillRect(rightX, topY, plateW, plateH);
+        const numCharges = Math.floor(charge / 10);
+        if (numCharges > 0) {
+            const signY0 = topY + 30;
+            const signYStep = (plateH - 60) / Math.max(1, numCharges - 1);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 14px serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (let i = 0; i < numCharges; i++) {
+                const y = signY0 + i * signYStep;
+                ctx.fillText('+', leftX + plateW/2, y);
+                ctx.fillText('−', rightX + plateW/2, y);
+            }
+        }
+        if (charge > 0) {
+            const lines = Math.max(1, Math.floor(charge / 12));
+            const alpha = 0.15 + (charge / 100) * 0.75;
+            const lw = 1 + (charge / 100) * 2;
+            ctx.strokeStyle = `rgba(139,26,26,${alpha})`; ctx.lineWidth = lw;
+            for (let i = 0; i < lines; i++) {
+                const y = topY + 20 + i * (plateH - 40) / Math.max(1, lines - 1);
+                ctx.beginPath(); ctx.moveTo(leftX + plateW, y); ctx.lineTo(rightX, y); ctx.stroke();
+            }
+        }
+        ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 13px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('E', w/2, topY - 10);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.fillText('диэлектрик', w/2, h - 12);
+        ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'left'; ctx.fillText('+', leftX - 18, topY + plateH/2);
+        ctx.textAlign = 'right'; ctx.fillText('−', rightX + plateW + 18, topY + plateH/2);
+    }
+    function drawInductor() {
+        const c = document.getElementById('inductorViz');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const current = parseFloat(document.getElementById('indCurrent3').value);
+        const w = c.width, h = c.height;
+        ctx.fillStyle = '#f2e9d6'; ctx.fillRect(0, 0, w, h);
+        const coilCX = w/2, coilCY = h/2 + 10, coilW = 180, coilH = 100, turns = 5;
+        if (current > 0) {
+            const lineCount = Math.max(1, Math.floor(current / 12));
+            const alpha = 0.15 + (current / 100) * 0.75;
+            const lw = 1 + (current / 100) * 2;
+            const maxR = 55;
+            ctx.strokeStyle = `rgba(139,26,26,${alpha})`; ctx.lineWidth = lw;
+            for (let i = 0; i < lineCount; i++) {
+                const r = 12 + i * (maxR - 12) / Math.max(1, lineCount - 1);
+                ctx.beginPath(); ctx.ellipse(coilCX, coilCY, coilW/2 + r, coilH/2 + r*0.7, 0, 0, Math.PI*2); ctx.stroke();
+            }
+        }
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 4;
+        for (let i = 0; i < turns; i++) {
+            const x = coilCX - coilW/2 + (i + 0.5) * (coilW / turns);
+            const rx = (coilW / turns) * 0.55;
+            ctx.beginPath(); ctx.ellipse(x, coilCY, rx, coilH/2, 0, 0, Math.PI*2); ctx.stroke();
+        }
+        ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 13px "Roboto Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('B', 20, 24);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.fillText('витки', coilCX, h - 12);
+    }
+    document.getElementById('capCharge').addEventListener('input', function() {
+        document.getElementById('capChargeVal').textContent = this.value;
+        drawCapacitor();
+    });
+    document.getElementById('indCurrent3').addEventListener('input', function() {
+        document.getElementById('indCurrentVal3').textContent = this.value;
+        drawInductor();
+    });
+
+    // === СЦЕНА 8: индуктивная ===
+    const ind8 = {
+        canvas: null, ctx: null,
+        wire: { x: 370, w: 22, h: 260, cy: 220 },
+        loop: { x1: 560, y1: 150, w: 120, h: 105 },
+        pxPerCm: 18, phase: 0, lastT: 0,
+        dragMode: null, dragOffset: { x: 0 },
+        initialized: false
+    };
+
+    function initInductive() {
+        const c = document.getElementById('inductiveViz');
+        if (!c) return;
+        ind8.canvas = c;
+        ind8.ctx = c.getContext('2d');
+        if (!ind8.initialized) {
+            ind8.initialized = true;
+            c.addEventListener('mousedown', onInd8Down);
+            c.addEventListener('mousemove', onInd8Move);
+            c.addEventListener('mouseup', onInd8Up);
+            c.addEventListener('mouseleave', onInd8Up);
+            c.addEventListener('touchstart', onInd8Down, { passive: false });
+            c.addEventListener('touchmove', onInd8Move, { passive: false });
+            c.addEventListener('touchend', onInd8Up);
+            c.addEventListener('touchcancel', onInd8Up);
+            ['indCurrent', 'indFreq'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateInductive);
+            });
+            document.getElementById('indDist').addEventListener('input', function() {
+                applyInd8DistSlider(); updateInductive();
+            });
+            document.getElementById('indArea').addEventListener('input', function() {
+                applyInd8AreaSlider(); updateInductive();
+            });
+            applyInd8AreaSlider();
+            applyInd8DistSlider();
+            ind8.lastT = performance.now();
+            requestAnimationFrame(drawInd8);
+        }
+    }
+    function getInd8Coords(e) {
+        const c = ind8.canvas, rect = c.getBoundingClientRect();
+        const sx = c.width / rect.width, sy = c.height / rect.height;
+        let cx, cy;
+        if (e.touches && e.touches.length) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        return { x: (cx - rect.left) * sx, y: (cy - rect.top) * sy };
+    }
+    function onInd8Down(e) {
+        e.preventDefault();
+        const p = getInd8Coords(e);
+        const l = ind8.loop;
+        const corners = [
+            { name: 'tl', x: l.x1, y: l.y1 }, { name: 'tr', x: l.x1 + l.w, y: l.y1 },
+            { name: 'bl', x: l.x1, y: l.y1 + l.h }, { name: 'br', x: l.x1 + l.w, y: l.y1 + l.h }
+        ];
+        for (const c of corners) {
+            if (Math.hypot(p.x - c.x, p.y - c.y) < 18) { ind8.dragMode = c.name; return; }
+        }
+        const w = ind8.wire;
+        if (p.x >= w.x - w.w/2 - 8 && p.x <= w.x + w.w/2 + 8 && p.y >= w.cy - w.h/2 && p.y <= w.cy + w.h/2) {
+            ind8.dragMode = 'wire'; ind8.dragOffset.x = p.x - w.x;
+            ind8.canvas.style.cursor = 'grabbing';
+        }
+    }
+    function onInd8Move(e) {
+        const p = getInd8Coords(e);
+        if (!ind8.dragMode) {
+            const l = ind8.loop;
+            const corners = [[l.x1, l.y1], [l.x1 + l.w, l.y1], [l.x1, l.y1 + l.h], [l.x1 + l.w, l.y1 + l.h]];
+            let overCorner = false;
+            for (const [cx, cy] of corners) if (Math.hypot(p.x - cx, p.y - cy) < 18) { overCorner = true; break; }
+            if (overCorner) ind8.canvas.style.cursor = 'nwse-resize';
+            else if (Math.abs(p.x - ind8.wire.x) < 20 && p.y > 60 && p.y < 380) ind8.canvas.style.cursor = 'grab';
+            else ind8.canvas.style.cursor = 'default';
+            return;
+        }
+        e.preventDefault();
+        if (ind8.dragMode === 'wire') {
+            let newX = p.x - ind8.dragOffset.x;
+            const loopLeft = ind8.loop.x1;
+            const minDistPx = 1 * ind8.pxPerCm, maxDistPx = 20 * ind8.pxPerCm;
+            const wireRightEdge = newX + ind8.wire.w / 2;
+            let distPx = loopLeft - wireRightEdge;
+            if (distPx < minDistPx) newX = loopLeft - minDistPx - ind8.wire.w / 2;
+            if (distPx > maxDistPx) newX = loopLeft - maxDistPx - ind8.wire.w / 2;
+            if (newX < 30) newX = 30;
+            ind8.wire.x = newX;
+            const d = Math.max(1, Math.min(20, Math.round((loopLeft - (newX + ind8.wire.w / 2)) / ind8.pxPerCm)));
+            document.getElementById('indDist').value = d;
+            document.getElementById('indDistVal').textContent = d;
+            return;
+        }
+        const l = ind8.loop;
+        let x1 = l.x1, y1 = l.y1, x2 = l.x1 + l.w, y2 = l.y1 + l.h;
+        if (ind8.dragMode === 'tl') { x1 = p.x; y1 = p.y; }
+        if (ind8.dragMode === 'tr') { x2 = p.x; y1 = p.y; }
+        if (ind8.dragMode === 'bl') { x1 = p.x; y2 = p.y; }
+        if (ind8.dragMode === 'br') { x2 = p.x; y2 = p.y; }
+        const minW = 50, minH = 50, maxW = 220, maxH = 260;
+        if (x2 - x1 < minW) { if (ind8.dragMode === 'tl' || ind8.dragMode === 'bl') x1 = x2 - minW; else x2 = x1 + minW; }
+        if (x2 - x1 > maxW) { if (ind8.dragMode === 'tl' || ind8.dragMode === 'bl') x1 = x2 - maxW; else x2 = x1 + maxW; }
+        if (y2 - y1 < minH) { if (ind8.dragMode === 'tl' || ind8.dragMode === 'tr') y1 = y2 - minH; else y2 = y1 + minH; }
+        if (y2 - y1 > maxH) { if (ind8.dragMode === 'tl' || ind8.dragMode === 'tr') y1 = y2 - maxH; else y2 = y1 + maxH; }
+        if (x1 < 20) x1 = 20; if (y1 < 20) y1 = 20;
+        if (x2 > 780) x2 = 780; if (y2 > 420) y2 = 420;
+        const wireRightEdge = ind8.wire.x + ind8.wire.w / 2;
+        if (x1 < wireRightEdge + 1 * ind8.pxPerCm) {
+            const shift = (wireRightEdge + 1 * ind8.pxPerCm) - x1;
+            x1 += shift; x2 += shift;
+            if (ind8.dragMode === 'tl' || ind8.dragMode === 'bl') x1 = wireRightEdge + 1 * ind8.pxPerCm;
+        }
+        l.x1 = x1; l.y1 = y1; l.w = x2 - x1; l.h = y2 - y1;
+        const areaCm2 = Math.round((l.w * l.h) / 250);
+        document.getElementById('indArea').value = Math.max(0, Math.min(100, areaCm2));
+        document.getElementById('indAreaVal').textContent = Math.max(0, Math.min(100, areaCm2));
+        const distPx = l.x1 - wireRightEdge;
+        const distCm = Math.round(distPx / ind8.pxPerCm);
+        document.getElementById('indDist').value = Math.max(1, Math.min(20, distCm));
+        document.getElementById('indDistVal').textContent = Math.max(1, Math.min(20, distCm));
+    }
+    function onInd8Up() {
+        if (ind8.dragMode) { ind8.dragMode = null; ind8.canvas.style.cursor = 'default'; }
+    }
+    function applyInd8DistSlider() {
+        const d = parseFloat(document.getElementById('indDist').value);
+        ind8.wire.x = ind8.loop.x1 - d * ind8.pxPerCm - ind8.wire.w / 2;
+        if (ind8.wire.x < 30) ind8.wire.x = 30;
+    }
+    function applyInd8AreaSlider() {
+        const S = parseFloat(document.getElementById('indArea').value);
+        const targetArea = Math.max(2500, S * 250);
+        const aspect = ind8.loop.w / ind8.loop.h || 1;
+        let newH = Math.sqrt(targetArea / aspect);
+        let newW = newH * aspect;
+        if (newW < 50) { newW = 50; newH = targetArea / 50; }
+        if (newH < 50) { newH = 50; newW = targetArea / 50; }
+        if (newW > 220) { newW = 220; newH = targetArea / 220; }
+        if (newH > 260) { newH = 260; newW = targetArea / 260; }
+        ind8.loop.w = newW; ind8.loop.h = newH;
+    }
+    function updateInductive() {
+        document.getElementById('indCurrentVal').textContent = document.getElementById('indCurrent').value;
+        document.getElementById('indFreqVal').textContent = document.getElementById('indFreq').value;
+        document.getElementById('indDistVal').textContent = document.getElementById('indDist').value;
+        document.getElementById('indAreaVal').textContent = document.getElementById('indArea').value;
+    }
+    function drawInd8() {
+        const sceneEl = document.querySelector('.scene[data-scene="8"]');
+        if (!sceneEl || !sceneEl.classList.contains('active')) { requestAnimationFrame(drawInd8); return; }
+        if (!ind8.ctx) { requestAnimationFrame(drawInd8); return; }
+        const now = performance.now();
+        let dt = (now - ind8.lastT) / 1000;
+        ind8.lastT = now;
+        if (dt > 0.15) dt = 0.15;
+        if (dt < 0) dt = 0;
+        const I = parseFloat(document.getElementById('indCurrent').value);
+        const f = parseFloat(document.getElementById('indFreq').value);
+        const apparentF = f / 200;
+        if (f > 1) ind8.phase += 2 * Math.PI * apparentF * dt;
+        const B = I * Math.cos(ind8.phase);
+        const Babs = Math.min(1, Math.abs(B) / 10);
+        const ctx = ind8.ctx, cw = ind8.canvas.width, ch = ind8.canvas.height;
+        ctx.fillStyle = '#f2e9d6'; ctx.fillRect(0, 0, cw, ch);
+        const l = ind8.loop;
+        const lx1 = l.x1, ly1 = l.y1, lx2 = l.x1 + l.w, ly2 = l.y1 + l.h;
+        const wireRight = ind8.wire.x + ind8.wire.w / 2;
+        const distPx = Math.max(1, lx1 - wireRight);
+        const distCm = distPx / ind8.pxPerCm;
+        const areaCm2 = (l.w * l.h) / 250;
+        drawInd8Field(ctx, I, Babs, ind8.wire.x, ind8.wire.cy);
+        drawInd8Wire(ctx, ind8.wire, B);
+        drawInd8Loop(ctx, lx1, ly1, lx2, ly2);
+        drawInd8Distance(ctx, wireRight, lx1, (ly1 + ly2) / 2, distCm);
+        let emfInst = 0, emfPeak = 0;
+        if (f > 1 && I > 0 && areaCm2 > 0) {
+            const base = 0.02 * I * areaCm2 * apparentF / Math.max(1, distCm);
+            emfPeak = Math.min(base, 99.9);
+            emfInst = emfPeak * Math.sin(ind8.phase);
+        }
+        drawInd8EmfArrow(ctx, lx1, ly1, lx2, ly2, emfInst, emfPeak);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('S = ' + areaCm2.toFixed(0) + ' см²', lx1 + 4, ly1 - 24);
+        const emfEl = document.getElementById('indResult');
+        if (emfEl) emfEl.textContent = emfInst.toFixed(1);
+        const peakEl = document.getElementById('indPeak');
+        if (peakEl) peakEl.textContent = emfPeak.toFixed(1);
+        const fbEl = document.getElementById('indFeedback');
+        if (fbEl) {
+            let msg = '';
+            if (I === 0) msg = 'Ток = 0 → магнитного поля нет → ЭДС = 0.';
+            else if (f <= 1) msg = 'Частота = 0 (постоянный ток) → поле не меняется → ЭДС = 0.';
+            else if (areaCm2 < 15) msg = 'Площадь петли маленькая → поток захватывается слабо.';
+            else {
+                const parts = [];
+                if (I >= 7) parts.push('ток большой → поле сильное');
+                if (f >= 700) parts.push('частота высокая → поле меняется быстро');
+                if (areaCm2 >= 70) parts.push('площадь большая → поток велик');
+                if (distCm <= 5) parts.push('расстояние маленькое → поле не ослабло');
+                if (parts.length === 0) parts.push('значения в среднем диапазоне');
+                msg = 'Амплитуда ЭДС: ' + parts.join(', ') + '.';
+            }
+            fbEl.textContent = msg;
+        }
+        requestAnimationFrame(drawInd8);
+    }
+    function drawInd8Field(ctx, I, Babs, cx, cy) {
+        if (I <= 0) return;
+        const numLines = Math.max(1, Math.round(I * 1.4));
+        const alpha = 0.08 + Babs * 0.85;
+        const lw = 0.8 + Babs * 2.5;
+        for (let i = 1; i <= numLines; i++) {
+            const r = 30 + (i / numLines) * 260;
+            if (Babs > 0.4) { ctx.shadowColor = `rgba(255,140,50,${Babs * 0.55})`; ctx.shadowBlur = 6 + Babs * 10; }
+            ctx.strokeStyle = `rgba(139,26,26,${alpha})`; ctx.lineWidth = lw;
+            ctx.beginPath(); ctx.ellipse(cx, cy, r * 0.7, r, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+        }
+    }
+    function drawInd8Wire(ctx, wire, B) {
+        const x = wire.x, w = wire.w, y = wire.cy - wire.h / 2, h = wire.h;
+        ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(x - w/2 + 3, y + 3, w, h);
+        ctx.fillStyle = '#8b1a1a'; ctx.fillRect(x - w/2, y, w, h);
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 2; ctx.strokeRect(x - w/2, y, w, h);
+        const dir = B >= 0 ? -1 : 1;
+        const numArrows = 5, arrowY0 = y + 40, arrowStep = (h - 80) / (numArrows - 1);
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        for (let i = 0; i < numArrows; i++) {
+            const ay = arrowY0 + i * arrowStep, tip = ay + 8 * dir;
+            ctx.beginPath(); ctx.moveTo(x, tip); ctx.lineTo(x - 6, ay); ctx.lineTo(x + 6, ay); ctx.closePath(); ctx.fill();
+        }
+        ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 14px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('I', x, y - 12);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.fillText('источник', x, y + h + 20);
+    }
+    function drawInd8Loop(ctx, x1, y1, x2, y2) {
+        ctx.fillStyle = 'rgba(42,90,42,0.04)'; ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+        ctx.strokeStyle = '#2a5a2a'; ctx.lineWidth = 4; ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        const corners = [[x1,y1],[x2,y1],[x1,y2],[x2,y2]];
+        corners.forEach(([cx,cy]) => {
+            ctx.fillStyle = '#2a5a2a'; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fffef8'; ctx.lineWidth = 2; ctx.stroke();
+        });
+        ctx.fillStyle = '#2a5a2a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('петля', (x1+x2)/2, y2 + 20);
+    }
+    function drawInd8Distance(ctx, x1, x2, y, distCm) {
+        ctx.strokeStyle = 'rgba(74,90,122,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(x1 + 4, y); ctx.lineTo(x2 - 4, y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(74,90,122,0.85)';
+        ctx.beginPath(); ctx.moveTo(x1 + 4, y); ctx.lineTo(x1 + 14, y - 5); ctx.lineTo(x1 + 14, y + 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x2 - 4, y); ctx.lineTo(x2 - 14, y - 5); ctx.lineTo(x2 - 14, y + 5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#1a2a4a'; ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('d = ' + distCm.toFixed(1) + ' см', (x1 + x2) / 2, y - 6);
+    }
+    function drawInd8EmfArrow(ctx, x1, y1, x2, y2, emf, peak) {
+        const maxEmf = 30;
+        const instRatio = Math.min(1, Math.abs(emf) / maxEmf);
+        const peakRatio = Math.min(1, Math.abs(peak) / maxEmf);
+        if (peakRatio < 0.02 && instRatio < 0.02) return;
+        const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+        const baseR = Math.min(x2 - x1, y2 - y1) * 0.28;
+        if (baseR < 8) return;
+        const spanFactor = 0.25 + 0.75 * peakRatio;
+        const lw = 1.5 + instRatio * 3.5;
+        const alpha = 0.25 + instRatio * 0.7;
+        const A = -Math.PI * 0.85 * spanFactor;
+        const B = Math.PI * 0.55 * spanFactor;
+        const r = baseR;
+        const clockwise = emf >= 0;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = `rgba(139,26,26,${alpha})`;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        let hx, hy, tang;
+        if (clockwise) {
+            ctx.beginPath(); ctx.arc(0, 0, r, A, B, false); ctx.stroke();
+            hx = Math.cos(B) * r; hy = Math.sin(B) * r; tang = B + Math.PI / 2;
+        } else {
+            ctx.beginPath(); ctx.arc(0, 0, r, B, A, true); ctx.stroke();
+            hx = Math.cos(A) * r; hy = Math.sin(A) * r; tang = A - Math.PI / 2;
+        }
+        const size = 5 + instRatio * 7;
+        const tipX = hx + Math.cos(tang) * size, tipY = hy + Math.sin(tang) * size;
+        const perpX = Math.cos(tang + Math.PI / 2), perpY = Math.sin(tang + Math.PI / 2);
+        const baseX1 = hx + perpX * size * 0.6, baseY1 = hy + perpY * size * 0.6;
+        const baseX2 = hx - perpX * size * 0.6, baseY2 = hy - perpY * size * 0.6;
+        ctx.beginPath(); ctx.moveTo(tipX, tipY); ctx.lineTo(baseX1, baseY1); ctx.lineTo(baseX2, baseY2); ctx.closePath();
+        ctx.fillStyle = `rgba(139,26,26,${alpha})`; ctx.fill();
+        ctx.restore(); ctx.lineCap = 'butt';
+        ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const sign = emf >= 0 ? '+' : '−';
+        ctx.fillText(sign + ' ' + Math.abs(peak).toFixed(1) + ' мВ', cx, cy + r + 18);
+    }
+
+    // === СЦЕНА 9: ёмкостная ===
+    const cap8 = {
+        canvas: null, ctx: null,
+        src: { x: 280, w: 26, h: 280, cy: 220 },
+        recv: { x1: 560, y1: 140, w: 40, h: 160 },
+        pxPerCm: 18, phase: 0, lastT: 0,
+        dragMode: null, dragOffset: { x: 0 },
+        initialized: false
+    };
+    function initCapacitive8() {
+        const c = document.getElementById('capacitiveViz');
+        if (!c) return;
+        cap8.canvas = c;
+        cap8.ctx = c.getContext('2d');
+        if (!cap8.initialized) {
+            cap8.initialized = true;
+            c.addEventListener('mousedown', onCap8Down);
+            c.addEventListener('mousemove', onCap8Move);
+            c.addEventListener('mouseup', onCap8Up);
+            c.addEventListener('mouseleave', onCap8Up);
+            c.addEventListener('touchstart', onCap8Down, { passive: false });
+            c.addEventListener('touchmove', onCap8Move, { passive: false });
+            c.addEventListener('touchend', onCap8Up);
+            c.addEventListener('touchcancel', onCap8Up);
+            ['capVolt', 'capFreq'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateCapacitive8);
+            });
+            document.getElementById('capDist').addEventListener('input', function() {
+                applyCap8DistSlider(); updateCapacitive8();
+            });
+            document.getElementById('capArea').addEventListener('input', function() {
+                applyCap8AreaSlider(); updateCapacitive8();
+            });
+            applyCap8AreaSlider();
+            applyCap8DistSlider();
+            cap8.lastT = performance.now();
+            requestAnimationFrame(drawCap8);
+        }
+    }
+    function getCap8Coords(e) {
+        const c = cap8.canvas, rect = c.getBoundingClientRect();
+        const sx = c.width / rect.width, sy = c.height / rect.height;
+        let cx, cy;
+        if (e.touches && e.touches.length) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        return { x: (cx - rect.left) * sx, y: (cy - rect.top) * sy };
+    }
+    function onCap8Down(e) {
+        e.preventDefault();
+        const p = getCap8Coords(e);
+        const r = cap8.recv;
+        const corners = [
+            { name: 'tl', x: r.x1, y: r.y1 }, { name: 'tr', x: r.x1 + r.w, y: r.y1 },
+            { name: 'bl', x: r.x1, y: r.y1 + r.h }, { name: 'br', x: r.x1 + r.w, y: r.y1 + r.h }
+        ];
+        for (const c of corners) {
+            if (Math.hypot(p.x - c.x, p.y - c.y) < 18) { cap8.dragMode = c.name; return; }
+        }
+        const s = cap8.src;
+        if (p.x >= s.x - s.w/2 - 8 && p.x <= s.x + s.w/2 + 8 && p.y >= s.cy - s.h/2 && p.y <= s.cy + s.h/2) {
+            cap8.dragMode = 'src'; cap8.dragOffset.x = p.x - s.x;
+            cap8.canvas.style.cursor = 'grabbing';
+        }
+    }
+    function onCap8Move(e) {
+        const p = getCap8Coords(e);
+        if (!cap8.dragMode) {
+            const r = cap8.recv;
+            const corners = [[r.x1, r.y1], [r.x1 + r.w, r.y1], [r.x1, r.y1 + r.h], [r.x1 + r.w, r.y1 + r.h]];
+            let overCorner = false;
+            for (const [cx, cy] of corners) if (Math.hypot(p.x - cx, p.y - cy) < 18) { overCorner = true; break; }
+            if (overCorner) cap8.canvas.style.cursor = 'nwse-resize';
+            else if (Math.abs(p.x - cap8.src.x) < 20 && p.y > 60 && p.y < 380) cap8.canvas.style.cursor = 'grab';
+            else cap8.canvas.style.cursor = 'default';
+            return;
+        }
+        e.preventDefault();
+        if (cap8.dragMode === 'src') {
+            let newX = p.x - cap8.dragOffset.x;
+            const recvLeft = cap8.recv.x1;
+            const minDistPx = 1 * cap8.pxPerCm, maxDistPx = 20 * cap8.pxPerCm;
+            const srcRightEdge = newX + cap8.src.w / 2;
+            let distPx = recvLeft - srcRightEdge;
+            if (distPx < minDistPx) newX = recvLeft - minDistPx - cap8.src.w / 2;
+            if (distPx > maxDistPx) newX = recvLeft - maxDistPx - cap8.src.w / 2;
+            if (newX < 30) newX = 30;
+            cap8.src.x = newX;
+            const d = Math.max(1, Math.min(20, Math.round((recvLeft - (newX + cap8.src.w / 2)) / cap8.pxPerCm)));
+            document.getElementById('capDist').value = d;
+            document.getElementById('capDistVal').textContent = d;
+            return;
+        }
+        const r = cap8.recv;
+        let x1 = r.x1, y1 = r.y1, x2 = r.x1 + r.w, y2 = r.y1 + r.h;
+        if (cap8.dragMode === 'tl') { x1 = p.x; y1 = p.y; }
+        if (cap8.dragMode === 'tr') { x2 = p.x; y1 = p.y; }
+        if (cap8.dragMode === 'bl') { x1 = p.x; y2 = p.y; }
+        if (cap8.dragMode === 'br') { x2 = p.x; y2 = p.y; }
+        const minW = 24, minH = 60, maxW = 80, maxH = 300;
+        if (x2 - x1 < minW) { if (cap8.dragMode === 'tl' || cap8.dragMode === 'bl') x1 = x2 - minW; else x2 = x1 + minW; }
+        if (x2 - x1 > maxW) { if (cap8.dragMode === 'tl' || cap8.dragMode === 'bl') x1 = x2 - maxW; else x2 = x1 + maxW; }
+        if (y2 - y1 < minH) { if (cap8.dragMode === 'tl' || cap8.dragMode === 'tr') y1 = y2 - minH; else y2 = y1 + minH; }
+        if (y2 - y1 > maxH) { if (cap8.dragMode === 'tl' || cap8.dragMode === 'tr') y1 = y2 - maxH; else y2 = y1 + maxH; }
+        if (x1 < 20) x1 = 20; if (y1 < 40) y1 = 40;
+        if (x2 > 780) x2 = 780; if (y2 > 400) y2 = 400;
+        const srcRightEdge = cap8.src.x + cap8.src.w / 2;
+        if (x1 < srcRightEdge + 1 * cap8.pxPerCm) {
+            x1 = srcRightEdge + 1 * cap8.pxPerCm;
+            if (x2 - x1 < minW) x2 = x1 + minW;
+        }
+        r.x1 = x1; r.y1 = y1; r.w = x2 - x1; r.h = y2 - y1;
+        const areaCm2 = Math.round((r.w * r.h) / 200);
+        document.getElementById('capArea').value = Math.max(0, Math.min(100, areaCm2));
+        document.getElementById('capAreaVal').textContent = Math.max(0, Math.min(100, areaCm2));
+        const distPx = r.x1 - srcRightEdge;
+        const distCm = Math.round(distPx / cap8.pxPerCm);
+        document.getElementById('capDist').value = Math.max(1, Math.min(20, distCm));
+        document.getElementById('capDistVal').textContent = Math.max(1, Math.min(20, distCm));
+    }
+    function onCap8Up() {
+        if (cap8.dragMode) { cap8.dragMode = null; cap8.canvas.style.cursor = 'default'; }
+    }
+    function applyCap8DistSlider() {
+        const d = parseFloat(document.getElementById('capDist').value);
+        cap8.src.x = cap8.recv.x1 - d * cap8.pxPerCm - cap8.src.w / 2;
+        if (cap8.src.x < 30) cap8.src.x = 30;
+    }
+    function applyCap8AreaSlider() {
+        const S = parseFloat(document.getElementById('capArea').value);
+        const targetArea = Math.max(1800, S * 200);
+        const aspect = cap8.recv.w / cap8.recv.h || 0.3;
+        let newH = Math.sqrt(targetArea / aspect);
+        let newW = newH * aspect;
+        if (newW < 24) { newW = 24; newH = targetArea / 24; }
+        if (newH < 60) { newH = 60; newW = targetArea / 60; }
+        if (newW > 80) { newW = 80; newH = targetArea / 80; }
+        if (newH > 300) { newH = 300; newW = targetArea / 300; }
+        cap8.recv.w = newW; cap8.recv.h = newH;
+    }
+    function updateCapacitive8() {
+        document.getElementById('capVoltVal').textContent = document.getElementById('capVolt').value;
+        document.getElementById('capFreqVal').textContent = document.getElementById('capFreq').value;
+        document.getElementById('capDistVal').textContent = document.getElementById('capDist').value;
+        document.getElementById('capAreaVal').textContent = document.getElementById('capArea').value;
+    }
+    function drawCap8() {
+        const sceneEl = document.querySelector('.scene[data-scene="9"]');
+        if (!sceneEl || !sceneEl.classList.contains('active')) { requestAnimationFrame(drawCap8); return; }
+        if (!cap8.ctx) { requestAnimationFrame(drawCap8); return; }
+        const now = performance.now();
+        let dt = (now - cap8.lastT) / 1000;
+        cap8.lastT = now;
+        if (dt > 0.15) dt = 0.15;
+        if (dt < 0) dt = 0;
+        const U = parseFloat(document.getElementById('capVolt').value);
+        const f = parseFloat(document.getElementById('capFreq').value);
+        const apparentF = f / 200;
+        if (f > 1) cap8.phase += 2 * Math.PI * apparentF * dt;
+        const Uinst = U * Math.cos(cap8.phase);
+        const Uabs = Math.min(1, Math.abs(Uinst) / 1000);
+        const ctx = cap8.ctx, cw = cap8.canvas.width, ch = cap8.canvas.height;
+        ctx.fillStyle = '#f2e9d6'; ctx.fillRect(0, 0, cw, ch);
+        const s = cap8.src, r = cap8.recv;
+        const srcRight = s.x + s.w / 2, recvLeft = r.x1;
+        const distPx = Math.max(1, recvLeft - srcRight);
+        const distCm = distPx / cap8.pxPerCm;
+        const areaCm2 = (r.w * r.h) / 200;
+        const overlapTop = Math.max(s.cy - s.h/2, r.y1);
+        const overlapBot = Math.min(s.cy + s.h/2, r.y1 + r.h);
+        const polarity = Uinst >= 0 ? 1 : -1;
+        drawCap8Field(ctx, srcRight, recvLeft, overlapTop, overlapBot, U, Uabs, polarity);
+        drawCap8Source(ctx, s, Uinst);
+        drawCap8Receiver(ctx, r, Uinst, Uabs, areaCm2);
+        drawCap8Distance(ctx, srcRight, recvLeft, (overlapTop + overlapBot) / 2, distCm);
+        let vInst = 0, vPeak = 0;
+        if (f > 1 && U > 0 && areaCm2 > 0) {
+            const base = 0.02 * U * areaCm2 * apparentF / Math.max(1, distCm * distCm);
+            vPeak = Math.min(base, 99.9);
+            vInst = vPeak * Math.sin(cap8.phase);
+        }
+        drawCap8CurrentArrow(ctx, srcRight, recvLeft, overlapTop, overlapBot, vInst, vPeak, f);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('S = ' + areaCm2.toFixed(0) + ' см²', r.x1 - 4, r.y1 - 24);
+        const resEl = document.getElementById('capResult');
+        if (resEl) resEl.textContent = vInst.toFixed(1);
+        const peakEl = document.getElementById('capPeak');
+        if (peakEl) peakEl.textContent = vPeak.toFixed(1);
+        const fbEl = document.getElementById('capFeedback');
+        if (fbEl) {
+            let msg = '';
+            if (U === 0) msg = 'Напряжение = 0 → электрического поля нет → наведённый заряд = 0.';
+            else if (f <= 1) msg = 'Частота = 0 (постоянное напряжение) → поле не меняется → наводки нет.';
+            else if (areaCm2 < 15) msg = 'Площадь перекрытия мала → ёмкость связи слабая.';
+            else {
+                const parts = [];
+                if (U >= 700) parts.push('напряжение большое → поле сильное');
+                if (f >= 700) parts.push('частота высокая → поле меняется быстро');
+                if (areaCm2 >= 70) parts.push('площадь большая → ёмкость больше');
+                if (distCm <= 5) parts.push('расстояние маленькое → поле не ослабло');
+                if (parts.length === 0) parts.push('значения в среднем диапазоне');
+                msg = 'Амплитуда наводки: ' + parts.join(', ') + '.';
+            }
+            fbEl.textContent = msg;
+        }
+        requestAnimationFrame(drawCap8);
+    }
+    function drawCap8Field(ctx, x1, x2, top, bot, U, Uabs, polarity) {
+        if (U <= 0 || bot <= top) return;
+        const height = bot - top;
+        const numLines = Math.max(1, Math.round(U / 100));
+        const alpha = 0.08 + Uabs * 0.85;
+        const lw = 0.8 + Uabs * 2.3;
+        const rCol = polarity > 0 ? 26 : 139;
+        const gCol = polarity > 0 ? 74 : 26;
+        const bCol = polarity > 0 ? 106 : 26;
+        for (let i = 0; i < numLines; i++) {
+            const t = numLines === 1 ? 0.5 : i / (numLines - 1);
+            const y = top + t * height;
+            if (Uabs > 0.4) { ctx.shadowColor = `rgba(255,140,50,${Uabs * 0.5})`; ctx.shadowBlur = 6 + Uabs * 8; }
+            ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${alpha})`; ctx.lineWidth = lw;
+            ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+            ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+        }
+    }
+    function drawCap8Source(ctx, s, Uinst) {
+        const x = s.x - s.w / 2, y = s.cy - s.h / 2;
+        ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(x + 3, y + 3, s.w, s.h);
+        ctx.fillStyle = '#1a4a6a'; ctx.fillRect(x, y, s.w, s.h);
+        ctx.strokeStyle = '#1a2a4a'; ctx.lineWidth = 2; ctx.strokeRect(x, y, s.w, s.h);
+        const polarity = Uinst >= 0 ? '+' : '−';
+        ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = 'bold 16px "PT Serif", serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const num = 7;
+        for (let i = 0; i < num; i++) {
+            const py = y + 30 + i * (s.h - 60) / (num - 1);
+            ctx.fillText(polarity, s.x, py);
+        }
+        ctx.fillStyle = '#1a4a6a'; ctx.font = 'bold 14px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillText('U', s.x, y - 12);
+        ctx.fillStyle = '#4a5a7a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.fillText('источник', s.x, y + s.h + 20);
+    }
+    function drawCap8Receiver(ctx, r, Uinst, Uabs, areaCm2) {
+        ctx.fillStyle = 'rgba(42,90,42,0.06)'; ctx.fillRect(r.x1, r.y1, r.w, r.h);
+        ctx.strokeStyle = '#2a5a2a'; ctx.lineWidth = 4; ctx.strokeRect(r.x1, r.y1, r.w, r.h);
+        const corners = [[r.x1, r.y1], [r.x1 + r.w, r.y1], [r.x1, r.y1 + r.h], [r.x1 + r.w, r.y1 + r.h]];
+        corners.forEach(([cx, cy]) => {
+            ctx.fillStyle = '#2a5a2a'; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#fffef8'; ctx.lineWidth = 2; ctx.stroke();
+        });
+        const polarity = Uinst >= 0 ? '−' : '+';
+        const numCharges = Math.floor(areaCm2 / 15);
+        if (numCharges > 0) {
+            const maxN = Math.min(numCharges, 10);
+            const step = (r.h - 40) / Math.max(1, maxN - 1);
+            ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 14px "PT Serif", serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (let i = 0; i < maxN; i++) ctx.fillText(polarity, r.x1 + r.w / 2, r.y1 + 20 + i * step);
+        }
+        ctx.fillStyle = '#2a5a2a'; ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('приёмник', r.x1 + r.w / 2, r.y1 + r.h + 20);
+    }
+    function drawCap8Distance(ctx, x1, x2, y, distCm) {
+        if (y <= 0 || y >= 440) y = 220;
+        ctx.strokeStyle = 'rgba(74,90,122,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(x1 + 4, y); ctx.lineTo(x2 - 4, y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(74,90,122,0.85)';
+        ctx.beginPath(); ctx.moveTo(x1 + 4, y); ctx.lineTo(x1 + 14, y - 5); ctx.lineTo(x1 + 14, y + 5); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x2 - 4, y); ctx.lineTo(x2 - 14, y - 5); ctx.lineTo(x2 - 14, y + 5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#1a2a4a'; ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('d = ' + distCm.toFixed(1) + ' см', (x1 + x2) / 2, y - 6);
+    }
+    function drawCap8CurrentArrow(ctx, x1, x2, top, bot, inst, peak, f) {
+        if (f <= 1) return;
+        const midX = (x1 + x2) / 2, midY = (top + bot) / 2;
+        if (!isFinite(midY)) return;
+        const instRatio = Math.min(1, Math.abs(inst) / 30);
+        const peakRatio = Math.min(1, Math.abs(peak) / 30);
+        if (peakRatio < 0.02 && instRatio < 0.02) return;
+        const alpha = 0.25 + instRatio * 0.7;
+        const lw = 1.5 + instRatio * 2.5;
+        const baseLen = Math.min(40, (x2 - x1) * 0.3);
+        if (baseLen < 6) return;
+        const arrowLen = baseLen * (0.25 + 0.75 * peakRatio);
+        const dir = inst >= 0 ? 1 : -1;
+        const tipX = midX + dir * arrowLen;
+        const tailX = midX - dir * arrowLen * 0.4;
+        ctx.strokeStyle = `rgba(139,26,26,${alpha})`; ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(tailX, midY); ctx.lineTo(tipX, midY); ctx.stroke();
+        const size = 5 + instRatio * 5;
+        ctx.beginPath(); ctx.moveTo(tipX, midY);
+        ctx.lineTo(tipX - dir * size, midY - size * 0.6);
+        ctx.lineTo(tipX - dir * size, midY + size * 0.6);
+        ctx.closePath(); ctx.fillStyle = `rgba(139,26,26,${alpha})`; ctx.fill();
+        ctx.lineCap = 'butt';
+        ctx.fillStyle = '#8b1a1a'; ctx.font = 'bold 11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        const sign = inst >= 0 ? '+' : '−';
+        ctx.fillText(sign + ' ' + Math.abs(peak).toFixed(1) + ' мВ', midX, midY + 14);
+    }
+
+    // === СЦЕНА 10: гальваническая ===
+    const gal8 = {
+        canvas: null, ctx: null,
+        load: { x: 220, w: 110, h: 80, cy: 110 },
+        recv: { x: 560, w: 110, h: 80, cy: 110 },
+        wireY: 340,
+        gnd: { x: 740 },
+        pxPerOhm: 500,
+        minLoadX: 90,
+        maxLoadX: 350,
+        minRecvX: 420,
+        maxRecvX: 720,
+        dragMode: null,
+        dragOffset: { x: 0 },
+        lastT: 0,
+        initialized: false
+    };
+
+    function initGal8() {
+        const c = document.getElementById('galvanicViz');
+        if (!c) return;
+        gal8.canvas = c;
+        gal8.ctx = c.getContext('2d');
+
+        if (!gal8.initialized) {
+            gal8.initialized = true;
+
+            c.addEventListener('mousedown', onGal8Down);
+            c.addEventListener('mousemove', onGal8Move);
+            c.addEventListener('mouseup', onGal8Up);
+            c.addEventListener('mouseleave', onGal8Up);
+            c.addEventListener('touchstart', onGal8Down, { passive: false });
+            c.addEventListener('touchmove', onGal8Move, { passive: false });
+            c.addEventListener('touchend', onGal8Up);
+            c.addEventListener('touchcancel', onGal8Up);
+
+            ['galCurrent', 'galGround'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateGal8);
+            });
+            document.getElementById('galRes').addEventListener('input', function() {
+                applyGal8ResSlider();
+                updateGal8();
+            });
+
+            applyGal8ResSlider();
+            gal8.lastT = performance.now();
+            requestAnimationFrame(drawGal8);
+        }
+    }
+
+    function getGal8Coords(e) {
+        const c = gal8.canvas, rect = c.getBoundingClientRect();
+        const sx = c.width / rect.width, sy = c.height / rect.height;
+        let cx, cy;
+        if (e.touches && e.touches.length) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        else { cx = e.clientX; cy = e.clientY; }
+        return { x: (cx - rect.left) * sx, y: (cy - rect.top) * sy };
+    }
+
+    function gal8HitBox(p, box) {
+        return p.x >= box.x - box.w/2 && p.x <= box.x + box.w/2
+            && p.y >= box.cy - box.h/2 && p.y <= box.cy + box.h/2;
+    }
+
+    function onGal8Down(e) {
+        e.preventDefault();
+        const p = getGal8Coords(e);
+        if (gal8HitBox(p, gal8.load)) {
+            gal8.dragMode = 'load';
+            gal8.dragOffset.x = p.x - gal8.load.x;
+            gal8.canvas.style.cursor = 'grabbing';
+            return;
+        }
+        if (gal8HitBox(p, gal8.recv)) {
+            gal8.dragMode = 'recv';
+            gal8.dragOffset.x = p.x - gal8.recv.x;
+            gal8.canvas.style.cursor = 'grabbing';
+            return;
+        }
+    }
+
+    function onGal8Move(e) {
+        const p = getGal8Coords(e);
+
+        if (!gal8.dragMode) {
+            if (gal8HitBox(p, gal8.load) || gal8HitBox(p, gal8.recv)) {
+                gal8.canvas.style.cursor = 'grab';
+            } else {
+                gal8.canvas.style.cursor = 'default';
+            }
+            return;
+        }
+
+        e.preventDefault();
+        const minDist = 40;
+        const maxDist = gal8.maxRecvX - gal8.minLoadX;
+
+        if (gal8.dragMode === 'load') {
+            let newX = p.x - gal8.dragOffset.x;
+            newX = Math.max(gal8.minLoadX, Math.min(gal8.maxLoadX, newX));
+            // ограничение: не заезжать на recv
+            const maxAllowed = gal8.recv.x - gal8.recv.w/2 - gal8.load.w/2 - minDist;
+            if (newX > maxAllowed) newX = maxAllowed;
+            if (newX < gal8.minLoadX) newX = gal8.minLoadX;
+            gal8.load.x = newX;
+        } else if (gal8.dragMode === 'recv') {
+            let newX = p.x - gal8.dragOffset.x;
+            newX = Math.max(gal8.minRecvX, Math.min(gal8.maxRecvX, newX));
+            const minAllowed = gal8.load.x + gal8.load.w/2 + gal8.recv.w/2 + minDist;
+            if (newX < minAllowed) newX = minAllowed;
+            if (newX > gal8.maxRecvX) newX = gal8.maxRecvX;
+            gal8.recv.x = newX;
+        }
+
+        syncGal8ResFromDistance();
+    }
+
+    function onGal8Up() {
+        if (gal8.dragMode) {
+            gal8.dragMode = null;
+            gal8.canvas.style.cursor = 'default';
+        }
+    }
+
+    function gal8Distance() {
+        return gal8.recv.x - gal8.recv.w/2 - (gal8.load.x + gal8.load.w/2);
+    }
+
+    function gal8Res() {
+        const d = gal8Distance();
+        return Math.max(0, Math.min(1, d / gal8.pxPerOhm));
+    }
+
+    function syncGal8ResFromDistance() {
+        const R = gal8Res();
+        const slider = document.getElementById('galRes');
+        slider.value = R.toFixed(2);
+        document.getElementById('galResVal').textContent = R.toFixed(2);
+    }
+
+    function applyGal8ResSlider() {
+        const R = parseFloat(document.getElementById('galRes').value);
+        const d = R * gal8.pxPerOhm;
+        // хотим: recvLeft - loadRight = d. Регулируем recv.x
+        const minDist = 40;
+        const targetRecvX = gal8.load.x + gal8.load.w/2 + d + gal8.recv.w/2;
+        let newRecvX = targetRecvX;
+        if (newRecvX < gal8.minRecvX) newRecvX = gal8.minRecvX;
+        if (newRecvX > gal8.maxRecvX) newRecvX = gal8.maxRecvX;
+        // если не помещается, попробуем сдвинуть load влево
+        if (newRecvX - gal8.recv.w/2 - gal8.load.w/2 - minDist < gal8.load.x) {
+            const newLoadX = newRecvX - gal8.recv.w/2 - gal8.load.w/2 - minDist;
+            if (newLoadX >= gal8.minLoadX) {
+                gal8.load.x = newLoadX;
+            }
+        }
+        gal8.recv.x = newRecvX;
+        // если после корректировки R отличается — не страшно, ползунок останется как есть
+        // фактическое R пересчитается в drawGal8
+        document.getElementById('galResVal').textContent = R.toFixed(2);
+    }
+
+    function updateGal8() {
+        document.getElementById('galCurrentVal').textContent = document.getElementById('galCurrent').value;
+        document.getElementById('galGroundVal').textContent = document.getElementById('galGround').value;
+    }
+
+    function drawGal8() {
+        const sceneEl = document.querySelector('.scene[data-scene="10"]');
+        if (!sceneEl || !sceneEl.classList.contains('active')) { requestAnimationFrame(drawGal8); return; }
+        if (!gal8.ctx) { requestAnimationFrame(drawGal8); return; }
+
+        const ctx = gal8.ctx;
+        const cw = gal8.canvas.width, ch = gal8.canvas.height;
+
+        ctx.fillStyle = '#f2e9d6';
+        ctx.fillRect(0, 0, cw, ch);
+
+        const I = parseFloat(document.getElementById('galCurrent').value);
+        const R = gal8Res();
+        const G = parseFloat(document.getElementById('galGround').value);
+        const Reff = R * (1 + (100 - G) / 100);
+
+        const load = gal8.load, recv = gal8.recv;
+        const wireY = gal8.wireY;
+
+        const loadRight = load.x + load.w/2;
+        const recvLeft = recv.x - recv.w/2;
+        const recvRight = recv.x + recv.w/2;
+        const distPx = Math.max(0, recvLeft - loadRight);
+        const distCm = distPx / 10;
+
+        // === Общий провод (y = wireY) ===
+        // Толщина и насыщенность общего участка зависят от R
+        // Сегмент от нагрузки до recv — это "проблемный" участок
+        // Дальше до земли — нейтральный
+
+        // Тень провода
+        ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(load.x, wireY + 3);
+        ctx.lineTo(gal8.gnd.x, wireY + 3);
+        ctx.stroke();
+
+        // Нейтральный провод (от recv до земли) — тонкий
+        ctx.strokeStyle = '#4a5a7a';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(recvRight, wireY);
+        ctx.lineTo(gal8.gnd.x, wireY);
+        ctx.stroke();
+
+        // Левый участок (от левого края до нагрузки) — тонкий
+        ctx.beginPath();
+        ctx.moveTo(40, wireY);
+        ctx.lineTo(loadRight - 0, wireY);
+        ctx.stroke();
+
+        // === Общий участок с сопротивлением (между нагрузкой и recv) ===
+        // Толщина растёт с R, цвет — от тёмного к красному
+        const commonStartX = load.x;
+        const commonEndX = recv.x;
+
+        // Наложение «сопротивления»: толстая полоса с шагом штриховки
+        if (distPx > 5) {
+            const thick = 4 + R * 8;
+            const hue = Math.floor(139 + R * 80);
+            const sat = Math.floor(20 + R * 130);
+
+            ctx.strokeStyle = `rgb(${hue},${sat},${sat})`;
+            ctx.lineWidth = thick;
+            ctx.beginPath();
+            ctx.moveTo(loadRight, wireY);
+            ctx.lineTo(recvLeft, wireY);
+            ctx.stroke();
+
+            // Штриховка/засечки для наглядности сопротивления
+            if (R > 0.05) {
+                const numTicks = Math.max(3, Math.round(distPx / 25));
+                ctx.strokeStyle = `rgba(${hue},${sat},${sat},${0.4 + R * 0.5})`;
+                ctx.lineWidth = 1;
+                for (let i = 0; i < numTicks; i++) {
+                    const x = loadRight + 5 + i * (distPx - 10) / Math.max(1, numTicks - 1);
+                    ctx.beginPath();
+                    ctx.moveTo(x, wireY - thick/2 - 2);
+                    ctx.lineTo(x, wireY + thick/2 + 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Ток: стрелки на общем проводе
+        if (I > 0) {
+            const numArrows = 4;
+            ctx.fillStyle = 'rgba(139,26,26,0.85)';
+            for (let i = 0; i < numArrows; i++) {
+                const x = loadRight + (distPx / (numArrows + 1)) * (i + 1);
+                if (x > recvLeft - 8) break;
+                ctx.beginPath();
+                ctx.moveTo(x + 8, wireY);
+                ctx.lineTo(x - 4, wireY - 5);
+                ctx.lineTo(x - 4, wireY + 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // === Соединения от блоков к проводу ===
+        ctx.strokeStyle = '#8b1a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(load.x, load.cy + load.h/2);
+        ctx.lineTo(load.x, wireY);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#2a5a2a';
+        ctx.beginPath();
+        ctx.moveTo(recv.x, recv.cy + recv.h/2);
+        ctx.lineTo(recv.x, wireY);
+        ctx.stroke();
+
+        // === Источник (нагрузка) ===
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.fillRect(load.x - load.w/2 + 3, load.cy - load.h/2 + 3, load.w, load.h);
+        ctx.fillStyle = '#8b1a1a';
+        ctx.fillRect(load.x - load.w/2, load.cy - load.h/2, load.w, load.h);
+        ctx.strokeStyle = '#1a2a4a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(load.x - load.w/2, load.cy - load.h/2, load.w, load.h);
+
+        // Иконка "нагрузка" — стрелка тока
+        const loadDir = I > 0 ? -1 : 1;
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        for (let i = 0; i < 3; i++) {
+            const ay = load.cy - 20 + i * 20;
+            const tip = ay + 8 * loadDir;
+            ctx.beginPath();
+            ctx.moveTo(load.x, tip);
+            ctx.lineTo(load.x - 7, ay);
+            ctx.lineTo(load.x + 7, ay);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px "PT Serif", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('I = ' + I + ' А', load.x, load.cy - load.h/2 - 16);
+
+        ctx.fillStyle = '#8b1a1a';
+        ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('нагрузка', load.x, load.cy + load.h/2 + 18);
+
+        // === Приёмник (сигнальная цепь) ===
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.fillRect(recv.x - recv.w/2 + 3, recv.cy - recv.h/2 + 3, recv.w, recv.h);
+        ctx.fillStyle = '#2a5a2a';
+        ctx.fillRect(recv.x - recv.w/2, recv.cy - recv.h/2, recv.w, recv.h);
+        ctx.strokeStyle = '#1a2a4a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(recv.x - recv.w/2, recv.cy - recv.h/2, recv.w, recv.h);
+
+        // Полезный сигнал (синусоида) — постоянный
+        const sigY = recv.cy + 8;
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let x = 0; x < recv.w - 20; x++) {
+            const y = sigY + Math.sin(x * 0.3) * 8;
+            const xx = recv.x - recv.w/2 + 10 + x;
+            if (x === 0) ctx.moveTo(xx, y);
+            else ctx.lineTo(xx, y);
+        }
+        ctx.stroke();
+
+        // Помеха — растущая полоса в приёмнике, зависит от U_помехи
+        const U_mV = I * Reff * 100; // учебная шкала: 0..2000
+        const U_ratio = Math.min(1, U_mV / 2000);
+
+        if (U_ratio > 0.02) {
+            const noiseH = 4 + U_ratio * 20;
+            const noiseY = recv.cy + 30;
+            const noiseW = (recv.w - 20) * (0.15 + 0.85 * U_ratio);
+            // Красная полоса "помехи" на приёмнике
+            ctx.fillStyle = `rgba(139,26,26,${0.3 + U_ratio * 0.7})`;
+            ctx.fillRect(recv.x - recv.w/2 + 10, noiseY - noiseH/2, noiseW, noiseH);
+
+            // Подпись
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 11px "Roboto Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('помеха ' + U_mV.toFixed(0) + ' мВ', recv.x, noiseY);
+        }
+
+        // Заголовок приёмника
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px "PT Serif", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('U_полезн = 1 В', recv.x, recv.cy - recv.h/2 + 20);
+
+        ctx.fillStyle = '#2a5a2a';
+        ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('приёмник', recv.x, recv.cy + recv.h/2 + 18);
+
+        // === Стрелка падения напряжения U = I·R на общем участке ===
+        // Над проводом на общем участке
+        if (distPx > 20 && U_ratio > 0.02) {
+            const arrowStartX = loadRight + 10;
+            const arrowEndX = loadRight + 10 + (distPx - 20) * U_ratio;
+            const arrowY = wireY - 40 - U_ratio * 20;
+
+            // Подъём вверх
+            ctx.strokeStyle = `rgba(139,26,26,${0.5 + U_ratio * 0.5})`;
+            ctx.lineWidth = 2 + U_ratio * 2;
+            ctx.beginPath();
+            ctx.moveTo(arrowStartX, wireY - 8);
+            ctx.lineTo(arrowStartX, arrowY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(arrowStartX, arrowY);
+            ctx.lineTo(arrowEndX, arrowY);
+            ctx.stroke();
+
+            // Стрелка
+            const arrowSize = 6 + U_ratio * 4;
+            ctx.beginPath();
+            ctx.moveTo(arrowEndX, arrowY);
+            ctx.lineTo(arrowEndX - arrowSize, arrowY - arrowSize * 0.7);
+            ctx.lineTo(arrowEndX - arrowSize, arrowY + arrowSize * 0.7);
+            ctx.closePath();
+            ctx.fillStyle = `rgba(139,26,26,${0.6 + U_ratio * 0.4})`;
+            ctx.fill();
+
+            // Подпись
+            ctx.fillStyle = '#8b1a1a';
+            ctx.font = 'bold 12px "Roboto Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('U = I·R = ' + U_mV.toFixed(0) + ' мВ', arrowStartX, arrowY - 6);
+        }
+
+        // Расстояние между блоками (пунктир)
+        const distY = wireY + 45;
+        if (distPx > 10) {
+            ctx.strokeStyle = 'rgba(74,90,122,0.6)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(loadRight, distY);
+            ctx.lineTo(recvLeft, distY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Стрелки на концах
+            ctx.fillStyle = 'rgba(74,90,122,0.85)';
+            ctx.beginPath();
+            ctx.moveTo(loadRight, distY);
+            ctx.lineTo(loadRight + 10, distY - 5);
+            ctx.lineTo(loadRight + 10, distY + 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(recvLeft, distY);
+            ctx.lineTo(recvLeft - 10, distY - 5);
+            ctx.lineTo(recvLeft - 10, distY + 5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#1a2a4a';
+            ctx.font = 'bold 12px "Roboto Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('R = ' + R.toFixed(2) + ' Ом', (loadRight + recvLeft) / 2, distY + 6);
+        }
+
+        // === Земля ===
+        const gndX = gal8.gnd.x, gndY = wireY;
+        // Дополнительное сопротивление заземления (если G < 100)
+        const groundExtra = (100 - G) / 100; // 0..1
+        const gndExtraW = 30 + groundExtra * 60;
+
+        // Участок "земли" на проводе
+        ctx.strokeStyle = `rgba(139,26,26,${0.3 + groundExtra * 0.6})`;
+        ctx.lineWidth = 4 + groundExtra * 8;
+        ctx.beginPath();
+        ctx.moveTo(recvRight, gndY);
+        ctx.lineTo(gndX - 20, gndY);
+        ctx.stroke();
+
+        // Значок земли
+        ctx.fillStyle = '#1a2a4a';
+        ctx.beginPath();
+        ctx.moveTo(gndX, gndY);
+        ctx.lineTo(gndX - 20, gndY + 30);
+        ctx.lineTo(gndX + 20, gndY + 30);
+        ctx.closePath();
+        ctx.fill();
+
+        // Символ заземления (три линии)
+        ctx.strokeStyle = '#fffef8';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) {
+            const w = 20 - i * 6;
+            const y = gndY + 10 + i * 6;
+            ctx.beginPath();
+            ctx.moveTo(gndX - w, y);
+            ctx.lineTo(gndX + w, y);
+            ctx.stroke();
+        }
+
+        // Подпись земли
+        ctx.fillStyle = '#1a2a4a';
+        ctx.font = 'bold 11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('земля', gndX, gndY + 38);
+        ctx.font = '10px "Roboto Mono", monospace';
+        ctx.fillStyle = '#8b1a1a';
+        ctx.fillText(G + '%', gndX, gndY + 54);
+
+        // Если плохое заземление — показать "доп. сопротивление" около земли
+        if (groundExtra > 0.1) {
+            ctx.strokeStyle = `rgba(139,26,26,${0.3 + groundExtra * 0.5})`;
+            ctx.lineWidth = 1;
+            const resX = gndX - 50 - gndExtraW / 2;
+            const resY = gndY;
+            // Зигзаг (символ резистора)
+            ctx.beginPath();
+            ctx.moveTo(resX, resY - 8);
+            for (let i = 1; i <= 4; i++) {
+                ctx.lineTo(resX + (i - 0.5) * gndExtraW / 4, resY + (i % 2 === 0 ? 8 : -8));
+            }
+            ctx.lineTo(resX + gndExtraW, resY - 8);
+            ctx.stroke();
+        }
+
+        // === Индикаторы ===
+        document.getElementById('galResult').textContent = U_mV.toFixed(1);
+        document.getElementById('galReff').textContent = Reff.toFixed(2);
+
+        // Обратная связь
+        const fbEl = document.getElementById('galFeedback');
+        if (fbEl) {
+            let msg = '';
+            if (I === 0) {
+                msg = 'Ток = 0 → падения напряжения нет → помехи нет.';
+            } else if (R < 0.05) {
+                msg = 'Нагрузка и приёмник стоят вплотную, общего участка почти нет → сопротивление близко к нулю → помехи нет.';
+            } else {
+                const parts = [];
+                if (I >= 7) parts.push('ток большой → падение больше');
+                if (R >= 0.6) parts.push('общий участок длинный → сопротивление большое');
+                if (G <= 30) parts.push('заземление плохое → эффективное сопротивление растёт');
+                if (parts.length === 0) parts.push('значения в среднем диапазоне');
+                msg = 'По закону Ома U = I·R: ' + parts.join(', ') + '. Это постоянная помеха — не зависит от частоты.';
+            }
+            fbEl.textContent = msg;
+        }
+
+        requestAnimationFrame(drawGal8);
+    }
+
+    // === ТЕСТ ===
+    const quizData = [
+        { q: 'Что является средой в электромагнитном канале?',
+          options: ['Только воздух', 'Электрическое или магнитное поле, либо общий проводник', 'Только вакуум'],
+          correct: 1,
+          explain: 'В электромагнитном канале средой может быть электрическое поле (ёмкостная связь), магнитное поле (индуктивная) или общий проводник (гальваническая). Воздух — лишь одна из возможных сред, но не единственная.' },
+        { q: 'От чего зависит индуктивная наводка?',
+          options: ['От напряжения и сопротивления', 'От тока, частоты, площади петли и расстояния', 'Только от расстояния'],
+          correct: 1,
+          explain: 'Индуктивная наводка возникает из-за изменения магнитного потока. Поток зависит от тока, частоты, площади петли и расстояния. Напряжение здесь ни при чём — это ёмкостная наводка.' },
+        { q: 'От чего зависит ёмкостная наводка?',
+          options: ['От тока и сопротивления', 'От напряжения, частоты, площади и расстояния', 'Только от тока'],
+          correct: 1,
+          explain: 'Ёмкостная наводка — это наведение через электрическое поле. Оно зависит от напряжения, частоты, площади и расстояния. Ток — это про магнитное поле, не про электрическое.' },
+        { q: 'От чего зависит гальваническая наводка?',
+          options: ['От тока, сопротивления общего участка и качества заземления', 'От напряжения и площади', 'Только от частоты'],
+          correct: 0,
+          explain: 'Гальваническая наводка — это падение напряжения на общем сопротивлении по закону Ома: U = I·R. Плохое заземление увеличивает эффективное сопротивление, поэтому помеха растёт.' },
+        { q: 'Даёт ли постоянный ток индуктивную наводку?',
+          options: ['Да, всегда', 'Нет, потому что магнитный поток не меняется', 'Только при большом токе'],
+          correct: 1,
+          explain: 'Индуктивная наводка возникает только при изменении магнитного потока (закон Фарадея: ЭДС = −dФ/dt). При постоянном токе поток постоянен, значит, ЭДС = 0. Это ключевое отличие от гальванической наводки, где постоянный ток как раз работает.' },
+        { q: 'Экран от какого механизма помогает хуже всего?',
+          options: ['От ёмкостного', 'От индуктивного', 'От гальванического'],
+          correct: 2,
+          explain: 'Электростатический экран хорошо работает от ёмкостной наводки, частично — от индуктивной (если магнитный материал). От гальванической он почти бесполезен: помеха идёт по общему проводнику, и экран её не разрывает. Нужен разрыв цепи (оптрон, трансформатор).' },
+        { q: 'Что общего у трёх механизмов наводок?',
+          options: ['Они все используют магнитное поле', 'Структура канала: источник → среда → приёмник', 'Они все подавляются одним и тем же экраном'],
+          correct: 1,
+          explain: 'Все три механизма — это один электромагнитный канал со структурой источник → среда → приёмник. Различается только физическая природа среды. Именно поэтому защита разная: один способ не работает одинаково против всех трёх.' }
+    ];
+
+    let quizInitialized = false;
+    function initQuiz() {
+        if (quizInitialized) return;
+        quizInitialized = true;
+        const container = document.getElementById('quizContainer');
+        let html = '';
+        quizData.forEach((item, i) => {
+            html += `<div class="question" id="q${i}">
+                <div class="q-num">Вопрос ${i+1} из ${quizData.length}</div>
+                <div class="q-text">${item.q}</div>`;
+            item.options.forEach((opt, j) => {
+                html += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`;
+            });
+            html += `<div class="explain" id="explain${i}"></div>
+                <div class="result-mark" id="mark${i}"></div>
+            </div>`;
+        });
+        html += `<div style="text-align:center; margin-top:20px;">
+            <button id="checkQuiz" class="primary">Проверить ответы</button>
+        </div>`;
+        container.innerHTML = html;
+        document.getElementById('checkQuiz').addEventListener('click', checkQuiz);
+    }
+
+    function checkQuiz() {
+        let score = 0;
+        quizData.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            const questionEl = document.getElementById('q' + i);
+            const explainEl = document.getElementById('explain' + i);
+            const markEl = document.getElementById('mark' + i);
+            questionEl.classList.remove('correct', 'incorrect');
+            explainEl.classList.remove('show');
+            markEl.textContent = '';
+            markEl.className = 'result-mark';
+            if (!selected) {
+                markEl.textContent = '— Нет ответа';
+                markEl.classList.add('bad');
+                explainEl.innerHTML = '<strong>Правильный ответ:</strong> ' + item.options[item.correct] + '. ' + item.explain;
+                explainEl.classList.add('show');
+                return;
+            }
+            const val = parseInt(selected.value);
+            if (val === item.correct) {
+                score++;
+                questionEl.classList.add('correct');
+                markEl.textContent = '✓ Верно';
+                markEl.classList.add('ok');
+                explainEl.innerHTML = '<strong>Пояснение:</strong> ' + item.explain;
+                explainEl.classList.add('show');
+            } else {
+                questionEl.classList.add('incorrect');
+                markEl.textContent = '✗ Неверно';
+                markEl.classList.add('bad');
+                explainEl.innerHTML = '<strong>Правильный ответ:</strong> ' + item.options[item.correct] + '. ' + item.explain;
+                explainEl.classList.add('show');
+            }
+        });
+        const resultEl = document.getElementById('quizResult');
+        const percent = Math.round((score / quizData.length) * 100);
+        let verdict = '';
+        if (score === quizData.length) verdict = 'Отлично. Материал усвоен.';
+        else if (score >= 5) verdict = 'Хорошо. Есть неточности, но основное понято.';
+        else if (score >= 3) verdict = 'Удовлетворительно. Повторите механизмы и их различия.';
+        else verdict = 'Неудовлетворительно. Вернитесь к сценам 8–10.';
+        resultEl.innerHTML = `
+            <div class="final-score">
+                <div class="num">${score}</div>
+                <div class="of">из ${quizData.length} (${percent}%)</div>
+                <div class="verdict">${verdict}</div>
+            </div>
+        `;
+        resultEl.style.display = 'block';
+        document.getElementById('finalChecklist').style.display = 'block';
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    showScene(0);
+    window.addEventListener('load', () => {
+        initFields();
+        drawWireB();
+        drawCapacitor();
+        drawInductor();
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фарадей-2 // ТЗИ · Форк</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Courier+Prime:wght@400;700&family=EB+Garamond:wght@700&display=swap" rel="stylesheet">
+<style>
+    :root { 
+        --wood-dark: #1a0f08;
+        --wood: #3d2419;
+        --wood-light: #6b432a;
+        --brass: #d4af37;
+        --brass-dark: #8a6d1f;
+        --brass-light: #f4d67a;
+        --crt: #4af626;
+        --crt-dim: #1a4d0a;
+        --red: #ff3333;
+        --amber: #ffb000;
+        --paper: #efe6cf;
+        --ink: #2c1f10;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { 
+        background: 
+            radial-gradient(ellipse at 50% 0%, #2a1a10 0%, #0a0503 70%),
+            #000;
+        color: var(--paper); 
+        font-family: 'Courier Prime', monospace; 
+        min-height: 100vh;
+        display: flex; 
+        justify-content: center; 
+        padding: 20px;
+        align-items: flex-start;
+    }
+    
+    .console { 
+        background: 
+            linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 30%, var(--wood-dark) 100%),
+            repeating-linear-gradient(93deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 4px);
+        border: 12px solid #150a05;
+        border-radius: 14px; 
+        width: 100%; 
+        max-width: 860px; 
+        padding: 28px 22px 22px;
+        box-shadow: 
+            0 30px 60px rgba(0,0,0,0.9),
+            inset 0 1px 0 rgba(255,200,120,0.15),
+            inset 0 -4px 20px rgba(0,0,0,0.6);
+        position: relative;
+    }
+    
+    .console::before, .console::after {
+        content: '';
+        position: absolute;
+        width: 40px; height: 40px;
+        background: 
+            radial-gradient(circle at center, var(--brass-light) 0%, var(--brass) 40%, var(--brass-dark) 100%);
+        border-radius: 50%;
+        box-shadow: 
+            0 2px 4px rgba(0,0,0,0.8),
+            inset -2px -2px 4px rgba(0,0,0,0.4),
+            inset 2px 2px 4px rgba(255,255,255,0.3);
+        z-index: 2;
+    }
+    .console::before { top: -8px; left: -8px; }
+    .console::after { top: -8px; right: -8px; }
+    
+    .rivet {
+        position: absolute;
+        width: 16px; height: 16px;
+        background: radial-gradient(circle at 30% 30%, var(--brass-light), var(--brass-dark));
+        border-radius: 50%;
+        box-shadow: 1px 1px 2px rgba(0,0,0,0.8), inset -1px -1px 2px rgba(0,0,0,0.4);
+        z-index: 2;
+    }
+    .rivet.tl { top: 8px; left: 8px; }
+    .rivet.tr { top: 8px; right: 8px; }
+    .rivet.bl { bottom: 8px; left: 8px; }
+    .rivet.br { bottom: 8px; right: 8px; }
+    
+    .nameplate {
+        text-align: center;
+        margin: -8px auto 22px;
+        padding: 10px 30px;
+        background: linear-gradient(180deg, #b89432 0%, #8a6d1f 50%, #6b5216 100%);
+        border: 2px solid #4d3a10;
+        border-radius: 4px;
+        display: inline-block;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 
+            0 4px 8px rgba(0,0,0,0.7),
+            inset 0 1px 0 rgba(255,220,140,0.5),
+            inset 0 -2px 4px rgba(0,0,0,0.4);
+    }
+    .nameplate h1 {
+        margin: 0;
+        font-family: 'Oswald', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #2a1f08;
+        text-shadow: 
+            1px 1px 0 rgba(255,220,140,0.5),
+            -1px -1px 0 rgba(0,0,0,0.3);
+    }
+    .nameplate .sub {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: #4d3a10;
+        margin-top: 2px;
+        font-weight: 700;
+    }
+    
+    .scene { display: none; flex-direction: column; gap: 16px; }
+    .scene.active { display: flex; animation: fadeIn 0.6s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .panel { 
+        background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 100%);
+        border: 3px solid #150a05;
+        padding: 16px; 
+        border-radius: 6px; 
+        box-shadow: 
+            inset 0 2px 6px rgba(0,0,0,0.6),
+            inset 0 -1px 0 rgba(255,200,120,0.1);
+        position: relative;
+    }
+    
+    .screen { 
+        background: #000;
+        border: 5px solid #1a1a1a;
+        border-radius: 20px / 12px;
+        padding: 12px; 
+        box-shadow: 
+            inset 0 0 40px rgba(74,246,38,0.15),
+            inset 0 0 15px #000,
+            0 4px 8px rgba(0,0,0,0.8);
+        position: relative;
+        overflow: hidden;
+    }
+    .screen::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: 
+            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+        background-size: 100% 3px, 3px 100%;
+        pointer-events: none;
+        z-index: 3;
+    }
+    .screen::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+        pointer-events: none;
+        z-index: 4;
+    }
+    
+    canvas { width: 100%; display: block; position: relative; z-index: 1; }
+    #waveCanvas { height: 220px; }
+    #compCanvas { height: 110px; }
+    
+    .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+    
+    .label { 
+        font-family: 'Oswald', sans-serif;
+        font-size: 12px; 
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--brass);
+    }
+    
+    .value { 
+        font-family: 'Courier Prime', monospace;
+        font-size: 20px; 
+        font-weight: bold; 
+        color: var(--crt);
+        text-shadow: 0 0 6px var(--crt), 0 0 2px var(--crt);
+        background: rgba(0,0,0,0.6);
+        padding: 3px 10px;
+        border-radius: 3px;
+        border: 1px solid var(--crt-dim);
+        min-width: 80px;
+        text-align: right;
+    }
+    .value.danger { color: var(--red); text-shadow: 0 0 6px var(--red); border-color: #4d0a0a; }
+    .value.warn { color: var(--amber); text-shadow: 0 0 6px var(--amber); border-color: #4d380a; }
+    .value.good { color: var(--crt); }
+    
+    .materials {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    .mat-btn {
+        background: linear-gradient(180deg, #2a1a10 0%, #150a05 100%);
+        border: 2px solid var(--brass-dark);
+        border-radius: 4px;
+        padding: 8px 4px;
+        cursor: pointer;
+        color: var(--brass);
+        font-family: 'Oswald', sans-serif;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.15s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+    .mat-btn:hover { border-color: var(--brass); color: var(--brass-light); }
+    .mat-btn.active {
+        background: linear-gradient(180deg, var(--brass-dark) 0%, #4d3a10 100%);
+        color: #2a1f08;
+        border-color: var(--brass-light);
+        box-shadow: 0 0 10px rgba(212,175,55,0.5), inset 0 0 10px rgba(255,220,140,0.3);
+    }
+    .mat-btn .sym { font-size: 16px; font-weight: 700; }
+    .mat-btn .nm { font-size: 10px; }
+    
+    input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 14px;
+        background: linear-gradient(180deg, #0a0503 0%, #1a0f08 50%, #0a0503 100%);
+        border: 1px solid var(--brass-dark);
+        border-radius: 7px;
+        outline: none;
+        margin: 8px 0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px;
+        height: 30px;
+        background: 
+            linear-gradient(180deg, var(--brass-light) 0%, var(--brass) 50%, var(--brass-dark) 100%);
+        border: 2px solid #2a1f08;
+        border-radius: 3px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,220,140,0.6);
+    }
+    input[type=range]::-moz-range-thumb {
+        width: 22px;
+        height: 30px;
+        background: linear-gradient(180deg, var(--brass-light), var(--brass-dark));
+        border: 2px solid #2a1f08;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    input[type=range]:disabled { opacity: 0.4; cursor: not-allowed; }
+    
+    .slider-ticks {
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--brass-dark);
+        margin-top: -4px;
+        padding: 0 8px;
+    }
+    
+    button.action {
+        background: 
+            linear-gradient(180deg, #6d1f1f 0%, #4d0a0a 100%);
+        color: var(--brass-light);
+        border: 2px solid var(--brass);
+        padding: 12px;
+        font-family: 'Oswald', sans-serif;
+        font-size: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 
+            0 4px 0 #1a0000,
+            0 6px 12px rgba(0,0,0,0.6);
+        transition: all 0.1s;
+        border-radius: 4px;
+        width: 100%;
+    }
+    button.action:hover { filter: brightness(1.15); }
+    button.action:active { 
+        transform: translateY(4px); 
+        box-shadow: 0 0 0 #1a0000, 0 2px 4px rgba(0,0,0,0.6); 
+    }
+    button.action.brass {
+        background: linear-gradient(180deg, var(--brass) 0%, var(--brass-dark) 100%);
+        color: #2a1f08;
+    }
+    
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    @media (max-width: 640px) {
+        .grid-2 { grid-template-columns: 1fr; }
+        .materials { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    .mat-info {
+        background: rgba(0,0,0,0.5);
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid var(--brass-dark);
+        font-size: 11px;
+        line-height: 1.6;
+    }
+    .mat-info .mat-line { display: flex; justify-content: space-between; }
+    .mat-info .mat-line span:first-child { color: #a08850; }
+    .mat-info .mat-line span:last-child { color: var(--brass); font-weight: bold; }
+    
+    .paper { 
+        background: var(--paper);
+        color: var(--ink);
+        padding: 14px;
+        font-family: 'Courier Prime', monospace;
+        border-radius: 2px;
+        box-shadow: 2px 3px 8px rgba(0,0,0,0.6);
+        font-size: 12px;
+        position: relative;
+    }
+    .paper::before {
+        content: '★';
+        position: absolute;
+        top: 4px; left: 6px;
+        color: var(--brass-dark);
+        font-size: 10px;
+    }
+    .paper h3 {
+        margin: 0 0 10px;
+        font-family: 'Oswald', sans-serif;
+        text-align: center;
+        letter-spacing: 2px;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 6px;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+    .paper .formula-line { margin: 4px 0; }
+    .paper .note { 
+        font-size: 10px;
+        color: #6b5a3a;
+        font-style: italic;
+        margin-top: 8px;
+        padding-top: 6px;
+        border-top: 1px dashed #a08850;
+    }
+    .paper p { margin: 4px 0; }
+    .paper .verdict-bad { color: #8b0000; font-weight: bold; }
+    .paper .verdict-warn { color: #b06000; font-weight: bold; }
+    .paper .verdict-ok { color: #1e5a1e; font-weight: bold; }
+    
+    .question { margin-bottom: 14px; font-size: 13px; }
+    .question label { display: block; margin: 5px 0; cursor: pointer; padding-left: 4px; }
+    .question label:hover { background: rgba(0,0,0,0.05); }
+    .question input[type="radio"] { accent-color: var(--brass-dark); margin-right: 6px; }
+    
+    .warn-banner {
+        background: linear-gradient(180deg, #4d0a0a, #2a0505);
+        border: 1px solid #8b0000;
+        color: #ff9999;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        text-align: center;
+        letter-spacing: 1px;
+        margin-top: 8px;
+    }
+    .warn-banner.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="console">
+    <span class="rivet tl"></span>
+    <span class="rivet tr"></span>
+    <span class="rivet bl"></span>
+    <span class="rivet br"></span>
+    
+    <div class="nameplate">
+        <h1>Фарадей-2</h1>
+        <div class="sub">ИСПЫТАТЕЛЬНЫЙ СТЕНД · ТЗИ</div>
+    </div>
+
+    <div id="scene1" class="scene active">
+        <div class="screen">
+            <div style="color: var(--crt); text-align: center; font-size: 15px; line-height: 1.8; padding: 30px 20px; font-family: 'Courier Prime', monospace;">
+                <div style="font-size: 12px; letter-spacing: 3px; opacity: 0.7; margin-bottom: 12px;">// СИСТЕМА ГОТОВА К РАБОТЕ //</div>
+                <div style="text-shadow: 0 0 8px var(--crt);">
+                    ОБНАРУЖЕНО ИЗЛУЧЕНИЕ ПЭМИН<br>
+                    ОТ ЭВМ В РЕЖИМНОМ ПОМЕЩЕНИИ
+                </div>
+                <div style="font-size: 12px; margin-top: 16px; opacity: 0.8;">
+                    За окном — станция перехвата.<br>
+                    Ваша задача: подобрать материал и толщину экрана,<br>
+                    чтобы подавить сигнал.
+                </div>
+            </div>
+        </div>
+        <button class="action brass" onclick="nextScene(2)">▶ ЗАПУСТИТЬ СТЕНД</button>
+    </div>
+
+    <div id="scene2" class="scene">
+        <div class="screen">
+            <canvas id="waveCanvas" width="800" height="220"></canvas>
+        </div>
+        
+        <div class="grid-2">
+            <div class="panel">
+                <div class="label" style="margin-bottom: 8px;">Материал экрана</div>
+                <div class="materials" id="matBtns">
+                    <button class="mat-btn active" data-mat="none"><span class="sym">∅</span><span class="nm">Нет</span></button>
+                    <button class="mat-btn" data-mat="cu"><span class="sym">Cu</span><span class="nm">Медь</span></button>
+                    <button class="mat-btn" data-mat="al"><span class="sym">Al</span><span class="nm">Алюм.</span></button>
+                    <button class="mat-btn" data-mat="fe"><span class="sym">Fe</span><span class="nm">Сталь</span></button>
+                    <button class="mat-btn" data-mat="wood"><span class="sym">Д</span><span class="nm">Дерево</span></button>
+                    <button class="mat-btn" data-mat="foam"><span class="sym">П</span><span class="nm">Пенопл.</span></button>
+                </div>
+                
+                <div class="row">
+                    <span class="label">Толщина</span>
+                    <span class="value" id="thickVal" style="font-size: 16px;">0.00 мм</span>
+                </div>
+                <input type="range" id="thickness" min="0" max="2" step="0.05" value="0" oninput="onSlider()" disabled>
+                <div class="slider-ticks"><span>0</span><span>0.5</span><span>1.0</span><span>1.5</span><span>2.0</span></div>
+                
+                <div class="mat-info" id="matInfo" style="margin-top: 12px;"></div>
+            </div>
+            
+            <div class="panel">
+                <div class="row">
+                    <span class="label">Эффективность</span>
+                    <span class="value" id="seVal">0.0 дБ</span>
+                </div>
+                <div class="row">
+                    <span class="label">Уровень перехвата</span>
+                    <span class="value danger" id="interceptVal">100.00 %</span>
+                </div>
+                
+                <div class="label" style="margin-top: 14px; margin-bottom: 6px;">Сравнение материалов</div>
+                <div class="screen" style="padding: 4px; border-width: 3px;">
+                    <canvas id="compCanvas" width="400" height="110"></canvas>
+                </div>
+                <div class="warn-banner hidden" id="warnBanner">⚠ ДИЭЛЕКТРИК — СЛАБОЕ ОСЛАБЛЕНИЕ</div>
+            </div>
+        </div>
+
+        <div class="paper">
+            <div class="formula-line">[Ф-ЛА] SE = 8.686 · (t / δ)</div>
+            <div class="formula-line">[Ф-ЛА] δ = 1 / √(π · f · μ · σ)</div>
+            <div class="note">f = 100 кГц (НЧ-диапазон ПЭМИН). Значения δ подобраны для наглядности.</div>
+        </div>
+
+        <button class="action" onclick="nextScene(3)">ЗАФИКСИРОВАТЬ РЕЗУЛЬТАТ ▶</button>
+    </div>
+
+    <div id="scene3" class="scene">
+        <div class="paper">
+            <h3>Протокол испытаний</h3>
+            <p><b>Материал:</b> <span id="resMat">—</span></p>
+            <p><b>Толщина:</b> <span id="resThick">—</span></p>
+            <p><b>Эффективность:</b> <span id="resSE">—</span></p>
+            <p><b>Ослабление сигнала:</b> <span id="resFactor">—</span></p>
+            <p><b>Вердикт:</b> <span id="resVerdict">—</span></p>
+            <hr style="border: 0; border-top: 1px dashed #a08850; margin: 10px 0;">
+            <div id="testContainer"></div>
+        </div>
+        <button class="action" onclick="checkTest()">ПРОВЕРИТЬ ЗНАНИЯ</button>
+    </div>
+</div>
+
+<script>
+    // === ДАННЫЕ О МАТЕРИАЛАХ ===
+    // delta подобраны так, чтобы при 2 мм:
+    // медь → 87 дБ (~22000×), алюминий → 58 дБ (~800×), сталь → 120 дБ (потолок),
+    // дерево → 4.8 дБ (~3×), пенопласт → 1.75 дБ (~1.5×)
+    const materials = {
+        none:  { name: 'Нет',       sym: '—',  delta: 1,      sigma: 0,      mu: 1,   type: 'none',  desc: 'Канал открыт' },
+        cu:    { name: 'Медь',      sym: 'Cu', delta: 0.2,    sigma: 5.8e7,  mu: 1,   type: 'metal', desc: 'Высокая проводимость' },
+        al:    { name: 'Алюминий',  sym: 'Al', delta: 0.3,    sigma: 3.5e7,  mu: 1,   type: 'metal', desc: 'Средняя проводимость' },
+        fe:    { name: 'Сталь',     sym: 'Fe', delta: 0.05,   sigma: 1.0e7,  mu: 100, type: 'metal', desc: 'Высокая магнитная проницаемость' },
+        wood:  { name: 'Дерево',    sym: 'Д',  delta: 3.6,    sigma: 1e-4,   mu: 1,   type: 'dielectric', desc: 'Диэлектрик — слабое ослабление (~3× при 2 мм)' },
+        foam:  { name: 'Пенопласт', sym: 'П',  delta: 9.9,    sigma: 1e-8,   mu: 1,   type: 'dielectric', desc: 'Почти воздух — очень слабое ослабление (~1.5× при 2 мм)' }
+    };
+
+    let currentMat = 'none';
+    let currentThickness = 0;
+    let currentSE = 0;
+    let audioCtx;
+    let canvas, ctx, compCanvas, compCtx;
+    let animId, phase = 0;
+
+    // === ЗВУК ===
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playClick() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.012);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 6);
+        }
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2400;
+        filter.Q.value = 1.2;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.2;
+        src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        src.start(now);
+    }
+    function playSwitch() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.05);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 4);
+        }
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1200;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.35;
+        src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        src.start(now);
+    }
+
+    // === НАВИГАЦИЯ ===
+    function nextScene(n) {
+        initAudio();
+        playSwitch();
+        document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+        document.getElementById('scene' + n).classList.add('active');
+        
+        if (n === 2) {
+            if (!canvas) {
+                canvas = document.getElementById('waveCanvas');
+                ctx = canvas.getContext('2d');
+                compCanvas = document.getElementById('compCanvas');
+                compCtx = compCanvas.getContext('2d');
+            }
+            document.getElementById('thickness').disabled = false;
+            updateModel();
+            if (!animId) drawWave();
+        }
+        if (n === 3) {
+            cancelAnimationFrame(animId);
+            animId = null;
+            saveResults();
+            renderTest();
+        }
+    }
+
+    // === ОТРИСОВКА ОСЦИЛЛОГРАФА ===
+    function drawWave() {
+        if (!canvas) return;
+        const w = canvas.width, h = canvas.height;
+        
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+        
+        ctx.strokeStyle = 'rgba(74,246,38,0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        }
+        for (let y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        }
+        
+        // Источник
+        ctx.fillStyle = '#2a2a2a';
+        ctx.fillRect(20, h/2 - 35, 50, 70);
+        ctx.fillStyle = '#4af626';
+        ctx.fillRect(26, h/2 - 28, 38, 24);
+        ctx.strokeStyle = '#4af626';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(26, h/2 - 28, 38, 24);
+        
+        // Приемник
+        ctx.fillStyle = '#2a2a2a';
+        ctx.fillRect(w - 70, h/2 - 35, 50, 70);
+        ctx.fillStyle = '#ff3333';
+        ctx.fillRect(w - 64, h/2 - 28, 38, 24);
+        ctx.strokeStyle = '#ff3333';
+        ctx.strokeRect(w - 64, h/2 - 28, 38, 24);
+        
+        // Экран
+        let screenStart = w/2, screenEnd = w/2;
+        if (currentThickness > 0 && currentMat !== 'none') {
+            const screenWidth = Math.max(10, currentThickness * 35);
+            screenStart = w/2 - screenWidth/2;
+            screenEnd = w/2 + screenWidth/2;
+            
+            const m = materials[currentMat];
+            let grad;
+            if (currentMat === 'cu') {
+                grad = ctx.createLinearGradient(screenStart, 0, screenEnd, 0);
+                grad.addColorStop(0,'#8a4a1f'); grad.addColorStop(0.5,'#b87333'); grad.addColorStop(1,'#8a4a1f');
+            } else if (currentMat === 'al') {
+                grad = ctx.createLinearGradient(screenStart, 0, screenEnd, 0);
+                grad.addColorStop(0,'#888'); grad.addColorStop(0.5,'#ccc'); grad.addColorStop(1,'#888');
+            } else if (currentMat === 'fe') {
+                grad = ctx.createLinearGradient(screenStart, 0, screenEnd, 0);
+                grad.addColorStop(0,'#444'); grad.addColorStop(0.5,'#666'); grad.addColorStop(1,'#444');
+            } else if (currentMat === 'wood') {
+                grad = ctx.createLinearGradient(screenStart, 0, screenEnd, 0);
+                grad.addColorStop(0,'#5a3a1f'); grad.addColorStop(0.5,'#8b5a2b'); grad.addColorStop(1,'#5a3a1f');
+            } else if (currentMat === 'foam') {
+                grad = ctx.createLinearGradient(screenStart, 0, screenEnd, 0);
+                grad.addColorStop(0,'#e0e0e0'); grad.addColorStop(0.5,'#fff'); grad.addColorStop(1,'#e0e0e0');
+            }
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(screenStart, 0, screenWidth, h);
+            
+            // Штриховка для диэлектриков
+            if (currentMat === 'wood' || currentMat === 'foam') {
+                ctx.strokeStyle = currentMat === 'wood' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)';
+                for (let i = 0; i < screenWidth; i += 4) {
+                    ctx.beginPath();
+                    ctx.moveTo(screenStart + i, 0);
+                    ctx.lineTo(screenStart + i, h);
+                    ctx.stroke();
+                }
+            }
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 11px Oswald, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(materials[currentMat].name.toUpperCase(), w/2, 16);
+        }
+        
+        // Волна
+        const attenuation = Math.pow(10, -currentSE / 20);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(74,246,38,0.95)';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(74,246,38,0.6)';
+        ctx.shadowBlur = 4;
+        
+        phase += 0.12;
+        const maxAmp = 45;
+        
+        for (let x = 0; x < w; x++) {
+            let amp = maxAmp;
+            if (currentThickness > 0 && currentMat !== 'none') {
+                if (x > screenEnd) amp = maxAmp * attenuation;
+                else if (x >= screenStart) {
+                    const p = (x - screenStart) / (screenEnd - screenStart);
+                    amp = maxAmp * Math.pow(attenuation, p);
+                }
+            }
+            const y = h/2 + Math.sin(x * 0.055 - phase) * amp;
+            if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        ctx.fillStyle = '#888';
+        ctx.font = '10px Courier Prime, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('ИСТОЧНИК', 12, h - 8);
+        ctx.textAlign = 'right';
+        ctx.fillText('ПРИЕМНИК', w - 12, h - 8);
+        
+        animId = requestAnimationFrame(drawWave);
+    }
+
+    // === СРАВНИТЕЛЬНЫЙ ГРАФИК ===
+    function drawComparison() {
+        if (!compCtx) return;
+        const w = compCanvas.width, h = compCanvas.height;
+        compCtx.fillStyle = '#000';
+        compCtx.fillRect(0, 0, w, h);
+        
+        compCtx.strokeStyle = 'rgba(74,246,38,0.08)';
+        compCtx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+            compCtx.beginPath(); compCtx.moveTo(x, 0); compCtx.lineTo(x, h); compCtx.stroke();
+        }
+        for (let y = 0; y < h; y += 27) {
+            compCtx.beginPath(); compCtx.moveTo(0, y); compCtx.lineTo(w, y); compCtx.stroke();
+        }
+        
+        const colors = { cu: '#e07b39', al: '#d0d0d0', fe: '#888', wood: '#a07040', foam: '#fff' };
+        const maxSE = 120;
+        const pad = 8;
+        
+        ['cu', 'al', 'fe', 'wood', 'foam'].forEach(key => {
+            const m = materials[key];
+            compCtx.beginPath();
+            compCtx.strokeStyle = colors[key];
+            compCtx.lineWidth = key === currentMat ? 2.5 : 1.2;
+            compCtx.globalAlpha = key === currentMat ? 1 : 0.55;
+            
+            for (let t = 0; t <= 2; t += 0.02) {
+                const se = Math.min(8.686 * t / m.delta, maxSE);
+                const x = pad + (t / 2) * (w - 2 * pad);
+                const y = h - pad - (se / maxSE) * (h - 2 * pad);
+                if (t === 0) compCtx.moveTo(x, y); else compCtx.lineTo(x, y);
+            }
+            compCtx.stroke();
+        });
+        compCtx.globalAlpha = 1;
+        
+        const xCur = pad + (currentThickness / 2) * (w - 2 * pad);
+        compCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+        compCtx.setLineDash([3, 3]);
+        compCtx.beginPath();
+        compCtx.moveTo(xCur, 0);
+        compCtx.lineTo(xCur, h);
+        compCtx.stroke();
+        compCtx.setLineDash([]);
+        
+        compCtx.font = '9px Courier Prime, monospace';
+        compCtx.textAlign = 'left';
+        const legend = [['cu','Cu',40],['al','Al',90],['fe','Fe',140],['wood','Др',190],['foam','Пн',230]];
+        legend.forEach(([k, l, x]) => {
+            compCtx.fillStyle = colors[k];
+            compCtx.fillText(l, x, 12);
+        });
+    }
+
+    // === ОБНОВЛЕНИЕ МОДЕЛИ ===
+    function updateModel() {
+        const m = materials[currentMat];
+        if (currentMat === 'none') {
+            currentThickness = 0;
+            document.getElementById('thickness').value = 0;
+        } else {
+            currentThickness = parseFloat(document.getElementById('thickness').value);
+        }
+        
+        document.getElementById('thickVal').textContent = currentThickness.toFixed(2) + ' мм';
+        
+        let se = 0;
+        if (currentThickness > 0 && currentMat !== 'none') {
+            se = Math.min(8.686 * currentThickness / m.delta, 120);
+        }
+        currentSE = se;
+        
+        const intercept = 100 * Math.pow(10, -se / 20);
+        const factor = Math.pow(10, se / 20);
+        
+        document.getElementById('seVal').textContent = se.toFixed(1) + ' дБ';
+        const iVal = document.getElementById('interceptVal');
+        iVal.textContent = intercept.toFixed(2) + ' %';
+        iVal.className = 'value ' + (intercept > 50 ? 'danger' : intercept > 10 ? 'warn' : 'good');
+        
+        // Инфо о материале
+        const info = document.getElementById('matInfo');
+        if (currentMat === 'none') {
+            info.innerHTML = '<div class="mat-line"><span>Статус</span><span>канал открыт</span></div><div class="mat-line"><span>SE</span><span>0 дБ</span></div>';
+        } else {
+            const factorStr = factor >= 1000 
+                ? factor.toExponential(1) + '×' 
+                : (factor >= 10 ? factor.toFixed(0) + '×' : factor.toFixed(2) + '×');
+            info.innerHTML = `
+                <div class="mat-line"><span>Тип</span><span>${m.type === 'metal' ? 'металл' : (m.type === 'dielectric' ? 'диэлектрик' : '—')}</span></div>
+                <div class="mat-line"><span>δ (скин-слой)</span><span>${m.delta} мм</span></div>
+                <div class="mat-line"><span>Ослабление</span><span>${factorStr}</span></div>
+                <div class="mat-line"><span>Свойство</span><span style="font-size:10px;">${m.desc}</span></div>
+            `;
+        }
+        
+        // Предупреждение о диэлектрике
+        const banner = document.getElementById('warnBanner');
+        if (m.type === 'dielectric' && currentThickness > 0) {
+            const f = factor < 10 ? factor.toFixed(1) : factor.toFixed(0);
+            banner.textContent = `⚠ ДИЭЛЕКТРИК — СЛАБОЕ ОСЛАБЛЕНИЕ (~${f}×)`;
+            banner.classList.remove('hidden');
+        } else {
+            banner.classList.add('hidden');
+        }
+        
+        drawComparison();
+    }
+
+    function onSlider() {
+        playClick();
+        updateModel();
+    }
+
+    document.querySelectorAll('.mat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            playSwitch();
+            document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentMat = btn.dataset.mat;
+            updateModel();
+        });
+    });
+
+    // === РЕЗУЛЬТАТ ===
+    function saveResults() {
+        const m = materials[currentMat];
+        const factor = Math.pow(10, currentSE / 20);
+        
+        document.getElementById('resMat').textContent = m.name;
+        document.getElementById('resThick').textContent = currentThickness.toFixed(2) + ' мм';
+        document.getElementById('resSE').textContent = currentSE.toFixed(1) + ' дБ';
+        
+        const fEl = document.getElementById('resFactor');
+        if (factor >= 1000) fEl.textContent = factor.toExponential(1) + '×';
+        else if (factor >= 10) fEl.textContent = factor.toFixed(0) + '×';
+        else fEl.textContent = factor.toFixed(2) + '×';
+        
+        let verdict, cls;
+        if (m.type === 'dielectric' && currentThickness > 0) {
+            verdict = `НЕПРИГОДЕН. Диэлектрик ослабляет сигнал всего в ~${factor.toFixed(1)} раза.`;
+            cls = 'verdict-bad';
+        } else if (currentSE < 20) {
+            verdict = 'КАНАЛ УТЕЧКИ ОТКРЫТ. Требуется доработка.';
+            cls = 'verdict-bad';
+        } else if (currentSE < 60) {
+            verdict = 'ЧАСТИЧНОЕ ПОДАВЛЕНИЕ. Риск утечки сохраняется.';
+            cls = 'verdict-warn';
+        } else {
+            verdict = 'КАНАЛ ЗАЩИЩЁН. Эффективность высокая.';
+            cls = 'verdict-ok';
+        }
+        const v = document.getElementById('resVerdict');
+        v.textContent = verdict;
+        v.className = cls;
+    }
+
+    // === ТЕСТ ===
+    const questions = [
+        { q: "Почему дерево плохо экранирует электромагнитное поле?", 
+          a: ["Потому что оно дорогое", "Потому что это диэлектрик — почти нет свободных зарядов", "Потому что оно лёгкое"], c: 1 },
+        { q: "Какой материал из перечисленных НЕ подходит для экрана ПЭМИН?",
+          a: ["Медь", "Сталь", "Пенопласт"], c: 2 },
+        { q: "Что произойдёт с SE, если увеличить толщину меди с 1 до 2 мм?",
+          a: ["Не изменится", "Вырастет примерно вдвое (в дБ)", "Упадёт"], c: 1 },
+        { q: "Зачем стальной экран делают тоньше медного при той же эффективности?",
+          a: ["Сталь дешевле", "У стали высокая магнитная проницаемость → меньше δ", "Из-за веса"], c: 1 },
+        { q: "Если SE = 40 дБ, во сколько раз ослабляется мощность сигнала?",
+          a: ["В 40 раз", "В 100 раз", "В 10000 раз"], c: 2 }
+    ];
+
+    function renderTest() {
+        let html = '<h3 style="text-align:center;">Итоговый тест</h3>';
+        questions.forEach((item, i) => {
+            html += `<div class="question"><p><b>${i+1}. ${item.q}</b></p>`;
+            item.a.forEach((ans, j) => {
+                html += `<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label>`;
+            });
+            html += `</div>`;
+        });
+        document.getElementById('testContainer').innerHTML = html;
+    }
+
+    function checkTest() {
+        playSwitch();
+        let score = 0;
+        questions.forEach((item, i) => {
+            const sel = document.querySelector(`input[name="q${i}"]:checked`);
+            if (sel && parseInt(sel.value) === item.c) score++;
+        });
+        const msg = score === 5 
+            ? 'Отлично! Допуск к экранированию получен.' 
+            : (score >= 3 ? 'Удовлетворительно. Повторите теорию скин-эффекта.' : 'Неудовлетворительно. Перечитайте лекцию.');
+        alert(`Результат: ${score} из ${questions.length}.\n${msg}`);
+    }
+
+    updateModel = (function(orig) {
+        return function() {
+            if (!compCtx) {
+                compCanvas = document.getElementById('compCanvas');
+                compCtx = compCanvas.getContext('2d');
+            }
+            orig();
+        };
+    })(updateModel);
+</script>
+</body>
+</html>

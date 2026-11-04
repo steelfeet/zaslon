@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Цифровой пропуск — Взлом невидимого банка</title>
+<meta name="description" content="Интерактивный квест-детектив об идентификации, аутентификации и авторизации.">
+<meta name="theme-color" content="#241f18">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="hud" id="hud" hidden>
+  <div class="hud__left">
+    <span class="hud__badge" id="hudAct">АКТ I</span>
+    <span class="hud__name">Цифровой пропуск</span>
+  </div>
+  <div class="hud__track"><span class="hud__fill" id="hudFill"></span></div>
+  <div class="hud__tools">
+    <button class="tool" id="tSound" aria-pressed="true" title="Звук">звук</button>
+    <button class="tool" id="tVoice" aria-pressed="true" title="Голос Системы">голос</button>
+    <button class="tool" id="tJournal" title="Журнал системы">журнал</button>
+  </div>
+</header>
+
+<main id="stage">
+
+  <!-- ================= ТИТУЛ ================= -->
+  <section class="screen is-active" id="s-title">
+    <div class="cover">
+      <div class="cover__series">Научно-популярная библиотека · выпуск VII</div>
+      <div class="cover__rule"><span>★</span></div>
+      <h1 class="cover__title">Цифровой<br>пропуск</h1>
+      <div class="cover__sub">Взлом невидимого банка</div>
+      <p class="cover__lead">
+        Интерактивный квест-детектив в трёх актах о том, как машина узнаёт человека:
+        <b>идентификация</b>, <b>аутентификация</b>, <b>авторизация</b>.
+      </p>
+      <div class="cover__meta">
+        <span>3 акта</span><span>итоговый тест</span><span>15–20 минут</span>
+      </div>
+      <button class="btn btn--big" id="startBtn">Открыть дело</button>
+      <p class="cover__foot">Банк «Кристалл» · отдел информационной безопасности · дело №1957-К</p>
+    </div>
+  </section>
+
+  <!-- ================= ДОСЬЕ ================= -->
+  <section class="screen" id="s-brief">
+    <div class="page">
+      <div class="act-head">
+        <span class="act-num">Досье</span>
+        <h2>Участники дела</h2>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3>Вы</h3>
+          <p>Алексей Иванов, стажёр службы безопасности банка «Кристалл». Первый рабочий день. Постоянный пропуск ещё не выдан.</p>
+        </article>
+        <article class="card">
+          <h3>Система</h3>
+          <p>Голосовой помощник банка. Говорит коротко, ведёт журнал и ничего не забывает. Именно она решает, пустить вас или нет.</p>
+        </article>
+        <article class="card card--dark">
+          <h3>Тень</h3>
+          <p>Злоумышленник. Уже внутри периметра. Ждёт, когда вы ошибётесь, чтобы пройти по вашим следам.</p>
+        </article>
+      </div>
+      <div class="note note--flat">
+        <div class="note__head"><span class="note__mark">§</span>Как устроено дело</div>
+        <div class="note__body">
+          <p>Три акта — три ситуации. В каждой нужно выбрать верное действие. Ошибка не заканчивает игру: Система объяснит, что пошло не так, и даст попробовать снова. В конце — <b>итоговое тестирование</b>.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="toAct1">Акт I. Идентификация</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= АКТЫ ================= -->
+  <section class="screen" id="s-act1"></section>
+  <section class="screen" id="s-act2"></section>
+  <section class="screen" id="s-act3"></section>
+  <section class="screen" id="s-final"></section>
+  <section class="screen" id="s-quiz"></section>
+  <section class="screen" id="s-result"></section>
+
+</main>
+
+<aside class="journal" id="journal" aria-hidden="true">
+  <div class="journal__head">
+    <span>Журнал системы</span>
+    <button class="tool" id="jClose">закрыть</button>
+  </div>
+  <div class="journal__body" id="journalBody">
+    <p class="journal__empty">Записей пока нет.</p>
+  </div>
+</aside>
+<div class="scrim" id="scrim" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

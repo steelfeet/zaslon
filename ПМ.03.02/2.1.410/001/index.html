@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Датчик "Стекло-1" // Охрана</title>
+<style>
+    :root { 
+        --bg: #2c2c2c; --panel: #1a1a1a; --metal: #444; 
+        --text: #33ff00; --red: #ff2222; --dim: #1f4d1f; 
+    }
+    body { 
+        background: var(--bg); color: var(--text); 
+        font-family: 'Courier New', monospace; 
+        display: flex; justify-content: center; padding: 20px; margin: 0; 
+    }
+    .console { 
+        background: var(--panel); border: 8px solid var(--metal); 
+        border-radius: 12px; width: 100%; max-width: 650px; 
+        padding: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.8), inset 0 0 20px #000; 
+    }
+    h1 { text-align: center; font-size: 18px; border-bottom: 2px solid var(--dim); padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+    .scene { display: none; flex-direction: column; gap: 15px; }
+    .scene.active { display: flex; }
+    .screen { 
+        background: #0a1a0a; border: 2px solid var(--dim); padding: 15px; 
+        border-radius: 4px; box-shadow: inset 0 0 15px #000; min-height: 120px; 
+    }
+    .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .value { font-size: 22px; font-weight: bold; }
+    .led { width: 16px; height: 16px; border-radius: 50%; background: #333; border: 1px solid #000; transition: 0.1s; }
+    .led.on { background: var(--red); box-shadow: 0 0 15px var(--red); }
+    input[type=range] { width: 100%; accent-color: var(--text); cursor: pointer; }
+    button { 
+        background: #333; color: var(--text); border: 2px solid var(--dim); 
+        padding: 10px; font-family: inherit; font-weight: bold; 
+        text-transform: uppercase; cursor: pointer; margin-bottom: 5px;
+    }
+    button:active { background: var(--dim); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    canvas { width: 100%; height: 100px; background: #000; display: block; margin-top: 10px; border: 1px solid var(--dim); }
+    .formula { font-size: 11px; color: #666; margin-top: 15px; border-top: 1px dashed #444; padding-top: 10px; }
+    .question { margin-bottom: 15px; }
+    .question label { display: block; margin-bottom: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="console">
+    <h1>Акустический датчик "Стекло-1"</h1>
+
+    <div id="scene1" class="scene active">
+        <div class="screen">
+            <p>СИСТЕМА ОХРАНЫ МУЗЕЯ АКТИВИРОВАНА.</p>
+            <p>Вам необходимо настроить порог чувствительности акустического датчика. Он должен игнорировать шаги и голоса, но реагировать на разбитие стекла.</p>
+        </div>
+        <button onclick="initAudio(); nextScene(2)">▶ ВОЙТИ В РЕЖИМ НАСТРОЙКИ</button>
+    </div>
+
+    <div id="scene2" class="scene">
+        <div class="screen">
+            <div class="row">
+                <span>ПОРОГ СРАБАТЫВАНИЯ:</span>
+                <span class="value" id="thrVal">50</span> дБ
+            </div>
+            <input type="range" id="threshold" min="40" max="80" value="50" oninput="updateThreshold()">
+            
+            <canvas id="oscilloscope" width="600" height="100"></canvas>
+            
+            <div class="row" style="margin-top: 15px;">
+                <span>ТРЕВОГА:</span>
+                <div class="led" id="alarmLed"></div>
+            </div>
+        </div>
+
+        <button onclick="triggerSound('steps')">Симулировать ШАГИ (1 кГц, 45 дБ)</button>
+        <button onclick="triggerSound('scream')">Симулировать КРИК (2 кГц, 70 дБ)</button>
+        <button onclick="triggerSound('glass')">Симулировать РАЗБИТИЕ СТЕКЛА (4 кГц + 200 Гц)</button>
+        
+        <div class="formula">
+            <div>[ЛОГИКА] Тревога = (Пик_ВЧ > Порог) И (Есть_НЧ_Удар)</div>
+            <div>[ФИЗИКА] Стекло: ВЧ-треск (3-5 кГц) + НЧ-гул (&lt;500 Гц)</div>
+        </div>
+        
+        <button onclick="nextScene(3)">ЗАВЕРШИТЬ НАСТРОЙКУ ▶</button>
+    </div>
+
+    <div id="scene3" class="scene">
+        <div class="screen" id="testContainer">
+            <h3>ИТОГОВЫЙ ТЕСТ</h3>
+        </div>
+        <button onclick="checkTest()">ПРОВЕРИТЬ</button>
+    </div>
+</div>
+
+<script>
+    let audioCtx, threshold = 50;
+    let canvas, ctx;
+    let animationId;
+
+    function initAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        canvas = document.getElementById('oscilloscope');
+        ctx = canvas.getContext('2d');
+        drawScope(0); // Инициализация пустого экрана
+    }
+
+    function nextScene(n) {
+        document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+        document.getElementById('scene' + n).classList.add('active');
+        if (n === 3) renderTest();
+    }
+
+    function updateThreshold() {
+        threshold = parseInt(document.getElementById('threshold').value);
+        document.getElementById('thrVal').innerText = threshold;
+    }
+
+    // Отрисовка осциллографа
+    function drawScope(amplitude, freq = 0) {
+        if (animationId) cancelAnimationFrame(animationId);
+        let x = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.strokeStyle = '#33ff00';
+        ctx.lineWidth = 2;
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            for (let i = 0; i < canvas.width; i++) {
+                let y = canvas.height / 2 + Math.sin(i * freq + x) * amplitude;
+                if (i === 0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.stroke();
+            x += 0.2;
+            animationId = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // --- СИНТЕЗ ЗВУКА И ЛОГИКА ---
+    function triggerSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        document.getElementById('alarmLed').classList.remove('on');
+
+        if (type === 'steps') {
+            // Шаги: низкий стук, 45 дБ, 1 кГц
+            drawScope(10, 0.05); 
+            playBeep(1000, 0.1, 0.1); // 1 кГц, тихо
+            // Тревоги нет, так как 45 < threshold (даже если 40, нет ВЧ профиля)
+        } 
+        else if (type === 'scream') {
+            // Крик: громко, но не стекло
+            drawScope(40, 0.1);
+            playBeep(2000, 0.5, 0.5); // 2 кГц, громко
+            
+            // ИИ-ОШИБКА (исправлено): Проверяем только ВЧ-профиль стекла
+            if (threshold <= 50) {
+                // Если порог слишком низкий, датчик ошибочно сработает
+                triggerAlarm();
+            }
+        } 
+        else if (type === 'glass') {
+            // Стекло: ВЧ треск + НЧ удар
+            drawScope(60, 0.3);
+            
+            // Синтез ВЧ (треск)
+            const bufferSize = audioCtx.sampleRate * 0.2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const hpFilter = audioCtx.createBiquadFilter();
+            hpFilter.type = 'highpass';
+            hpFilter.frequency.value = 3000;
+            noise.connect(hpFilter); hpFilter.connect(audioCtx.destination);
+            noise.start(now);
+            
+            // Синтез НЧ (удар)
+            const osc = audioCtx.createOscillator();
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+            osc.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+
+            // Проверка логики (у нас всегда ВЧ+НЧ, так что если порог <= 60, сработает)
+            if (threshold <= 60) {
+                triggerAlarm();
+            }
+        }
+    }
+
+    function playBeep(freq, duration, vol) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function triggerAlarm() {
+        document.getElementById('alarmLed').classList.add('on');
+        // Звук сирены
+        playBeep(800, 0.5, 0.2);
+        setTimeout(() => playBeep(1000, 0.5, 0.2), 200);
+    }
+
+    const questions = [
+        { q: "Почему датчик не срабатывает на шаги?", a: ["Они слишком тихие", "У них нет высокочастотного профиля стекла", "Они низкие"], c: 1 },
+        { q: "Из каких двух фаз состоит звук разбития стекла?", a: ["Свист и гул", "Высокочастотный треск и низкочастотный удар", "Только треск"], c: 1 },
+        { q: "Что произойдет, если поставить порог на 40 дБ?", a: ["Датчик перестанет работать", "Датчик будет реагировать на громкий крик (ложное срабатывание)", "Ничего не изменится"], c: 1 },
+        { q: "Зачем нужен НЧ-фильтр в датчике?", a: ["Чтобы отсечь крик", "Чтобы поймать удар от стекла", "Для красоты"], c: 1 },
+        { q: "Что означает 'ложное срабатывание'?", a: ["Датчик сломался", "Тревога без реальной угрозы", "Отключение питания"], c: 1 }
+    ];
+
+    function renderTest() {
+        let html = '';
+        questions.forEach((item, i) => {
+            html += `<div class="question"><p><b>${i+1}. ${item.q}</b></p>`;
+            item.a.forEach((ans, j) => {
+                html += `<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label>`;
+            });
+            html += `</div>`;
+        });
+        document.getElementById('testContainer').innerHTML = `<h3>ИТОГОВЫЙ ТЕСТ</h3>` + html;
+    }
+
+    function checkTest() {
+        let score = 0;
+        questions.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && parseInt(selected.value) === item.c) score++;
+        });
+        alert(`Результат: ${score} из ${questions.length}. ${score === 5 ? 'Допуск к службе охраны получен.' : 'Требуется повторный инструктаж.'}`);
+    }
+</script>
+</body>
+</html>

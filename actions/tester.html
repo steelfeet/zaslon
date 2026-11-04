@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Диводел — Испытательный стенд</title>
+<style>
+  :root {
+    --bg: #f5f0e1;
+    --paper: #fdfaf2;
+    --ink: #2a2419;
+    --accent: #8b1a1a;
+    --accent-light: #b84242;
+    --ok: #2e7d32;
+    --fail: #c62828;
+    --warn: #ef6c00;
+    --border: #d4c9a8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--accent);
+    color: var(--paper);
+    padding: 24px 32px;
+    border-bottom: 4px double var(--paper);
+  }
+  header h1 {
+    margin: 0;
+    font-size: 26px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  header p { margin: 8px 0 0; font-style: italic; opacity: 0.9; }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    gap: 24px;
+  }
+  section {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    box-shadow: 2px 2px 0 var(--border);
+  }
+  h2 {
+    margin-top: 0;
+    color: var(--accent);
+    font-size: 20px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+  }
+  label { display: block; margin: 14px 0 6px; font-weight: bold; font-size: 14px; }
+  .hint { font-size: 12px; font-style: italic; color: #6b5d3f; margin: 4px 0 0; }
+  textarea, input[type="number"] {
+    width: 100%;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: #fffef9;
+    color: var(--ink);
+    resize: vertical;
+  }
+  textarea { min-height: 70px; }
+  input[type="number"] { max-width: 140px; }
+  button {
+    margin-top: 16px;
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    padding: 12px 28px;
+    font-family: Georgia, serif;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover { background: var(--accent-light); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #summary {
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-left: 6px solid var(--border);
+    font-weight: bold;
+  }
+  #summary.ok { border-color: var(--ok); background: #e8f5e9; color: var(--ok); }
+  #summary.fail { border-color: var(--fail); background: #ffebee; color: var(--fail); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  th, td { padding: 6px 10px; border: 1px solid var(--border); text-align: right; }
+  th {
+    background: var(--accent);
+    color: var(--paper);
+    text-align: center;
+    font-family: Georgia, serif;
+    font-weight: bold;
+  }
+  td:first-child, th:first-child { text-align: center; }
+  tr.ok td { background: #f1f8e9; }
+  tr.fail td { background: #ffebee; }
+  .chart-wrap {
+    margin-top: 16px;
+    background: #fffef9;
+    border: 1px solid var(--border);
+    padding: 10px;
+  }
+  canvas { width: 100%; height: 320px; display: block; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .actions button { margin-top: 0; }
+  .actions button.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+  }
+  .actions button.secondary:hover { background: var(--accent); color: var(--paper); }
+  details {
+    margin-top: 12px;
+    border: 1px dashed var(--border);
+    padding: 12px;
+    background: #fffef9;
+  }
+  details summary { cursor: pointer; font-weight: bold; color: var(--accent); }
+  details p, details li { font-size: 14px; }
+  code { background: #f0e9d4; padding: 2px 5px; font-size: 12px; }
+  pre {
+    background: #f0e9d4;
+    padding: 8px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 6px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Диводел — Испытательный стенд</h1>
+  <p>Автоматическая проверка физического ядра PWA-моделей</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. Конфигурация</h2>
+
+  <details>
+    <summary>Как пользоваться стендом</summary>
+    <ol>
+      <li>Задайте переменные в формате <code>имя:мин:макс:шаг</code> (одна на строку).</li>
+      <li>Впишите <b>эталонную формулу</b> — закон физики, которому должна подчиняться модель.</li>
+      <li>Вставьте <b>свою формулу</b> — функцию вычисления, которую использует ваша модель.</li>
+      <li>Задайте допустимое отклонение в процентах.</li>
+      <li>Нажмите «Запустить проверку». Стенд переберёт все комбинации параметров и покажет расхождения.</li>
+    </ol>
+    <p>Переменные доступны в обеих формулах по имени. Используйте стандартные функции <code>Math.log10</code>, <code>Math.pow</code>, <code>Math.sqrt</code> и т.д.</p>
+    <p><b>Пример 1.</b> Закон обратных квадратов для уровня звука:</p>
+    <pre>эталон: 60 - 20 * Math.log10(distance) - noise
+ваша:   60 - 10 * Math.log10(distance) - noise   // ошибка: 10 вместо 20</pre>
+    <p><b>Пример 2.</b> АЧХ ФНЧ первого порядка:</p>
+    <pre>эталон: 20 * Math.log10(1 / Math.sqrt(1 + Math.pow(f / fc, 2)))
+ваша:   20 * Math.log10(1 / (1 + f / fc))   // ошибка: без квадрата и корня</pre>
+    <p><b>Важно:</b> стенд проверяет физику (формулы), а не интерфейс. Кнопки, сцены, офлайн-режим и манифест PWA проверяются вручную по чек-листу приёмки.</p>
+  </details>
+
+  <label>Переменные (имя:мин:макс:шаг):</label>
+  <textarea id="vars">distance:1:10:1
+noise:0:60:20</textarea>
+  <p class="hint">Каждая строка — одна переменная. Стенд переберёт все комбинации.</p>
+
+  <label>Эталонная формула (по учебнику):</label>
+  <textarea id="ref">60 - 20 * Math.log10(distance) - noise</textarea>
+
+  <label>Ваша формула (из модели):</label>
+  <textarea id="mine">60 - 20 * Math.log10(distance) - noise</textarea>
+
+  <label>Допустимое отклонение (%):</label>
+  <input type="number" id="tol" value="1" min="0" step="0.1">
+
+  <button id="run">▶ Запустить проверку</button>
+</section>
+
+<section>
+  <h2>2. Результаты</h2>
+  <div id="summary">Нажмите «Запустить проверку», чтобы увидеть результат.</div>
+  <div id="tableWrap"></div>
+  <div class="chart-wrap">
+    <canvas id="chart"></canvas>
+  </div>
+  <div class="actions">
+    <button id="export" class="secondary" disabled>Скачать CSV</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let lastResults = null;
+
+  const RESERVED = new Set(['break','case','catch','class','const','continue','debugger',
+    'default','delete','do','else','export','extends','finally','for','function','if',
+    'import','in','instanceof','new','return','super','switch','this','throw','try',
+    'typeof','var','void','while','with','yield','let','static','enum','await']);
+
+  function parseVars(text) {
+    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+    return lines.map(line => {
+      const [name, minS, maxS, stepS] = line.split(':').map(s => s.trim());
+      if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name || '') || RESERVED.has(name)) {
+        throw new Error(`Неверное имя переменной: "${name || line}"`);
+      }
+      const min = parseFloat(minS), max = parseFloat(maxS), step = parseFloat(stepS);
+      if (isNaN(min) || isNaN(max) || isNaN(step) || step <= 0) {
+        throw new Error(`Неверный диапазон в "${line}". Ожидается имя:мин:макс:шаг`);
+      }
+      if (min > max) throw new Error(`У переменной "${name}" минимум больше максимума`);
+      return { name, min, max, step };
+    });
+  }
+
+  function generateGrid(vars) {
+    if (vars.length === 0) return [{}];
+    const combos = [];
+    const recur = (i, acc) => {
+      if (i === vars.length) { combos.push({ ...acc }); return; }
+      const v = vars[i];
+      for (let x = v.min; x <= v.max + 1e-9; x += v.step) {
+        acc[v.name] = parseFloat(x.toFixed(6));
+        recur(i + 1, acc);
+      }
+    };
+    recur(0, {});
+    return combos;
+  }
+
+  function compileExpr(expr, varNames) {
+    if (!expr.trim()) throw new Error('Пустая формула');
+    // eslint-disable-next-line no-new-func
+    return new Function(...varNames, `"use strict"; return (${expr});`);
+  }
+
+  function fmt(n) {
+    if (!isFinite(n)) return String(n);
+    if (Math.abs(n) >= 1000 || (Math.abs(n) < 0.01 && n !== 0)) return n.toExponential(3);
+    return n.toFixed(3);
+  }
+
+  function run() {
+    const summary = $('summary');
+    const tableWrap = $('tableWrap');
+    const exportBtn = $('export');
+    exportBtn.disabled = true;
+    lastResults = null;
+
+    try {
+      const vars = parseVars($('vars').value);
+      const varNames = vars.map(v => v.name);
+      const refFn = compileExpr($('ref').value, varNames);
+      const mineFn = compileExpr($('mine').value, varNames);
+      const tol = parseFloat($('tol').value);
+      if (isNaN(tol) || tol < 0) throw new Error('Неверное допустимое отклонение');
+
+      const grid = generateGrid(vars);
+      if (grid.length > 5000) {
+        throw new Error(`Слишком много комбинаций (${grid.length}). Уменьшите диапазоны.`);
+      }
+
+      const results = [];
+      let passed = 0, failed = 0;
+
+      for (const combo of grid) {
+        const values = varNames.map(n => combo[n]);
+        let expected, actual;
+        try { expected = refFn(...values); } catch (e) { expected = NaN; }
+        try { actual = mineFn(...values); } catch (e) { actual = NaN; }
+
+        let status, delta = null;
+        if (!isFinite(expected) || !isFinite(actual)) {
+          status = 'fail';
+          failed++;
+        } else {
+          const denom = Math.abs(expected) < 1e-9 ? 1 : Math.abs(expected);
+          const pct = Math.abs((actual - expected) / denom) * 100;
+          delta = pct;
+          if (pct <= tol) { status = 'ok'; passed++; }
+          else { status = 'fail'; failed++; }
+        }
+        results.push({ combo, expected, actual, delta, status });
+      }
+
+      lastResults = { vars, results, tol };
+
+      if (failed === 0) {
+        summary.className = 'ok';
+        summary.textContent = `✓ Все проверки пройдены: ${passed} из ${grid.length} комбинаций в пределах ±${tol}%.`;
+      } else {
+        summary.className = 'fail';
+        summary.textContent = `✗ Провалено ${failed} из ${grid.length} комбинаций. Расхождения выше ±${tol}%.`;
+      }
+
+      renderTable(results, vars, tol);
+      drawChart(results);
+      exportBtn.disabled = false;
+    } catch (e) {
+      summary.className = 'fail';
+      summary.textContent = `Ошибка: ${e.message}`;
+      tableWrap.innerHTML = '';
+      const canvas = $('chart');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  function renderTable(results, vars, tol) {
+    const showRows = results.slice(0, 500);
+    const headCells = vars.map(v => `<th>${v.name}</th>`).join('');
+    const rows = showRows.map((r, i) => {
+      const comboCells = vars.map(v => `<td>${r.combo[v.name]}</td>`).join('');
+      const delta = r.delta === null ? '—' : r.delta.toFixed(2) + '%';
+      return `<tr class="${r.status}">
+        <td>${i + 1}</td>
+        ${comboCells}
+        <td>${fmt(r.expected)}</td>
+        <td>${fmt(r.actual)}</td>
+        <td>${delta}</td>
+        <td>${r.status === 'ok' ? '✓' : '✗'}</td>
+      </tr>`;
+    }).join('');
+
+    let footer = '';
+    if (results.length > 500) {
+      footer = `<p class="hint">Показаны первые 500 строк из ${results.length}. Полный отчёт — в CSV.</p>`;
+    }
+
+    $('tableWrap').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            ${headCells}
+            <th>Эталон</th>
+            <th>Модель</th>
+            <th>Δ</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${footer}
+    `;
+  }
+
+  function drawChart(results) {
+    const canvas = $('chart');
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth || 800;
+    const h = canvas.clientHeight || 320;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    const valid = results.filter(r => isFinite(r.expected) && isFinite(r.actual));
+    if (valid.length === 0) {
+      ctx.fillStyle = '#8b1a1a';
+      ctx.font = '14px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Нет валидных данных для графика', w / 2, h / 2);
+      return;
+    }
+
+    const pad = 48;
+    const plotW = w - pad * 2;
+    const plotH = h - pad * 2;
+
+    const allVals = valid.flatMap(r => [r.expected, r.actual]);
+    let minV = Math.min(...allVals), maxV = Math.max(...allVals);
+    if (minV === maxV) { minV -= 1; maxV += 1; }
+    const span = maxV - minV;
+    minV -= span * 0.05;
+    maxV += span * 0.05;
+
+    const sx = v => pad + ((v - minV) / (maxV - minV)) * plotW;
+    const sy = v => pad + plotH - ((v - minV) / (maxV - minV)) * plotH;
+
+    ctx.strokeStyle = '#2a2419';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, pad);
+    ctx.lineTo(pad, pad + plotH);
+    ctx.lineTo(pad + plotW, pad + plotH);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#d4c9a8';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(sx(minV), sy(minV));
+    ctx.lineTo(sx(maxV), sy(maxV));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    for (const r of valid) {
+      ctx.fillStyle = r.status === 'ok' ? 'rgba(46,125,50,0.75)' : 'rgba(198,40,40,0.85)';
+      ctx.beginPath();
+      ctx.arc(sx(r.expected), sy(r.actual), 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#2a2419';
+    ctx.font = '13px Georgia';
+    ctx.textAlign = 'center';
+    ctx.fillText('Эталон (по формуле)', w / 2, h - 10);
+    ctx.save();
+    ctx.translate(14, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Модель', 0, 0);
+    ctx.restore();
+
+    ctx.font = '11px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText(fmt(minV), pad, pad + plotH + 16);
+    ctx.fillText(fmt(maxV), pad + plotW, pad + plotH + 16);
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(minV), pad - 6, pad + plotH + 4);
+    ctx.fillText(fmt(maxV), pad - 6, pad + 4);
+
+    ctx.textAlign = 'left';
+    ctx.font = '12px Georgia';
+    ctx.fillStyle = 'rgba(46,125,50,0.9)';
+    ctx.fillRect(w - 150, 12, 10, 10);
+    ctx.fillStyle = '#2a2419';
+    ctx.fillText('В допуске', w - 134, 21);
+    ctx.fillStyle = 'rgba(198,40,40,0.9)';
+    ctx.fillRect(w - 150, 28, 10, 10);
+    ctx.fillStyle = '#2a2419';
+    ctx.fillText('Вне допуска', w - 134, 37);
+  }
+
+  function exportCsv() {
+    if (!lastResults) return;
+    const { vars, results } = lastResults;
+    const header = ['#', ...vars.map(v => v.name), 'Эталон', 'Модель', 'Отклонение %', 'Статус'];
+    const lines = [header.join(';')];
+    results.forEach((r, i) => {
+      lines.push([
+        i + 1,
+        ...vars.map(v => r.combo[v.name]),
+        r.expected,
+        r.actual,
+        r.delta === null ? '' : r.delta.toFixed(3),
+        r.status === 'ok' ? 'OK' : 'FAIL'
+      ].join(';'));
+    });
+    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `divodel-test-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+
+  $('run').addEventListener('click', run);
+  $('export').addEventListener('click', exportCsv);
+
+  window.addEventListener('resize', () => {
+    if (lastResults) drawChart(lastResults.results);
+  });
+})();
+</script>
+
+</body>
+</html>

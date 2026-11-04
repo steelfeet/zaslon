@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f4ef" />
+    <title>ЗКЭ-4-10 · Лаборатория кодового замка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css?v=consolidated-2" />
+  </head>
+  <body>
+    <main class="app-shell" id="top">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="ЗКЭ-4-10, главная">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 28 32" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="13" width="20" height="16" rx="3"/><path d="M8 13V9a6 6 0 0 1 12 0v4M14 19v5"/></svg></span><span>ЗКЭ-4-10</span><i>LAB</i>
+        </a>
+        <div class="topbar-actions">
+          <button class="button button--ghost weather-button" id="weatherButton" aria-label="Погода" title="Погода" aria-haspopup="dialog" aria-controls="weatherModal"><span aria-hidden="true">☀</span><span class="weather-label">Погода</span></button>
+          <button class="icon-button" id="soundButton" aria-label="Включить звук" aria-pressed="false" title="Звук"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM17 8a7 7 0 0 1 0 8M20 5a11 11 0 0 1 0 14"/></svg></button>
+          <button class="icon-button" id="themeButton" aria-label="Переключить тему" title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/></svg></button>
+          <button class="button button--ghost" data-open-modal="helpModal">Справка</button>
+          <button class="icon-button extras-button" id="extrasButton" data-open-modal="extrasModal" aria-label="Игры и радио" aria-haspopup="dialog" aria-controls="extrasModal" aria-expanded="false" title="Игры и радио">⋯</button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="pageTitle">
+        <div><p class="eyebrow">Интерактивная лаборатория / 01</p><h1 id="pageTitle">Кодовый электронный замок <span class="hero-title__suffix">· СССР</span></h1></div>
+        <div><p class="hero-copy">Введите код и проследите путь сигнала — от нажатия клавиши до движения защёлки.</p></div>
+      </section>
+
+      <section class="workspace" aria-label="Рабочая область симулятора">
+        <div class="workbench-column">
+        <section class="panel mechanism-panel">
+          <div class="panel-heading"><div><p class="panel-kicker">01 / исполнительный узел</p><h2>Механизм защёлки</h2></div><span class="status-pill" id="lockPill">ЗАКРЫТ</span></div>
+          <div class="lock-stage" id="lockStage">
+            <div class="lock-stage__grid"></div>
+            <svg class="mechanism-cutaway" viewBox="0 0 500 250" role="img" aria-labelledby="mechanismTitle mechanismDesc"><title id="mechanismTitle">Разрез механизма электромагнитной защёлки</title><desc id="mechanismDesc">Катушка YA1 создаёт магнитное поле и втягивает якорь с ригелем влево. Ригель выходит из ответной планки. После отключения возвратная пружина выдвигает его вправо.</desc>
+              <defs><pattern id="coilTurns" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M3 0V8" stroke="currentColor" stroke-width="3"/></pattern></defs>
+              <rect class="mechanism-frame" x="55" y="80" width="320" height="115" rx="8"/>
+              <rect class="mechanism-receiver" x="418" y="90" width="34" height="95" rx="3"/><rect class="mechanism-slot" x="415" y="121" width="40" height="33"/>
+              <g class="mechanism-bolt" id="armature"><rect x="109" y="124" width="325" height="26" rx="3"/><path d="M125 118V156"/></g>
+              <rect class="mechanism-coil" x="75" y="103" width="100" height="72" rx="5"/><rect class="mechanism-turns" x="82" y="106" width="86" height="66" fill="url(#coilTurns)"/>
+              <path class="mechanism-spring" d="M180 171h14l6 -8l9 16l9 -16l9 16l9 -16l9 16l9 -16l9 16l6 -8h22"/>
+              <g class="mechanism-callouts"><path d="M125 101V60H62 M310 122V47H254 M436 90V66H374 M230 181V211H155"/><text x="63" y="48">YA1 · катушка</text><text x="254" y="35">Якорь и ригель</text><text x="374" y="54">Ответная планка</text><text x="100" y="230">Возвратная пружина</text></g>
+              <path class="mechanism-force" d="M215 103h-24m9 -6l-9 6l9 6"/><text class="mechanism-force" x="208" y="91">магнитная сила</text>
+            </svg>
+          </div>
+          <p class="mechanism-explanation">Ток в YA1 → магнитное поле → якорь втягивается → ригель освобождает ответную планку. Без тока пружина возвращает ригель. На рисунке показан принцип движения.</p>
+          <div class="readout lock-readout"><span>РЕЖИМ ЗАМКА</span><strong id="lockReadout">ОЖИДАНИЕ КОДА</strong><span class="readout-dot" id="powerDot"></span></div>
+          <button class="button button--primary close-lock-button" id="closeLockButton" disabled>Закрыть замок</button>
+          <div class="event-log" aria-live="polite"><span>ЖУРНАЛ СОБЫТИЙ</span><p id="eventLog">Система инициализирована. Ожидание ввода.</p></div>
+          <div class="attempt-log" aria-labelledby="attemptLogTitle">
+            <div class="attempt-log__heading"><span id="attemptLogTitle">ПОСЛЕДНИЕ ПОПЫТКИ</span><button class="text-button" id="clearAttemptLog" type="button" disabled>Очистить</button></div>
+            <ol id="attemptLogList"><li class="attempt-log__empty">Попыток пока нет.</li></ol>
+          </div>
+        </section>
+
+        <section class="panel keypad-panel">
+          <div class="panel-heading"><div><p class="panel-kicker">02 / ввод кода</p><h2>Клавиатура ВМ-16</h2></div><div class="lamp" id="lamp" aria-label="Индикатор состояния"></div></div>
+          <div class="code-display"><span>ВВОД</span><strong id="codeDisplay">— — — —</strong><button id="backspaceButton" aria-label="Сбросить весь набранный код" title="Тиристорная память сбрасывается целиком">↺</button></div>
+          <div class="keypad" id="keypad">
+            <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+            <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+            <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+            <button class="keypad__disabled" disabled>·</button><button data-key="0">0</button><button class="keypad__reset" id="keypadReset">СБР</button>
+          </div>
+          <p class="keyboard-tip">Можно вводить и с физической клавиатуры</p>
+        </section>
+        <section class="panel control-panel">
+          <div class="panel-heading"><div><p class="panel-kicker">04 / управление стендом</p><h2>Настройки сценария</h2></div><span class="save-note" id="saveNote">сохранено</span></div>
+          <label class="field-label" for="codeInput">Соединение наборного поля <span>4 разные цифры</span></label>
+          <div class="code-input-wrap"><input id="codeInput" inputmode="numeric" maxlength="4" value="1234" aria-describedby="codeHint" /><button class="button button--primary" id="applyCode">Применить</button></div>
+          <p class="field-hint" id="codeHint">По умолчанию 1234. В оригинале код меняют проводами XP/XS; здесь соединения настраиваются этим полем. Цифры не повторяются.</p>
+          <div class="control-actions"><button class="button button--ghost" data-open-modal="quizModal">Проверить знания</button><button class="button button--ghost" data-open-modal="helpModal">История устройства</button></div>
+        </section>
+        </div>
+        <div class="workbench-column">
+        <section class="panel circuit-panel" aria-labelledby="schemeHeading">
+          <div class="panel-heading"><div><p class="panel-kicker">03 / принципиальная схема</p><h2 id="schemeHeading">Внутри ЗКЭ-4-10</h2></div><div class="scheme-heading-actions"><button class="text-button" id="expandCircuit">↗ Развернуть</button><button class="text-button" id="collapseCircuit">Свернуть ×</button><button class="text-button" id="resetButton">Сбросить</button></div></div>
+          <p class="scheme-intro">Отдельные детали вместо условных блоков. Наберите код и выберите элемент схемы — его назначение и путь сигнала появятся ниже.</p>
+          <div class="circuit-status"><span class="circuit-status__dot"></span><span id="circuitStatus" role="status">Ожидание кода</span></div>
+          <div class="diagram-toolbar"><div class="diagram-format"><span>SVG</span>Принципиальная схема · 49 элементов</div><div id="zoomTools" class="zoom-tools"><button id="zoomOut" aria-label="Уменьшить схему">−</button><button id="zoomFit" aria-label="Сбросить масштаб"><span id="zoomValue">100%</span></button><button id="zoomIn" aria-label="Увеличить схему">+</button><button class="svg-download" id="downloadSvg" type="button">Скачать схему ↓</button></div></div>
+          <div class="schematic-scroll" tabindex="0" role="region" aria-label="Векторная принципиальная схема. Доступны горизонтальная прокрутка и увеличение."><div id="diagramHost"></div></div>
+          <aside class="component-tooltip" id="componentTooltip" role="status" aria-live="polite" hidden><button type="button" class="component-tooltip__close" aria-label="Закрыть подсказку">×</button><span class="component-tooltip__label">ЭЛЕМЕНТ СХЕМЫ</span><strong id="tooltipTitle"></strong><p id="tooltipText"></p></aside>
+          <div class="diagram-caption"><span id="keypadSignal" role="status">S1 · ожидание клавиши</span><span>Нажмите на обозначение детали · ↔ прокрутка</span></div>
+          <div class="thyristor-stages" aria-label="Состояния четырёх тиристоров">
+            <div data-stage-card="1"><span>01 / <b data-stage-digit="0">1</b></span><strong>VD5</strong><small>закрыт</small></div><div data-stage-card="2"><span>02 / <b data-stage-digit="1">2</b></span><strong>VD6</strong><small>закрыт</small></div><div data-stage-card="3"><span>03 / <b data-stage-digit="2">3</b></span><strong>VD7</strong><small>закрыт</small></div><div data-stage-card="4"><span>04 / <b data-stage-digit="3">4</b></span><strong>VD8</strong><small>закрыт</small></div>
+          </div>
+          <div class="explanation"><span class="explanation__number" id="progressNumber">0/4</span><p id="logicText" aria-live="polite">Тиристоры закрыты. Схема ожидает первую цифру.</p></div>
+          <div class="circuit-readings"><div><span>ПАМЯТЬ VD5–VD8</span><strong id="driverReading">0 / 4</strong></div><div><span>ЗАКРЫТИЕ ЗАМКА</span><strong id="relayReading">Нет</strong></div><div><span>ЭЛЕКТРОМАГНИТ YA1</span><strong id="coilReading">Выключен</strong></div></div>
+          <div class="simulation-actions"><button class="button button--primary" id="nextStep">Следующая цифра →</button><button class="button button--ghost" id="exitButton">S2 · Выход изнутри</button><button class="button button--ghost" id="finishPulse" disabled>Закрыть замок</button></div>
+          <div class="legend"><span><i class="legend-dot legend-dot--active"></i>проводящий тиристор / ток нагрузки</span><span><i class="legend-dot legend-dot--input"></i>импульс клавиши</span><span><i class="legend-dot legend-dot--error"></i>сброс после ошибки</span></div>
+          <div class="node-selector" aria-label="Выбрать узел схемы"><button data-node="input" aria-pressed="false">Клавиатура</button><button data-node="memory" aria-pressed="true">Память кода</button><button data-node="reset" aria-pressed="false">Сброс</button><button data-node="timer" aria-pressed="false">Таймер</button><button data-node="output" aria-pressed="false">Защёлка</button><button data-node="power" aria-pressed="false">Питание</button></div>
+          <details class="component-detail-disclosure"><summary>Справка по узлам схемы <span>выберите узел для подробностей</span></summary><article class="component-detail" id="componentDetail" aria-live="polite"><p class="panel-kicker">выбранный узел</p><h3 id="detailTitle">VD5–VD8 · Четыре ступени памяти</h3><p class="detail-refs" id="detailRefs"></p><p id="detailText"></p><div class="detail-route"><span>ПУТЬ СИГНАЛА</span><p id="detailRoute"></p></div><p class="detail-state" id="detailState"></p></article></details>
+          <details class="circuit-disclosure"><summary>Весь цикл работы — по шагам</summary><ol class="operation-steps"><li><b>Питание.</b> Через FU1 напряжение сети приходит на T1. Мост VD10 питает нагрузку, VD11 с C2 — электронику.</li><li><b>Ожидание.</b> VD5–VD8 закрыты. Электромагнит YA1 не получает импульс открытия, защёлку удерживает пружина.</li><li><b>Нажатие.</b> S1 соединяет общий контакт с проводом выбранной цифры. Наборное поле XP/XS направляет её на нужную ступень.</li><li><b>Запоминание.</b> Правильные цифры последовательно открывают VD5, VD6, VD7 и VD8. Ток удержания сохраняет состояния тиристоров.</li><li><b>Ошибка.</b> Цепи VD1–VD4, R19 / C3 и управляющий каскад обеспечивают сброс. В модели любая цифра вне ожидаемой последовательности обнуляет набор.</li><li><b>Полный код.</b> Составной ключ VT5 / VT2 включает YA1. Через R12 заряжается C1; после выдержки VT3 / VT4 изменяют смещение VT1 и сбрасывают тиристорную цепочку.</li><li><b>Открытие.</b> Ток YA1 создаёт магнитное поле и втягивает якорь. HL1 сигнализирует об открытии. Кнопка S2 при удержании замыкает цепь нагрузки напрямую; повторное нажатие в модели отпускает её.</li><li><b>Возврат.</b> В стенде нажмите «Закрыть замок» или «Сбросить»: YA1 выключается. VD9 ограничивает выброс самоиндукции. Пружина возвращает защёлку; стенд готов к новому коду.</li></ol></details>
+          <details class="circuit-disclosure"><summary>Справочник всех обозначений</summary><div class="component-table-wrap"><table class="component-table"><thead><tr><th>Деталь</th><th>Назначение</th><th>Узел</th></tr></thead><tbody id="componentList"></tbody></table></div></details>
+          <p class="schematic-note">Схема перерисована отдельными векторными элементами по чертежу 114.2.082.002 ПС. Условные обозначения и связи сохранены; подписи размещены для чтения с экрана. Общий провод на оригинале положительный — полярность C1 и C2 показана соответственно. Автоматическое закрытие в стенде отключено: замок закрывается кнопкой или сбросом. Подсветка иллюстрирует работу узлов; номиналы и вторичные напряжения на исходнике не указаны.</p>
+          <p class="schematic-source"><a href="https://pikabu.ru/story/naberite_kod_istoriya_i_ustroystvo_samogo_massovogo_kodovogo_zamka_sssr_14324774" target="_blank" rel="noopener">статья на Пикабу</a> · <a href="https://habr.com/ru/companies/timeweb/articles/1079122/" target="_blank" rel="noopener">публикация автора на Хабре</a></p>
+        </section>
+
+
+        </div>
+      </section>
+
+      <footer><span>ЗКЭ-4-10 LAB / учебный интерфейс</span><span>Код и настройки остаются в браузере</span></footer>
+    </main>
+    <dialog class="modal extras-modal" id="extrasModal" aria-labelledby="extrasTitle">
+      <div class="modal__top"><p class="eyebrow"><span></span> перерыв</p><button class="modal-close" aria-label="Закрыть игры и радио">×</button></div>
+      <h2 id="extrasTitle">Игры и радио</h2>
+      <div class="extras-games" aria-label="Игры">
+        <button class="button button--ghost" data-open-modal="minesweeperModal"><span aria-hidden="true">⚑</span>Сапёр</button>
+        <button class="button button--ghost" data-arcade="jump"><span aria-hidden="true">↟</span>Прыжки</button>
+        <button class="button button--ghost" data-arcade="snake"><span aria-hidden="true">⌁</span>Змейка</button>
+      </div>
+      <section class="radio-panel" aria-label="Радио лаборатории">
+        <div class="radio-panel__intro"><span class="radio-panel__signal">●</span><div><p class="panel-kicker">эфир лаборатории</p><strong>Радио на стенде</strong></div></div>
+        <div class="radio-controls">
+          <select id="radioStation" aria-label="Выбрать радиостанцию">
+            <option data-logo="europaplus" value="https://ep256.hostingradio.ru:8052/europaplus256.mp3">Европа плюс</option>
+            <option data-logo="radiorecord" value="https://radiorecord.hostingradio.ru/rr_main96.aacp">Радио Рекорд</option>
+            <option data-logo="nashe" value="https://nashe1.hostingradio.ru/nashe-256">Наше радио</option>
+            <option data-logo="solovievfm" value="https://solovievfm.hostingradio.ru/solovievfm128.aacp">Соловьёв FM</option>
+            <option data-logo="tranceone" value="https://radio.trance.one:8443/online">TranceOne</option>
+            <option data-logo="drumandbass" value="https://air.dnbfm.ru/radio/8000/qplay">DNB FM</option>
+            <option data-logo="dorognoe" value="https://dorognoe.hostingradio.ru/radio">Дорожное радио</option>
+            <option data-logo="recorddeep" value="https://radiorecord.hostingradio.ru/deep96.aacp">Record Deep</option>
+            <option data-logo="makradiorusrock" value="https://rock.amgradio.ru/rusrock.aacp?r_bells">Русский Рок</option>
+            <option data-logo="pirate" value="https://radiorecord.hostingradio.ru/ps96.aacp">Пиратская станция</option>
+            <option data-logo="hitovoeradio" value="https://listen9.myradio24.com/8134">ХИТОВОЕ РАДИО</option>
+            <option data-logo="ntaxi" value="https://radiont.shansonspb.ru:1040/stream">Ночное такси</option>
+            <option data-logo="recordtrap" value="https://radiorecord.hostingradio.ru/trap96.aacp">Record Trap</option>
+            <option data-logo="dfmrussiandance" value="https://dfm-dfmrusdance.hostingradio.ru/dfmrusdance96.aacp">DFM Russian Dance</option>
+            <option data-logo="dagestan" value="http://radio05.ru:8000/radio_dagestan_128">Радио Дагестан</option>
+            <option data-logo="radiogoosehardstyle" value="https://stream.radiogoose.ru/listen/hardstyle/play">Радио Гусь Хардстайл</option>
+            <option data-logo="radiozvukiprirodi" value="https://zvuki.amgradio.ru/zvuki.aacp?r_bells">Радио Звуки природы</option>
+            <option data-logo="caprapru" value="http://79.120.77.11:8000/rapru">Radio Caprice Russian Rap</option>
+            <option data-logo="studio21" value="https://stream.studio21.ru/studio2196.aacp">STUDIO 21</option>
+          </select>
+          <button class="button button--primary radio-play" id="radioPlay" aria-label="Включить радио">▶</button>
+          <label class="radio-volume" for="radioVolume"><span aria-hidden="true">⌁</span><input id="radioVolume" type="range" min="0" max="100" value="70" aria-label="Громкость радио" /><output id="radioVolumeValue">70%</output></label>
+        </div>
+        <div class="radio-stations" id="radioStations" aria-label="Список станций"></div>
+        <audio id="radioAudio" preload="none"></audio>
+        <a class="radio-credit" href="https://www.radiobells.com/" target="_blank" rel="noopener">потоки RadioBells</a>
+      </section>
+      <p class="extras-note">Радио продолжает играть, когда меню закрыто.</p>
+    </dialog>
+
+    <dialog class="modal" id="helpModal"><div class="modal__top"><p class="eyebrow">история устройства</p><button class="modal-close" aria-label="Закрыть">×</button></div><h2>История кодового замка и панели ВМ-16</h2><p>ЗКЭ-4-10 относится к советскому поколению электромеханических кодовых замков, созданных для подъездов, служебных входов и помещений с ограниченным доступом. Такие устройства получили широкое распространение в СССР: они позволяли отказаться от обычного ключа у каждого жильца и одновременно сохранить простую, ремонтопригодную схемотехнику.</p><p>Внешняя кнопочная панель ВМ-16 была частью этой идеи. Оператор нажимал последовательность цифр на отдельных механических клавишах, а наборное поле XP/XS физически задавало, какие клавиши соответствуют четырём ступеням кода. Поэтому код меняли не программированием, а перестановкой проводных соединений.</p><p>Внутри замка не было микропроцессора. Нажатия последовательно открывали тиристоры VD5–VD8, которые сохраняли состояние током удержания. Ошибочная клавиша запускала отдельную цепь сброса и возвращала память в исходное состояние. После полного правильного набора транзисторный каскад включал катушку электромагнита YA1, втягивал якорь и освобождал защёлку. Небольшая лампа HL1 показывала, что цепь открытия действительно запитана.</p><p>Такая конструкция хорошо подходила для массовой эксплуатации: силовая часть была отделена трансформатором, элементы имели понятные обозначения, а неисправность можно было искать по узлам — питание, клавиатура, память, сброс, выдержка и выходной каскад. После отключения YA1 возвратная пружина снова удерживала ригель.</p><ol><li>Введите код на ВМ-16: каждая цифра подаёт импульс на следующую ступень памяти.</li><li>При полном совпадении включается YA1, а HL1 сигнализирует об открытии.</li><li>S2 позволяет открыть дверь изнутри прямым включением нагрузки.</li><li>В нашем учебном стенде историческая логиka показана на SVG-схеме, а закрытие выполняется отдельной кнопкой сброса.</li></ol><p class="modal__note">Панель и схема в приложении являются учебной реконструкцией. Обозначения ЗКЭ-4-10, ВМ-16, HL1, YA1 и узловая логика сохранены по доступным материалам; точные номиналы и варианты исполнения могли различаться у конкретных изделий.</p></dialog>
+    <dialog id="circuitModal" class="circuit-modal" aria-label="Подробная схема ЗКЭ-4-10"></dialog>
+    <dialog class="modal" id="quizModal"><div class="modal__top"><p class="eyebrow"><span></span> мини-тест</p><button class="modal-close" aria-label="Закрыть">×</button></div><div id="quizContent"></div></dialog>
+    <dialog class="modal archive-modal" id="archiveModal"><div class="modal__top"><p class="eyebrow"><span></span> архив №1984</p><button class="modal-close" aria-label="Закрыть">×</button></div><div id="archiveContent"><h2>Протокол наблюдения</h2><p class="archive-intro">Доступ предоставлен на один сеанс. Архив не предназначен для операторов смены.</p><div class="archive-files"><button class="archive-file" data-archive-file="0"><span>01</span><strong>Шифр смены</strong><small>засекречено</small></button><button class="archive-file" data-archive-file="1"><span>02</span><strong>Записка оператора</strong><small>личное</small></button><button class="archive-file" data-archive-file="2"><span>03</span><strong>Проверка линии</strong><small>требуется доступ</small></button></div><div class="archive-reader" id="archiveReader">Выберите документ из архива.</div></div></dialog>
+    <dialog class="modal minesweeper-modal" id="minesweeperModal"><div class="modal__top"><p class="eyebrow"><span></span> служебная пауза</p><button class="modal-close" aria-label="Закрыть">×</button></div><div class="minesweeper-heading"><div><h2>Сапёр</h2><p>Найдите 10 мин на поле 9 × 9.</p></div><button class="button button--primary" id="minesweeperReset">Новая игра</button></div><div class="minesweeper-status"><span id="minesweeperMines">МИНЫ: 10</span><span id="minesweeperMessage" aria-live="polite">Поле готово</span></div><div class="minesweeper-board" id="minesweeperBoard" role="grid" aria-label="Игровое поле сапёра"></div><p class="minesweeper-tip">Левая кнопка — открыть клетку. Правая — поставить флажок. На телефоне включите режим флажка.</p><button class="text-button minesweeper-flag-toggle" id="minesweeperFlagToggle" aria-pressed="false">Режим: открыть клетки</button></dialog>
+    <dialog class="modal weather-modal" id="weatherModal" aria-labelledby="weatherTitle">
+      <div class="modal__top"><p class="eyebrow"><span></span> за окном</p><button class="modal-close" aria-label="Закрыть погоду">×</button></div>
+      <h2 id="weatherTitle">Погода</h2>
+      <p class="weather-location">54.2093° с. ш. · 79.7477° в. д.<br>Время московское</p>
+      <p id="weatherStatus" role="status">Загрузка прогноза…</p>
+      <div id="weatherContent" hidden></div>
+      <div class="weather-footer"><a href="https://open-meteo.com/" target="_blank" rel="noopener">Данные Open-Meteo</a><button class="text-button" id="weatherRefresh">Обновить</button></div>
+    </dialog>
+    <dialog class="modal arcade-modal" id="arcadeModal" aria-labelledby="arcadeTitle">
+      <div class="arcade-heading"><h2 id="arcadeTitle">Прыжки</h2><button id="arcadeClose" class="modal-close" aria-label="Закрыть игру">×</button></div>
+      <div class="arcade-hud"><span id="arcadeScore">Счёт: 0</span><span id="arcadeBest">Рекорд: 0</span></div>
+      <canvas id="arcadeCanvas" width="360" height="480" tabindex="0" aria-label="Игровое поле"></canvas>
+      <p id="arcadeStatus" role="status"></p>
+      <div class="arcade-actions"><button class="button button--primary" id="arcadeRestart">Новая игра</button><button class="button button--ghost" id="arcadePause">Пауза</button></div>
+      <div class="arcade-touch" aria-label="Управление игрой"><button data-control="left" aria-label="Влево">←</button><button data-control="up" aria-label="Вверх">↑</button><button data-control="down" aria-label="Вниз">↓</button><button data-control="right" aria-label="Вправо">→</button><button data-control="shoot" aria-label="Стрелять">Огонь</button></div>
+      <p class="arcade-help" id="arcadeHelp"></p>
+    </dialog>
+    <script src="app.js?v=consolidated-1"></script>
+  </body>
+</html>

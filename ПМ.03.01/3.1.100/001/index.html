@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Опыт Герца: обнаружение электромагнитных волн</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --paper: #f2e9d6;
+        --paper-dark: #e6dac2;
+        --ink: #1a2a4a;
+        --ink-light: #4a5a7a;
+        --red: #8b1a1a;
+        --red-light: #b84242;
+        --blue: #1a4a6a;
+        --blue-light: #3a7aa0;
+        --green: #2a5a2a;
+        --line: #c4b8a0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+        background: repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(0,0,0,0.03) 24px), var(--paper);
+        color: var(--ink);
+        font-family: 'PT Serif', Georgia, serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        line-height: 1.6;
+    }
+    .app {
+        width: 100%;
+        max-width: 900px;
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        box-shadow: 6px 6px 0 rgba(26,42,74,0.15);
+        position: relative;
+    }
+    .app::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border: 1px solid var(--line);
+        pointer-events: none;
+        z-index: 1;
+    }
+    .header {
+        padding: 20px 30px 15px;
+        border-bottom: 2px solid var(--ink);
+        position: relative;
+        z-index: 2;
+    }
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 8px;
+    }
+    .header h1 {
+        font-family: 'Oswald', sans-serif;
+        font-weight: 700;
+        font-size: 26px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        color: var(--ink);
+    }
+    .header .sub {
+        font-family: 'PT Serif', serif;
+        font-style: italic;
+        font-size: 14px;
+        color: var(--ink-light);
+        margin-top: 4px;
+    }
+    .progress {
+        display: flex;
+        gap: 3px;
+        padding: 12px 30px;
+        background: var(--paper-dark);
+        border-bottom: 1px solid var(--line);
+        position: relative;
+        z-index: 2;
+    }
+    .progress-step {
+        flex: 1;
+        height: 4px;
+        background: var(--line);
+        transition: background 0.3s;
+    }
+    .progress-step.done { background: var(--blue); }
+    .progress-step.current { background: var(--red); }
+    .content {
+        padding: 30px;
+        position: relative;
+        z-index: 2;
+        min-height: 400px;
+    }
+    .scene { display: none; animation: fadeIn 0.4s ease-out; }
+    .scene.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .scene-num {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--red);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .scene-title {
+        font-family: 'Oswald', sans-serif;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        margin: 0 0 16px;
+        text-transform: uppercase;
+    }
+    .scene p {
+        font-size: 15px;
+        margin: 0 0 12px;
+    }
+    .scene p.lead {
+        font-size: 16px;
+        color: var(--ink-light);
+        font-style: italic;
+    }
+    .notebook {
+        background: #fffef8;
+        border: 1px solid var(--red);
+        border-left: 6px solid var(--red);
+        padding: 16px 20px;
+        margin: 20px 0;
+        position: relative;
+        background-image: repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(139,26,26,0.08) 24px);
+    }
+    .notebook::before {
+        content: 'ЗАПИШИ В ТЕТРАДЬ';
+        position: absolute;
+        top: -10px;
+        left: 12px;
+        background: var(--red);
+        color: #fff;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        padding: 2px 8px;
+    }
+    .notebook p {
+        margin: 6px 0;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+    .notebook p:first-child { margin-top: 4px; }
+    .notebook strong { color: var(--red); }
+    .notebook .formula {
+        font-family: 'Roboto Mono', monospace;
+        background: rgba(139,26,26,0.08);
+        padding: 2px 6px;
+        font-size: 13px;
+        border-radius: 2px;
+    }
+    .viz {
+        background: #fffef8;
+        border: 1px solid var(--line);
+        padding: 16px;
+        margin: 20px 0;
+        position: relative;
+    }
+    .viz canvas { display: block; width: 100%; }
+    .viz-caption {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        color: var(--ink-light);
+        text-align: center;
+        margin-top: 8px;
+        letter-spacing: 0.5px;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+    .control-group { margin: 14px 0; }
+    .control-label {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    .control-label .val { color: var(--blue); font-weight: 700; }
+    input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, var(--line), var(--ink-light));
+        border-radius: 3px;
+        outline: none;
+        margin: 6px 0;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--red);
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .indicator {
+        background: var(--ink);
+        color: #4af626;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 24px;
+        font-weight: 700;
+        padding: 10px 16px;
+        text-align: right;
+        border-radius: 3px;
+        letter-spacing: 1px;
+        text-shadow: 0 0 8px rgba(74,246,38,0.6);
+        margin: 12px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+    .indicator small { font-size: 11px; color: #8aa; letter-spacing: 1px; }
+    .feedback {
+        background: rgba(26,74,106,0.06);
+        border-left: 3px solid var(--blue);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-style: italic;
+        color: var(--ink-light);
+        margin: 12px 0;
+        min-height: 40px;
+    }
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 30px;
+        border-top: 2px solid var(--ink);
+        background: var(--paper-dark);
+        position: relative;
+        z-index: 2;
+    }
+    button {
+        font-family: 'Oswald', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 10px 24px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        color: var(--ink);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    button:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    button:disabled { opacity: 0.3; cursor: not-allowed; }
+    button.primary { background: var(--red); color: #fff; border-color: var(--red); }
+    button.primary:hover:not(:disabled) { background: var(--red-light); border-color: var(--red-light); }
+    .question { margin: 20px 0; padding: 16px; background: #fffef8; border: 1px solid var(--line); }
+    .question .q-num { font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--red); letter-spacing: 1px; margin-bottom: 4px; }
+    .question .q-text { font-weight: 700; margin-bottom: 10px; font-size: 15px; }
+    .question label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border: 1px solid transparent; border-radius: 2px; font-size: 14px; }
+    .question label:hover { background: rgba(26,42,74,0.05); }
+    .question input[type=radio] { margin-right: 8px; accent-color: var(--red); }
+    .question .explain { display: none; margin-top: 10px; padding: 10px; background: rgba(26,74,106,0.08); border-left: 3px solid var(--blue); font-size: 13px; font-style: italic; }
+    .question .explain.show { display: block; }
+    .question.correct { border-color: var(--green); }
+    .question.incorrect { border-color: var(--red); }
+    .question .result-mark { font-family: 'Roboto Mono', monospace; font-size: 12px; font-weight: 700; margin-top: 8px; }
+    .question .result-mark.ok { color: var(--green); }
+    .question .result-mark.bad { color: var(--red); }
+    .checklist { background: #fffef8; border: 1px solid var(--line); padding: 16px; margin: 20px 0; }
+    .checklist h4 { font-family: 'Oswald', sans-serif; font-size: 14px; text-transform: uppercase; margin: 0 0 10px; letter-spacing: 0.5px; }
+    .checklist label { display: block; padding: 4px 0; font-size: 13px; cursor: pointer; }
+    .checklist input[type=checkbox] { margin-right: 8px; accent-color: var(--green); }
+    .final-score { text-align: center; padding: 30px 20px; background: #fffef8; border: 2px solid var(--ink); margin: 20px 0; }
+    .final-score .num { font-family: 'Oswald', sans-serif; font-size: 56px; font-weight: 700; color: var(--red); line-height: 1; }
+    .final-score .of { font-family: 'Roboto Mono', monospace; font-size: 14px; color: var(--ink-light); margin-top: 4px; }
+    .final-score .verdict { font-family: 'Oswald', sans-serif; font-size: 18px; text-transform: uppercase; margin-top: 12px; letter-spacing: 1px; }
+    .hint { font-size: 12px; color: var(--ink-light); font-style: italic; margin-top: 8px; }
+    @media (max-width: 640px) {
+        body { padding: 10px; }
+        .header { padding: 16px 20px 12px; }
+        .header h1 { font-size: 20px; }
+        .content { padding: 20px; }
+        .nav { padding: 12px 20px; }
+        button { padding: 8px 16px; font-size: 12px; }
+    }
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <div class="header-top">
+            <span>ТЗИ · Электромагнитный канал</span>
+            <span>Опыт Герца</span>
+        </div>
+        <h1>Опыт Герца: обнаружение электромагнитных волн</h1>
+        <div class="sub">От наводок к излучению</div>
+    </div>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="content" id="content">
+
+        <div class="scene active" data-scene="1">
+            <div class="scene-num">Цель</div>
+            <h2 class="scene-title">Что вы узнаете</h2>
+            <p class="lead">Мы уже разбирали наводки — когда поле «прилипает» к проводнику. Теперь посмотрим, что происходит, если разнести проводники далеко. Оказывается, поле может оторваться и уйти в пространство.</p>
+            <div class="notebook">
+                <p><strong>После прохождения вы сможете:</strong></p>
+                <p>1. Объяснить, чем излучение отличается от наводки.</p>
+                <p>2. Описать опыт Герца: передающий вибратор, приёмный вибратор, искры.</p>
+                <p>3. Объяснить, почему искра в приёмнике зависит от длины вибратора.</p>
+                <p>4. Объяснить, почему искра пропадает при повороте вибратора.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="2">
+            <div class="scene-num">Актуализация</div>
+            <h2 class="scene-title">Что мы уже знаем про наводки</h2>
+            <p>Раньше мы видели: если два провода рядом, поле одного наводит ЭДС в другом. Чем ближе — тем сильнее. Чем дальше — тем слабее, и на большом расстоянии наводка практически исчезает.</p>
+            <p>Но что, если разнести проводники на несколько метров? Наводки уже нет. А сигнал — есть?</p>
+            <div class="notebook">
+                <p><strong>Наводка</strong> — это ближняя зона: поле «прилипает» к проводнику и быстро слабеет с расстоянием.</p>
+                <p><strong>Излучение</strong> — это дальняя зона: поле отрывается от проводника и уходит в пространство как волна.</p>
+            </div>
+            <p class="hint">Опыт Герца (1888) впервые показал, что электромагнитные волны существуют и могут передаваться через пространство.</p>
+        </div>
+
+        <div class="scene" data-scene="3">
+            <div class="scene-num">Определения</div>
+            <h2 class="scene-title">Что такое электромагнитная волна</h2>
+            <p>Электромагнитная волна — это переменное электрическое и магнитное поле, которое распространяется в пространстве.</p>
+            <div class="notebook">
+                <p><strong>Электромагнитная волна</strong> — распространяющееся в пространстве переменное электромагнитное поле.</p>
+                <p><strong>Излучение</strong> — процесс отрыва поля от проводника и распространения его в пространстве.</p>
+                <p><strong>Длина волны</strong> — расстояние, на которое волна распространяется за один период: <span class="formula">λ = c / f</span>, где <span class="formula">c ≈ 3·10⁸ м/с</span>.</p>
+                <p><strong>Резонанс</strong> — совпадение собственной частоты приёмника с частотой волны, при котором амплитуда колебаний максимальна.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="4">
+            <div class="scene-num">Опыт</div>
+            <h2 class="scene-title">Передатчик и приёмник</h2>
+            <p>Вибратор Герца — это два металлических стержня с шариками на концах. Между шариками проскакивает искра. В этот момент возникает электромагнитная волна.</p>
+            <p>Второй вибратор — приёмный. Если волна доходит до него, между его шариками тоже проскакивает искра.</p>
+            <div class="viz">
+                <canvas id="hertzViz" width="800" height="340"></canvas>
+                <div class="viz-caption">Передающий вибратор (слева) и приёмный (справа) · искра в приёмнике = волна дошла</div>
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>Расстояние между вибраторами</span><span class="val" id="distVal">1</span> м</div>
+                <input type="range" id="distSlider" min="1" max="10" step="0.5" value="1">
+            </div>
+            <div class="indicator">
+                <small>Яркость искры в приёмнике</small>
+                <span><span id="sparkVal">0</span> %</span>
+            </div>
+            <div class="feedback" id="hertzFeedback">Двигайте ползунок. Искра слабеет, но не исчезает полностью — это волна, а не наводка.</div>
+            <div class="notebook">
+                <p><strong>Опыт Герца:</strong> искра в передающем вибраторе создаёт электромагнитную волну. Волна доходит до приёмного вибратора и вызывает в нём искру.</p>
+                <p>В отличие от наводки, искра не исчезает при удалении — она слабеет, но остаётся. Это доказывает, что поле оторвалось от проводника и распространяется как волна.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="5">
+            <div class="scene-num">Настройка</div>
+            <h2 class="scene-title">Резонанс: длина приёмного вибратора</h2>
+            <p>Искра в приёмнике будет ярче, если длина приёмного вибратора совпадает с длиной волны (или половиной длины волны). Это резонанс.</p>
+            <p>Подвигайте ползунок длины приёмного вибратора. Найдите положение, при котором искра максимальна.</p>
+            <div class="viz">
+                <canvas id="resonanceViz" width="800" height="280"></canvas>
+                <div class="viz-caption">Чем ближе длина приёмника к резонансной, тем ярче искра</div>
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>Длина приёмного вибратора</span><span class="val" id="lenVal">50</span> см</div>
+                <input type="range" id="lenSlider" min="10" max="100" step="5" value="50">
+            </div>
+            <div class="indicator">
+                <small>Яркость искры</small>
+                <span><span id="sparkLenVal">0</span> %</span>
+            </div>
+            <div class="feedback" id="resonanceFeedback">Настраивайте длину. Максимум — при резонансе.</div>
+            <div class="notebook">
+                <p><strong>Резонанс</strong> — совпадение собственной частоты приёмника с частотой волны.</p>
+                <p>У вибратора своя частота колебаний, которая зависит от его длины. Когда длина совпадает с длиной волны (или половиной), наступает резонанс — искра максимальна.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="6">
+            <div class="scene-num">Ориентация</div>
+            <h2 class="scene-title">Поворот вибратора</h2>
+            <p>Вибратор — это антенна. Она принимает волну хорошо, когда ориентирована определённым образом. Поверните приёмный вибратор — искра пропадёт.</p>
+            <div class="viz">
+                <canvas id="orientationViz" width="800" height="280"></canvas>
+                <div class="viz-caption">Поворот приёмного вибратора · искра пропадает, когда вибратор перпендикулярен полю</div>
+            </div>
+            <div class="control-group">
+                <div class="control-label"><span>Угол поворота приёмника</span><span class="val" id="angleVal">0</span>°</div>
+                <input type="range" id="angleSlider" min="0" max="90" step="5" value="0">
+            </div>
+            <div class="indicator">
+                <small>Яркость искры</small>
+                <span><span id="sparkAngleVal">100</span> %</span>
+            </div>
+            <div class="feedback" id="orientationFeedback">При 0° искра максимальна, при 90° — исчезает.</div>
+            <div class="notebook">
+                <p><strong>Поляризация:</strong> электромагнитная волна имеет направление поля. Вибратор принимает волну хорошо, когда его ось совпадает с направлением поля.</p>
+                <p>При повороте на 90° приёмник перестаёт «чувствовать» волну — искра пропадает.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="7">
+            <div class="scene-num">Сравнение</div>
+            <h2 class="scene-title">Наводка и излучение: два разных закона</h2>
+            <p>Наводка слабеет быстро (как <span class="formula">1/r²</span> или <span class="formula">1/r³</span> в зависимости от типа). Излучение слабеет медленно (как <span class="formula">1/r</span>).</p>
+            <p>Поэтому на больших расстояниях остаётся только волна.</p>
+            <div class="viz">
+                <canvas id="compareViz" width="800" height="260"></canvas>
+                <div class="viz-caption">Красная линия — наводка (1/r²), синяя — излучение (1/r)</div>
+            </div>
+            <div class="notebook">
+                <p><strong>Наводка</strong> — ближняя зона, слабеет как <span class="formula">1/r²</span> или <span class="formula">1/r³</span>.</p>
+                <p><strong>Излучение</strong> — дальняя зона, слабеет как <span class="formula">1/r</span>.</p>
+                <p>На больших расстояниях наводка практически исчезает, а излучение остаётся — поэтому радиосвязь возможна на километры.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="8">
+            <div class="scene-num">Применение</div>
+            <h2 class="scene-title">От опыта Герца к радиосвязи</h2>
+            <p>Опыт Герца показал, что электромагнитные волны существуют. Через несколько лет Попов и Маркони использовали это для передачи сигналов на расстояние — так появилась радиосвязь.</p>
+            <p>Сегодня те же принципы работают в Wi-Fi, Bluetooth, сотовой связи, радиолокации.</p>
+            <div class="notebook">
+                <p><strong>Вибратор Герца</strong> — прообраз антенны. Передающая антенна излучает волну, приёмная принимает.</p>
+                <p><strong>Резонанс</strong> — настройка антенны на нужную частоту.</p>
+                <p><strong>Поляризация</strong> — ориентация антенны относительно поля волны.</p>
+            </div>
+        </div>
+
+        <div class="scene" data-scene="9">
+            <div class="scene-num">Проверка</div>
+            <h2 class="scene-title">Тест: проверьте понимание</h2>
+            <p>Ответьте на вопросы. После каждого ответа — пояснение. В конце — результат и чек-лист конспекта.</p>
+            <div id="quizContainer"></div>
+            <div id="quizResult" style="display:none;"></div>
+            <div class="checklist" id="finalChecklist" style="display:none;">
+                <h4>Проверь, что записал в тетрадь</h4>
+                <label><input type="checkbox"> Определение электромагнитной волны</label>
+                <label><input type="checkbox"> Чем излучение отличается от наводки</label>
+                <label><input type="checkbox"> Что такое резонанс</label>
+                <label><input type="checkbox"> Что такое поляризация</label>
+                <label><input type="checkbox"> Почему искра слабеет с расстоянием, но не исчезает</label>
+                <label><input type="checkbox"> Почему искра пропадает при повороте вибратора</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <button id="prevBtn" class="ghost" disabled>← Назад</button>
+        <span id="navLabel" style="font-family: 'Roboto Mono', monospace; font-size: 12px; color: var(--ink-light);"></span>
+        <button id="nextBtn" class="primary">Дальше →</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const scenes = document.querySelectorAll('.scene');
+    const totalScenes = scenes.length;
+    const progress = document.getElementById('progress');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const navLabel = document.getElementById('navLabel');
+    let current = 0;
+    let activeAnimId = null;
+    let hertzPhase = 0;
+
+    for (let i = 0; i < totalScenes; i++) {
+        const step = document.createElement('div');
+        step.className = 'progress-step';
+        progress.appendChild(step);
+    }
+    const progressSteps = progress.querySelectorAll('.progress-step');
+
+    function stopAnim() {
+        if (activeAnimId !== null) {
+            cancelAnimationFrame(activeAnimId);
+            activeAnimId = null;
+        }
+    }
+
+    function showScene(index) {
+        stopAnim();
+        scenes.forEach((s, i) => s.classList.toggle('active', i === index));
+        progressSteps.forEach((s, i) => {
+            s.classList.toggle('done', i < index);
+            s.classList.toggle('current', i === index);
+        });
+        prevBtn.disabled = index === 0;
+        nextBtn.textContent = index === totalScenes - 1 ? 'К началу' : 'Дальше →';
+        navLabel.textContent = (index + 1) + ' / ' + totalScenes;
+
+        if (index === 3) startHertz();
+        if (index === 4) drawResonance();
+        if (index === 5) drawOrientation();
+        if (index === 6) drawCompare();
+        if (index === 8) initQuiz();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (current > 0) { current--; showScene(current); }
+    });
+    nextBtn.addEventListener('click', () => {
+        if (current < totalScenes - 1) { current++; showScene(current); }
+        else { current = 0; showScene(0); }
+    });
+
+    // === Сцена 4: Опыт Герца (анимация) ===
+    function startHertz() {
+        const canvas = document.getElementById('hertzViz');
+        const ctx = canvas.getContext('2d');
+
+        function render() {
+            // Считываем значение КАЖДЫЙ кадр, а не один раз
+            const dist = parseFloat(document.getElementById('distSlider').value);
+            document.getElementById('distVal').textContent = dist;
+
+            const w = canvas.width, h = canvas.height;
+            ctx.fillStyle = '#f2e9d6';
+            ctx.fillRect(0, 0, w, h);
+
+            const centerY = h / 2;
+            const tx = 120;
+            const rx = 120 + dist * 50;
+
+            drawVibrator(ctx, tx, centerY, 60, true, 0);
+            drawVibrator(ctx, rx, centerY, 60, false, 0);
+
+            hertzPhase += 0.05;
+            const numRings = 5;
+            for (let i = 0; i < numRings; i++) {
+                const baseR = (hertzPhase * 40 + i * 60) % 400;
+                const alpha = Math.max(0, 1 - baseR / 400) * 0.4;
+                ctx.strokeStyle = `rgba(139,26,26,${alpha})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(tx, centerY, baseR, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            drawSpark(ctx, tx, centerY, 1);
+            const sparkIntensity = Math.max(0.05, 1 / (1 + dist * 0.5));
+            drawSpark(ctx, rx, centerY, sparkIntensity);
+
+            ctx.fillStyle = '#1a2a4a';
+            ctx.font = 'bold 12px "Roboto Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('передатчик', tx, centerY + 90);
+            ctx.fillText('приёмник', rx, centerY + 90);
+
+            ctx.strokeStyle = 'rgba(74,90,122,0.6)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(tx + 20, centerY + 70);
+            ctx.lineTo(rx - 20, centerY + 70);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#1a2a4a';
+            ctx.font = 'bold 12px "Roboto Mono", monospace';
+            ctx.fillText(dist + ' м', (tx + rx) / 2, centerY + 80);
+
+            document.getElementById('sparkVal').textContent = Math.round(sparkIntensity * 100);
+
+            const fb = document.getElementById('hertzFeedback');
+            if (dist < 3) {
+                fb.textContent = 'Вибраторы близко. Искра яркая. Но это может быть и наводка, и волна.';
+            } else if (dist < 7) {
+                fb.textContent = 'Расстояние растёт. Искра слабеет, но видна — это уже волна, наводка бы исчезла.';
+            } else {
+                fb.textContent = 'Далеко. Искра слабая, но есть. Наводка на таком расстоянии не работает — это излучение.';
+            }
+
+            activeAnimId = requestAnimationFrame(render);
+        }
+        render();
+    }
+
+    function drawVibrator(ctx, x, y, size, isTransmitter, angle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        ctx.strokeStyle = '#1a2a4a';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(-size, 0);
+        ctx.lineTo(-10, 0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(size, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = '#8b1a1a';
+        ctx.beginPath();
+        ctx.arc(-10, 0, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(10, 0, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#4a5a7a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 5);
+        ctx.lineTo(0, 40);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-20, 40);
+        ctx.lineTo(20, 40);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function drawSpark(ctx, x, y, intensity) {
+        if (intensity <= 0.02) return;
+        const radius = 8 + intensity * 12;
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        grad.addColorStop(0, `rgba(255,240,150,${intensity})`);
+        grad.addColorStop(0.4, `rgba(255,140,50,${intensity * 0.8})`);
+        grad.addColorStop(1, `rgba(139,26,26,0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = `rgba(255,255,200,${intensity})`;
+        ctx.lineWidth = 1.5 + intensity * 2;
+        ctx.beginPath();
+        ctx.moveTo(x - 8, y - 4);
+        ctx.lineTo(x - 3, y - 8);
+        ctx.lineTo(x + 2, y - 2);
+        ctx.lineTo(x + 6, y - 6);
+        ctx.lineTo(x + 8, y + 2);
+        ctx.stroke();
+    }
+
+    // === Сцена 5: Резонанс (статичная, перерисовка по input) ===
+    function drawResonance() {
+        const canvas = document.getElementById('resonanceViz');
+        const ctx = canvas.getContext('2d');
+        const len = parseFloat(document.getElementById('lenSlider').value);
+        document.getElementById('lenVal').textContent = len;
+
+        const w = canvas.width, h = canvas.height;
+        ctx.fillStyle = '#f2e9d6';
+        ctx.fillRect(0, 0, w, h);
+
+        const centerY = h / 2;
+        const tx = 150;
+        const rx = 550;
+
+        drawVibrator(ctx, tx, centerY, 50, true, 0);
+        drawVibrator(ctx, rx, centerY, 20 + len, false, 0);
+
+        const resonance = Math.exp(-Math.pow((len - 50) / 15, 2));
+        const sparkIntensity = Math.max(0.02, resonance);
+
+        drawSpark(ctx, tx, centerY, 1);
+        drawSpark(ctx, rx, centerY, sparkIntensity);
+
+        ctx.fillStyle = '#1a2a4a';
+        ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('передатчик', tx, centerY + 80);
+        ctx.fillText('приёмник (' + len + ' см)', rx, centerY + 80);
+
+        document.getElementById('sparkLenVal').textContent = Math.round(sparkIntensity * 100);
+
+        const fb = document.getElementById('resonanceFeedback');
+        if (Math.abs(len - 50) < 8) {
+            fb.textContent = 'Резонанс! Длина приёмника совпадает с длиной волны. Искра максимальна.';
+        } else if (len < 40) {
+            fb.textContent = 'Приёмник короче резонансной длины. Искра слабая. Увеличьте длину.';
+        } else {
+            fb.textContent = 'Приёмник длиннее резонансной длины. Искра слабая. Уменьшите длину.';
+        }
+    }
+
+    document.getElementById('lenSlider').addEventListener('input', drawResonance);
+
+    // === Сцена 6: Ориентация (статичная, перерисовка по input) ===
+    function drawOrientation() {
+        const canvas = document.getElementById('orientationViz');
+        const ctx = canvas.getContext('2d');
+        const angle = parseFloat(document.getElementById('angleSlider').value);
+        document.getElementById('angleVal').textContent = angle;
+
+        const w = canvas.width, h = canvas.height;
+        ctx.fillStyle = '#f2e9d6';
+        ctx.fillRect(0, 0, w, h);
+
+        const centerY = h / 2;
+        const tx = 200;
+        const rx = 550;
+
+        drawVibrator(ctx, tx, centerY, 50, true, 0);
+        drawVibrator(ctx, rx, centerY, 50, false, (angle * Math.PI) / 180);
+
+        ctx.strokeStyle = 'rgba(139,26,26,0.2)';
+        ctx.lineWidth = 1;
+        for (let y = 80; y < h - 80; y += 15) {
+            ctx.beginPath();
+            ctx.moveTo(tx + 60, y);
+            ctx.lineTo(rx - 60, y);
+            ctx.stroke();
+        }
+
+        const projection = Math.abs(Math.cos((angle * Math.PI) / 180));
+        const sparkIntensity = Math.max(0.02, projection);
+
+        drawSpark(ctx, tx, centerY, 1);
+        drawSpark(ctx, rx, centerY, sparkIntensity);
+
+        ctx.fillStyle = '#1a2a4a';
+        ctx.font = 'bold 12px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('передатчик (гориз.)', tx, centerY + 90);
+        ctx.fillText('приёмник (' + angle + '°)', rx, centerY + 90);
+
+        document.getElementById('sparkAngleVal').textContent = Math.round(sparkIntensity * 100);
+
+        const fb = document.getElementById('orientationFeedback');
+        if (angle < 15) {
+            fb.textContent = 'Вибраторы параллельны. Поле «толкает» заряды вдоль приёмника. Искра максимальна.';
+        } else if (angle < 75) {
+            fb.textContent = 'Приёмник повёрнут. Проекция поля на его ось меньше. Искра слабеет.';
+        } else {
+            fb.textContent = 'Приёмник перпендикулярен полю. Поле не может «толкать» заряды вдоль него. Искры нет.';
+        }
+    }
+
+    document.getElementById('angleSlider').addEventListener('input', drawOrientation);
+
+    // === Сцена 7: Сравнение (статичная) ===
+    function drawCompare() {
+        const canvas = document.getElementById('compareViz');
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.fillStyle = '#f2e9d6';
+        ctx.fillRect(0, 0, w, h);
+
+        const padL = 60, padR = 40, padT = 30, padB = 40;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+
+        ctx.strokeStyle = '#1a2a4a';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, h - padB);
+        ctx.lineTo(w - padR, h - padB);
+        ctx.stroke();
+
+        ctx.fillStyle = '#4a5a7a';
+        ctx.font = '11px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('расстояние', padL + plotW / 2, h - 10);
+        ctx.save();
+        ctx.translate(15, padT + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('интенсивность', 0, 0);
+        ctx.restore();
+
+        const maxR = 10;
+        ctx.strokeStyle = '#8b1a1a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 1; i <= 100; i++) {
+            const r = (i / 100) * maxR;
+            const v = 1 / (r * r);
+            const x = padL + (r / maxR) * plotW;
+            const y = h - padB - Math.min(1, v) * plotH;
+            if (i === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = '#1a4a6a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 1; i <= 100; i++) {
+            const r = (i / 100) * maxR;
+            const v = 1 / r;
+            const x = padL + (r / maxR) * plotW;
+            const y = h - padB - Math.min(1, v) * plotH;
+            if (i === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = '#8b1a1a';
+        ctx.fillRect(w - 180, 20, 12, 12);
+        ctx.fillStyle = '#1a2a4a';
+        ctx.font = '12px "PT Serif", serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('наводка (1/r²)', w - 160, 31);
+
+        ctx.fillStyle = '#1a4a6a';
+        ctx.fillRect(w - 180, 40, 12, 12);
+        ctx.fillStyle = '#1a2a4a';
+        ctx.fillText('излучение (1/r)', w - 160, 51);
+    }
+
+    // === Тест ===
+    const quizData = [
+        { q: 'Чем излучение отличается от наводки?',
+          options: ['Излучение — это ближняя зона, наводка — дальняя', 'Излучение отрывается от проводника и уходит в пространство, наводка остаётся рядом', 'Это одно и то же'],
+          correct: 1,
+          explain: 'Наводка — это ближняя зона: поле «прилипает» к проводнику и быстро слабеет. Излучение — дальняя зона: поле отрывается и распространяется как волна, слабеет медленно.' },
+        { q: 'Почему искра в приёмнике не исчезает при удалении, хотя слабеет?',
+          options: ['Потому что это наводка', 'Потому что это волна, которая слабеет как 1/r', 'Потому что приёмник подключён проводом'],
+          correct: 1,
+          explain: 'Излучение слабеет как 1/r — медленно. Наводка бы исчезла гораздо раньше. Именно поэтому опыт Герца доказал существование волн.' },
+        { q: 'Что такое резонанс в опыте Герца?',
+          options: ['Когда искра в передатчике ярче', 'Когда длина приёмника совпадает с длиной волны и искра максимальна', 'Когда вибраторы параллельны'],
+          correct: 1,
+          explain: 'Резонанс — совпадение собственной частоты приёмника с частотой волны. У вибратора своя частота, зависящая от длины. Когда длина совпадает с длиной волны (или половиной), наступает резонанс.' },
+        { q: 'Почему искра пропадает при повороте приёмника на 90°?',
+          options: ['Потому что приёмник сломался', 'Потому что поле волны не может «толкать» заряды вдоль приёмника, перпендикулярного полю', 'Потому что расстояние увеличилось'],
+          correct: 1,
+          explain: 'Электромагнитная волна имеет направление поля (поляризацию). Вибратор принимает волну, когда его ось совпадает с направлением поля. При повороте на 90° проекция поля на ось вибратора равна нулю.' },
+        { q: 'Какой закон слабее с расстоянием: наводка или излучение?',
+          options: ['Наводка (1/r²)', 'Излучение (1/r)', 'Оба одинаково'],
+          correct: 1,
+          explain: 'Наводка слабеет как 1/r² (или 1/r³), излучение — как 1/r. Поэтому на больших расстояниях остаётся только излучение, и радиосвязь возможна на километры.' },
+        { q: 'Что доказал опыт Герца?',
+          options: ['Что наводки не существует', 'Что электромагнитные волны существуют и могут передаваться через пространство', 'Что искра — это ток'],
+          correct: 1,
+          explain: 'Опыт Герца (1888) впервые показал, что электромагнитные волны существуют и могут передаваться через пространство. Это стало основой для радиосвязи.' }
+    ];
+
+    let quizInitialized = false;
+    function initQuiz() {
+        if (quizInitialized) return;
+        quizInitialized = true;
+        const container = document.getElementById('quizContainer');
+        let html = '';
+        quizData.forEach((item, i) => {
+            html += `<div class="question" id="q${i}">
+                <div class="q-num">Вопрос ${i+1} из ${quizData.length}</div>
+                <div class="q-text">${item.q}</div>`;
+            item.options.forEach((opt, j) => {
+                html += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`;
+            });
+            html += `<div class="explain" id="explain${i}"></div>
+                <div class="result-mark" id="mark${i}"></div>
+            </div>`;
+        });
+        html += `<div style="text-align:center; margin-top:20px;">
+            <button id="checkQuiz" class="primary">Проверить ответы</button>
+        </div>`;
+        container.innerHTML = html;
+        document.getElementById('checkQuiz').addEventListener('click', checkQuiz);
+    }
+
+    function checkQuiz() {
+        let score = 0;
+        quizData.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            const questionEl = document.getElementById('q' + i);
+            const explainEl = document.getElementById('explain' + i);
+            const markEl = document.getElementById('mark' + i);
+            questionEl.classList.remove('correct', 'incorrect');
+            explainEl.classList.remove('show');
+            markEl.textContent = '';
+            markEl.className = 'result-mark';
+            if (!selected) {
+                markEl.textContent = '— Нет ответа';
+                markEl.classList.add('bad');
+                explainEl.innerHTML = '<strong>Правильный ответ:</strong> ' + item.options[item.correct] + '. ' + item.explain;
+                explainEl.classList.add('show');
+                return;
+            }
+            const val = parseInt(selected.value);
+            if (val === item.correct) {
+                score++;
+                questionEl.classList.add('correct');
+                markEl.textContent = '✓ Верно';
+                markEl.classList.add('ok');
+                explainEl.innerHTML = '<strong>Пояснение:</strong> ' + item.explain;
+                explainEl.classList.add('show');
+            } else {
+                questionEl.classList.add('incorrect');
+                markEl.textContent = '✗ Неверно';
+                markEl.classList.add('bad');
+                explainEl.innerHTML = '<strong>Правильный ответ:</strong> ' + item.options[item.correct] + '. ' + item.explain;
+                explainEl.classList.add('show');
+            }
+        });
+        const resultEl = document.getElementById('quizResult');
+        const percent = Math.round((score / quizData.length) * 100);
+        let verdict = '';
+        if (score === quizData.length) verdict = 'Отлично. Материал усвоен.';
+        else if (score >= 4) verdict = 'Хорошо. Есть неточности, но основное понято.';
+        else if (score >= 2) verdict = 'Удовлетворительно. Повторите различия между наводкой и излучением.';
+        else verdict = 'Неудовлетворительно. Вернитесь к сценам 4–7.';
+        resultEl.innerHTML = `
+            <div class="final-score">
+                <div class="num">${score}</div>
+                <div class="of">из ${quizData.length} (${percent}%)</div>
+                <div class="verdict">${verdict}</div>
+            </div>
+        `;
+        resultEl.style.display = 'block';
+        document.getElementById('finalChecklist').style.display = 'block';
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    showScene(0);
+})();
+</script>
+</body>
+</html>

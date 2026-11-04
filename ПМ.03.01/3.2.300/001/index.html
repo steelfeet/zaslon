@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Экран "Фарадей-1" // ТЗИ</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    :root { 
+        --wood: #3e2723; --wood-light: #5d4037; --metal: #b0bec5; 
+        --brass: #d4af37; --crt: #4af626; --crt-dim: #1b381b; 
+        --paper: #f4f1ea; --ink: #2c3e50;
+    }
+    * { box-sizing: border-box; }
+    body { 
+        background: #1a1a1a; color: var(--paper); 
+        font-family: 'Courier Prime', monospace; 
+        display: flex; justify-content: center; padding: 20px; margin: 0; 
+    }
+    .console { 
+        background: var(--wood); border: 8px solid #2b1a16; 
+        border-radius: 10px; width: 100%; max-width: 750px; 
+        padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.5);
+        position: relative;
+    }
+    .console::before { 
+        content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; 
+        border: 2px solid var(--brass); border-radius: 6px; pointer-events: none; opacity: 0.5;
+    }
+    h1 { 
+        text-align: center; font-family: 'Oswald', sans-serif; 
+        font-size: 24px; text-transform: uppercase; letter-spacing: 2px;
+        color: var(--brass); margin-top: 0; text-shadow: 2px 2px 0 #000;
+    }
+    .scene { display: none; flex-direction: column; gap: 15px; }
+    .scene.active { display: flex; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .panel { 
+        background: var(--wood-light); border: 4px solid #3e2723; 
+        padding: 15px; border-radius: 4px; box-shadow: inset 0 0 10px #000;
+    }
+    
+    .screen { 
+        background: #000; border: 4px solid #333; border-radius: 8px; 
+        padding: 15px; box-shadow: inset 0 0 20px #000; position: relative;
+        overflow: hidden;
+    }
+    .screen::after { 
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%; pointer-events: none; opacity: 0.5;
+    }
+    
+    canvas { width: 100%; height: 200px; display: block; }
+    
+    .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .value { font-size: 20px; font-weight: bold; color: var(--crt); text-shadow: 0 0 5px var(--crt); font-family: 'Courier Prime', monospace; }
+    
+    select, input[type=range] {
+        width: 100%; margin-top: 5px; padding: 8px;
+        background: #222; color: var(--crt); border: 1px solid var(--brass);
+        font-family: 'Courier Prime', monospace;
+    }
+    input[type=range] { accent-color: var(--brass); cursor: pointer; }
+    
+    button { 
+        background: linear-gradient(to bottom, #6d4c41, #3e2723); 
+        color: var(--brass); border: 2px solid var(--brass); 
+        padding: 12px; font-family: 'Oswald', sans-serif; font-size: 16px;
+        text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+        transition: 0.2s; box-shadow: 0 4px 0 #1a100a;
+    }
+    button:active { transform: translateY(4px); box-shadow: none; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .paper { 
+        background: var(--paper); color: var(--ink); 
+        padding: 15px; font-family: 'Courier Prime', monospace; 
+        border-radius: 2px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        font-size: 13px;
+    }
+    .paper h3 { margin-top: 0; font-family: 'Oswald', sans-serif; text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 5px; }
+    
+    .question { margin-bottom: 15px; }
+    .question label { display: block; margin-bottom: 5px; cursor: pointer; }
+    .question input[type="radio"] { accent-color: var(--brass); margin-right: 8px; }
+    
+    .note { font-size: 11px; color: #aaa; margin-top: 5px; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="console">
+    <h1>Экран "Фарадей-1"</h1>
+
+    <div id="scene1" class="scene active">
+        <div class="screen">
+            <p style="color: var(--crt); text-align: center; font-size: 16px;">
+                СИСТЕМА ТЕСТИРОВАНИЯ ЭКРАНОВ<br><br>
+                Обнаружено излучение ПЭМИН от ЭВМ.<br>
+                За окном работает станция перехвата.<br>
+                Ваша задача — подобрать материал и толщину экрана, чтобы подавить сигнал.
+            </p>
+        </div>
+        <button onclick="nextScene(2)">▶ ЗАПУСТИТЬ СТЕНД</button>
+    </div>
+
+    <div id="scene2" class="scene">
+        <div class="screen">
+            <canvas id="waveCanvas" width="700" height="200"></canvas>
+        </div>
+        
+        <div class="panel">
+            <div class="row">
+                <span>МАТЕРИАЛ ЭКРАНА:</span>
+                <select id="material" onchange="updateModel()">
+                    <option value="none">Нет (открытый канал)</option>
+                    <option value="cu">Медь (Cu)</option>
+                    <option value="al">Алюминий (Al)</option>
+                    <option value="fe">Сталь (Fe)</option>
+                </select>
+            </div>
+            
+            <div class="row">
+                <span>ТОЛЩИНА (мм):</span>
+                <span class="value" id="thickVal">0.0</span>
+            </div>
+            <!-- Ограничили максимальную толщину до 2 мм -->
+            <input type="range" id="thickness" min="0" max="2" step="0.05" value="0" oninput="updateModel()" disabled>
+            
+            <div class="row" style="margin-top: 15px;">
+                <span>ЭФФЕКТИВНОСТЬ ЭКРАНИРОВАНИЯ:</span>
+                <span class="value" id="seVal">0.0</span> дБ
+            </div>
+            <div class="row">
+                <span>УРОВЕНЬ ПЕРЕХВАТА:</span>
+                <span class="value" id="interceptVal" style="color: #ff3333; text-shadow: 0 0 5px #ff3333;">100</span> %
+            </div>
+        </div>
+
+        <div class="paper">
+            <div>[ФОРМУЛА] SE = 8.686 * (t / δ)</div>
+            <div>[ФОРМУЛА] δ = 1 / sqrt(π * f * μ * σ)</div>
+            <div style="color: #777; margin-top: 5px;">* f = 100 МГц (фиксировано)</div>
+            <div class="note">Сталь (Fe) имеет высокую магнитную проницаемость, поэтому достигает максимума уже при малой толщине.</div>
+        </div>
+
+        <button onclick="nextScene(3)">ЗАФИКСИРОВАТЬ РЕЗУЛЬТАТ ▶</button>
+    </div>
+
+    <div id="scene3" class="scene">
+        <div class="paper">
+            <h3>ПРОТОКОЛ ИСПЫТАНИЙ</h3>
+            <p><b>Выбранный материал:</b> <span id="resMat">—</span></p>
+            <p><b>Толщина экрана:</b> <span id="resThick">—</span> мм</p>
+            <p><b>Эффективность:</b> <span id="resSE">—</span> дБ</p>
+            <p><b>Вердикт:</b> <span id="resVerdict">—</span></p>
+            <hr>
+            <div id="testContainer"></div>
+        </div>
+        <button onclick="checkTest()">ПРОВЕРИТЬ ЗНАНИЯ</button>
+    </div>
+</div>
+
+<script>
+    let canvas, ctx;
+    let animId;
+    let currentSE = 0;
+    let currentWavePhase = 0;
+
+    // Обновленные константы (глубина скин-слоя в мм)
+    const materials = {
+        none: { name: 'Нет', delta: 1 },
+        cu:   { name: 'Медь', delta: 0.2 },     // Умеренное затухание
+        al:   { name: 'Алюминий', delta: 0.3 }, // Слабее меди
+        fe:   { name: 'Сталь', delta: 0.04 }    // Очень быстрое затухание
+    };
+
+    function nextScene(n) {
+        document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+        document.getElementById('scene' + n).classList.add('active');
+        
+        if (n === 2) {
+            initCanvas();
+            document.getElementById('thickness').disabled = false;
+            updateModel();
+        }
+        if (n === 3) {
+            cancelAnimationFrame(animId);
+            saveResults();
+            renderTest();
+        }
+    }
+
+    function initCanvas() {
+        canvas = document.getElementById('waveCanvas');
+        ctx = canvas.getContext('2d');
+        drawWave();
+    }
+
+    function drawWave() {
+        if (!canvas) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+
+        // Источник (слева)
+        ctx.fillStyle = '#333';
+        ctx.fillRect(20, h/2 - 30, 40, 60);
+        ctx.fillStyle = '#4af626';
+        ctx.fillRect(25, h/2 - 25, 30, 20);
+
+        // Приемник (справа)
+        ctx.fillStyle = '#333';
+        ctx.fillRect(w - 60, h/2 - 30, 40, 60);
+        ctx.fillStyle = '#ff3333';
+        ctx.fillRect(w - 55, h/2 - 25, 30, 20);
+
+        let thickness = parseFloat(document.getElementById('thickness').value);
+        let mat = document.getElementById('material').value;
+        let screenWidth = 0;
+        let screenStart = w/2;
+        let screenEnd = w/2;
+
+        // Рисуем экран
+        if (thickness > 0 && mat !== 'none') {
+            // Ширина экрана на экране зависит от толщины (макс 2мм = 60px)
+            screenWidth = Math.max(10, thickness * 30);
+            screenStart = w/2 - screenWidth/2;
+            screenEnd = w/2 + screenWidth/2;
+            
+            ctx.fillStyle = mat === 'cu' ? '#b87333' : (mat === 'al' ? '#aaa' : '#555');
+            ctx.fillRect(screenStart, 0, screenWidth, h);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Courier Prime';
+            ctx.textAlign = 'center';
+            ctx.fillText('ЭКРАН', w/2, 20);
+        }
+
+        // Коэффициент затухания (перевод дБ в разы)
+        let attenuationFactor = Math.pow(10, -currentSE / 20);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(74, 246, 38, 0.9)';
+        ctx.lineWidth = 2;
+        
+        currentWavePhase += 0.1;
+        let maxAmp = 40;
+        
+        for (let x = 0; x < w; x++) {
+            let localAmp = maxAmp;
+            
+            if (thickness > 0 && mat !== 'none') {
+                if (x > screenEnd) {
+                    // После экрана
+                    localAmp = maxAmp * attenuationFactor;
+                } else if (x >= screenStart) {
+                    // Внутри экрана плавное падение
+                    let progress = (x - screenStart) / screenWidth;
+                    localAmp = maxAmp * Math.pow(attenuationFactor, progress);
+                }
+            }
+            
+            let y = h/2 + Math.sin(x * 0.05 - currentWavePhase) * localAmp;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        
+        ctx.fillStyle = '#888';
+        ctx.font = '12px Courier Prime';
+        ctx.textAlign = 'left';
+        ctx.fillText('ИСТОЧНИК', 10, h - 10);
+        ctx.textAlign = 'right';
+        ctx.fillText('ПРИЕМНИК', w - 10, h - 10);
+        
+        animId = requestAnimationFrame(drawWave);
+    }
+
+    function updateModel() {
+        let matKey = document.getElementById('material').value;
+        let thickness = parseFloat(document.getElementById('thickness').value);
+        
+        if (matKey === 'none') {
+            document.getElementById('thickness').value = 0;
+            thickness = 0;
+        }
+        
+        document.getElementById('thickVal').innerText = thickness.toFixed(2);
+        
+        let delta = materials[matKey].delta;
+        let se = 0;
+        
+        if (thickness > 0 && matKey !== 'none') {
+            // Прямая формула в дБ: SE = 8.686 * (t / delta)
+            se = 8.686 * (thickness / delta);
+            se = Math.min(se, 120); // Ограничение сверху
+        }
+        
+        currentSE = se;
+        
+        let intercept = 100 * Math.pow(10, -se / 20);
+        
+        document.getElementById('seVal').innerText = se.toFixed(1);
+        document.getElementById('interceptVal').innerText = intercept.toFixed(2);
+        
+        const iVal = document.getElementById('interceptVal');
+        if (intercept > 50) iVal.style.color = '#ff3333';
+        else if (intercept > 10) iVal.style.color = '#ffb000';
+        else iVal.style.color = '#4af626';
+    }
+
+    function saveResults() {
+        let matKey = document.getElementById('material').value;
+        let thickness = parseFloat(document.getElementById('thickness').value);
+        let matName = materials[matKey].name;
+        
+        document.getElementById('resMat').innerText = matName;
+        document.getElementById('resThick').innerText = thickness.toFixed(2);
+        document.getElementById('resSE').innerText = currentSE.toFixed(1);
+        
+        let verdict = '';
+        if (currentSE < 20) verdict = 'КАНАЛ УТЕЧКИ ОТКРЫТ. Требуется доработка.';
+        else if (currentSE < 60) verdict = 'ЧАСТИЧНОЕ ПОДАВЛЕНИЕ. Риск утечки остается.';
+        else verdict = 'КАНАЛ ЗАЩИЩЕН. Эффективность высокая.';
+        
+        document.getElementById('resVerdict').innerText = verdict;
+    }
+
+    const questions = [
+        { q: "Что такое скин-эффект?", a: ["Вытеснение тока к поверхности проводника", "Нагрев проводника", "Увеличение магнитного поля"], c: 0 },
+        { q: "Как зависит эффективность экрана от толщины?", a: ["Линейно", "Экспоненциально (логарифмически в дБ)", "Не зависит"], c: 1 },
+        { q: "Какой металл лучше экранирует магнитное поле на низких частотах?", a: ["Медь", "Алюминий", "Сталь (Fe)"], c: 2 },
+        { q: "Если SE = 40 дБ, во сколько раз ослабляется сигнал по мощности?", a: ["В 40 раз", "В 100 раз", "В 10000 раз"], c: 2 },
+        { q: "Зачем нужен экран в ПЭМИН?", a: ["Для красоты", "Для снижения побочного излучения", "Для увеличения скорости"], c: 1 }
+    ];
+
+    function renderTest() {
+        let html = '<h4 style="text-align:center; margin-top:15px;">ИТОГОВЫЙ ТЕСТ</h4>';
+        questions.forEach((item, i) => {
+            html += `<div class="question" style="color:#2c3e50; font-size:14px;"><p><b>${i+1}. ${item.q}</b></p>`;
+            item.a.forEach((ans, j) => {
+                html += `<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label>`;
+            });
+            html += `</div>`;
+        });
+        document.getElementById('testContainer').innerHTML = html;
+    }
+
+    function checkTest() {
+        let score = 0;
+        questions.forEach((item, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && parseInt(selected.value) === item.c) score++;
+        });
+        alert(`Результат: ${score} из ${questions.length}. ${score === 5 ? 'Отлично! Допуск к экранированию получен.' : 'Повторите теорию скин-эффекта.'}`);
+    }
+</script>
+</body>
+</html>
