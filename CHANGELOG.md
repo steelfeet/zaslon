@@ -1,4 +1,8 @@
-﻿metod.html доработан с учетом https://habr.com/ru/companies/domate/articles/1107292/
+﻿
+0. Новости ИТ — введение
+v.0.1.1.4 [news] ✅ DONE
+
+metod.html доработан с учетом https://habr.com/ru/companies/domate/articles/1107292/
 v.0.1.1.3 [metod.html] ✅ DONE
 
 metod.html
