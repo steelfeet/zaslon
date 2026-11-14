@@ -1,4 +1,7 @@
-﻿metod.html
+﻿metod.html доработан с учетом https://habr.com/ru/companies/domate/articles/1107292/
+v.0.1.1.3 [metod.html] ✅ DONE
+
+metod.html
 v.0.1.1.2 [metod.html] ✅ DONE
 
 первая версия после выделения из CRM

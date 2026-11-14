@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Линия под контролем — защита от утечки по проводному каналу</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=PT+Serif:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap');
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: #efe8d8; color: #1a2744;
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 17px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  min-height: 100vh; display: flex; flex-direction: column;
+  background-image:
+    linear-gradient(rgba(26,39,68,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26,39,68,0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: #efe8d8; border-bottom: 2px solid #1a2744;
+  padding: 8px 16px 10px;
+}
+.progress { height: 4px; background: rgba(26,39,68,0.15); position: relative; overflow: hidden; }
+.progress-fill { position: absolute; inset: 0; width: 0%; background: #b02a1e; transition: width 0.3s ease; }
+.header-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 8px;
+  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+  color: #4a5875;
+}
+.header-row .brand { color: #b02a1e; font-weight: 700; }
+.header-scene { color: #4a5875; }
+.header-scene #sceneNum { color: #b02a1e; font-weight: 700; }
+main {
+  flex: 1; max-width: 900px; width: 100%;
+  margin: 0 auto; padding: 24px 16px 90px;
+}
+h1, h2, h3 { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 700; letter-spacing: 0.5px; line-height: 1.15; color: #1a2744; }
+h1 { font-size: 30px; margin: 0 0 12px; }
+h2 { font-size: 22px; margin: 24px 0 12px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid #1a2744; padding-bottom: 6px; }
+h3 { font-size: 17px; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 1px; }
+p { margin: 0 0 12px; }
+.goal-box { border: 2px solid #1a2744; background: #f6f0df; padding: 16px 18px; margin-bottom: 16px; position: relative; }
+.goal-box::before {
+  content: 'ЦЕЛЬ'; position: absolute; top: -10px; left: 14px;
+  background: #b02a1e; color: #efe8d8; padding: 2px 10px;
+  font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 2px;
+}
+.defs-box { border: 2px dashed #b02a1e; background: #fff8e8; padding: 14px 18px; margin: 16px 0; }
+.defs-box::before {
+  content: 'ЗАПИШИ В ТЕТРАДЬ'; display: block;
+  font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 2px;
+  color: #b02a1e; margin-bottom: 10px;
+  border-bottom: 1px solid #b02a1e; padding-bottom: 6px;
+}
+.defs-box dt { font-weight: 700; font-family: 'Oswald', sans-serif; font-size: 14px; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.defs-box dd { margin: 2px 0 0; font-size: 15px; }
+.controls { background: #f6f0df; border: 1.5px solid #1a2744; padding: 12px 14px; margin: 12px 0; }
+.ctrl-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-family: 'Roboto Mono', 'Courier New', monospace; font-size: 13px; }
+.ctrl-row label { flex: 0 0 auto; }
+.ctrl-row input[type=range] { flex: 1; min-width: 80px; accent-color: #b02a1e; }
+.ctrl-row .val { flex: 0 0 85px; text-align: right; color: #b02a1e; font-weight: 700; }
+.seg { display: flex; gap: 0; border: 1.5px solid #1a2744; margin: 8px 0; }
+.seg button {
+  flex: 1; padding: 8px 4px; background: #f6f0df;
+  border: none; border-right: 1px solid #1a2744;
+  font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 0.3px;
+  text-transform: uppercase; color: #1a2744; cursor: pointer;
+  transition: background 0.15s;
+}
+.seg button:last-child { border-right: none; }
+.seg button.active { background: #1a2744; color: #efe8d8; }
+.seg button:hover:not(.active) { background: #e5dcc7; }
+canvas.viz { display: block; width: 100%; height: 240px; background: #fbf7eb; border: 1.5px solid #1a2744; margin: 8px 0; touch-action: none; }
+canvas.viz.tall { height: 340px; }
+.readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+.readout .item { background: #f6f0df; border: 1px solid #1a2744; padding: 6px 8px; font-family: 'Roboto Mono', monospace; font-size: 12px; }
+.readout .item .lbl { color: #4a5875; text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px; }
+.readout .item .val { font-size: 16px; font-weight: 700; color: #1a2744; word-break: break-word; }
+.readout .item .val.warn { color: #b02a1e; }
+.readout .item .val.ok { color: #2d5a3d; }
+.feedback { border-left: 4px solid #b02a1e; background: #fbf3e0; padding: 10px 14px; margin: 12px 0; font-size: 15px; }
+.feedback strong { color: #b02a1e; }
+.triad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.triad .card { border: 1.5px solid #1a2744; background: #f6f0df; padding: 12px; cursor: pointer; transition: all 0.15s; }
+.triad .card:hover { background: #ece2c8; }
+.triad .card.active { background: #1a2744; color: #efe8d8; }
+.triad .card h4 { margin: 0 0 6px; font-family: 'Oswald', sans-serif; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+.triad .card p { margin: 0; font-size: 13px; line-height: 1.4; }
+.triad .card .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+.btn { font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; background: #1a2744; color: #efe8d8; border: none; cursor: pointer; transition: background 0.15s; }
+.btn:hover { background: #2d3a5a; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: #1a2744; border: 1.5px solid #1a2744; }
+.btn.ghost:hover { background: #f6f0df; }
+footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #efe8d8; border-top: 2px solid #1a2744;
+  padding: 10px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 1px;
+}
+footer .counter { color: #4a5875; }
+.test-item { border: 1.5px solid #1a2744; background: #f6f0df; padding: 14px; margin: 12px 0; }
+.test-item .q { font-weight: 700; margin-bottom: 10px; }
+.test-item .opts { display: flex; flex-direction: column; gap: 6px; }
+.test-item .opt { padding: 8px 12px; border: 1px solid #4a5875; background: #fbf7eb; cursor: pointer; font-size: 14px; transition: all 0.15s; }
+.test-item .opt:hover { background: #ece2c8; }
+.test-item .opt.correct { background: #d8e8d0; border-color: #2d5a3d; }
+.test-item .opt.wrong { background: #f0d0c8; border-color: #b02a1e; }
+.test-item .opt.disabled { cursor: default; pointer-events: none; }
+.test-item .explain { display: none; margin-top: 10px; padding: 10px; background: #fff8e8; border-left: 3px solid #2d5a3d; font-size: 14px; }
+.test-item .explain.visible { display: block; }
+.checklist { border: 2px solid #2d5a3d; background: #f0f6ec; padding: 16px 18px; margin: 16px 0; }
+.checklist h3 { color: #2d5a3d; border: none; margin-top: 0; }
+.checklist ul { margin: 0; padding-left: 20px; }
+.checklist li { margin: 4px 0; }
+@media (max-width: 600px) {
+  h1 { font-size: 22px; } h2 { font-size: 17px; }
+  .readout { grid-template-columns: 1fr 1fr; }
+  .triad { grid-template-columns: 1fr; }
+  canvas.viz { height: 200px; }
+  canvas.viz.tall { height: 300px; }
+  main { padding: 16px 10px 90px; }
+  .ctrl-row .val { flex: 0 0 70px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="header-row">
+    <span class="brand">Заслон · Тема 4.2</span>
+    <span class="header-scene"><span id="sceneNum">Сцена 1 из 9</span> · <span id="sceneTitle">Цель</span></span>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <button class="btn ghost" id="prevBtn">← Назад</button>
+  <span class="counter" id="counter">1 / 9</span>
+  <button class="btn" id="nextBtn">Далее →</button>
+</footer>
+
+<script>
+'use strict';
+
+/* ---------- общие утилиты ---------- */
+let currentRender = null;
+function stopAnim() { /* заглушка под будущие анимации */ }
+
+function setupCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  let rect = canvas.getBoundingClientRect();
+  if (rect.width < 10) {
+    const pw = canvas.parentElement ? canvas.parentElement.getBoundingClientRect().width : 0;
+    rect = { width: pw || 600, height: canvas.offsetHeight || 240 };
+  }
+  canvas.width  = Math.max(1, Math.floor(rect.width))  * dpr;
+  canvas.height = Math.max(1, Math.floor(rect.height)) * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: rect.width, h: rect.height };
+}
+
+function setTitle(t) { document.getElementById('sceneTitle').textContent = t; }
+
+/* ---------- Сцена 1. Цель ---------- */
+function scene0(container) {
+  setTitle('Цель');
+  container.innerHTML = `
+    <h1>Линия под контролем</h1>
+    <p style="font-size:16px;color:#4a5875;margin-bottom:20px;">Тема 4.2. Системы защиты от утечки информации по проводному каналу</p>
+    <div class="goal-box">
+      <p style="margin-bottom:8px;"><strong>После прохождения вы сможете:</strong></p>
+      <ul style="margin:0;padding-left:20px;">
+        <li>Для каждой из трёх угроз ИБ — конфиденциальности, целостности, доступности — назвать способ атаки на проводную линию.</li>
+        <li>Для каждой угрозы назвать средство защиты, которое её закрывает.</li>
+        <li>Объяснить, почему один и тот же прибор может обслуживать две разные угрозы.</li>
+      </ul>
+    </div>
+    <p>Проводной канал — телефонная линия, радиовещательная сеть, силовая проводка, линии сигнализации — остаётся важным, даже когда вокруг цифра. Именно поэтому его защита — отдельная тема, а не приложение к акустике или электромагнетизму.</p>
+    <p>Разберём три угрозы по очереди, потом сведём их в одну таблицу. В конце — тест на понимание.</p>
+    <div class="controls" style="margin-top:24px;">
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:#4a5875;text-transform:uppercase;margin-bottom:8px;">Что впереди</div>
+      <div style="font-family:'Roboto Mono',monospace;font-size:13px;line-height:1.8;">
+        1. Зачем линии, когда есть цифра<br>
+        2. Определения для тетради<br>
+        3. Угроза конфиденциальности: подключение<br>
+        4. Угроза целостности: подмена сигнала<br>
+        5. Угроза доступности: обрыв и подавление<br>
+        6. Применение: средства защиты по триаде<br>
+        7. Проверка понимания<br>
+        8. Итог
+      </div>
+    </div>`;
+}
+
+/* ---------- Сцена 2. Актуализация ---------- */
+function scene1(container) {
+  setTitle('Зачем линии, когда есть цифра');
+  container.innerHTML = `
+    <h2>Зачем линии, когда есть цифра</h2>
+    <p>Проводное радиовещание и линии оповещения сохраняют и развивают, потому что они <strong>энергонезависимы</strong>: питаются от самой линии, а не от розетки, и работают, когда легла сотовая сеть и отключили свет. Но та же энергонезависимость означает, что провод физически доступен.</p>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <label>Расстояние до щитка:</label>
+        <input type="range" id="s1-dist" min="0" max="1000" step="10" value="0">
+        <span class="val" id="s1-dist-val">0 м</span>
+      </div>
+    </div>
+
+    <canvas class="viz" id="s1-canvas" style="height:220px;"></canvas>
+
+    <div class="feedback" id="s1-feedback">Проведите ползунок вправо — на линии появятся точки возможного доступа.</div>
+
+    <div class="triad">
+      <div class="card"><span class="icon">👁</span><h4>Конфиденциальность</h4><p>Сигнал прочитан тем, кому не предназначен.</p></div>
+      <div class="card"><span class="icon">✎</span><h4>Целостность</h4><p>Сигнал изменён или подменён по пути.</p></div>
+      <div class="card"><span class="icon">⛓</span><h4>Доступность</h4><p>Сигнал не доходит до получателя.</p></div>
+    </div>
+    <p>Линия, которую берегут именно за надёжность, становится мишенью по всем трём осям. Дальше — по одной.</p>`;
+
+  const canvas = container.querySelector('#s1-canvas');
+  const slider = container.querySelector('#s1-dist');
+  const lbl = container.querySelector('#s1-dist-val');
+  const fb = container.querySelector('#s1-feedback');
+
+  function render() {
+    const dist = parseInt(slider.value);
+    lbl.textContent = dist + ' м';
+    drawScene1(canvas, dist);
+    if (dist === 0) fb.innerHTML = 'Проведите ползунок вправо — появятся точки доступа.';
+    else if (dist < 300) fb.innerHTML = 'Открыт щиток в подъезде. Злоумышленник уже может подключиться.';
+    else if (dist < 600) fb.innerHTML = '<strong>Подвал.</strong> Ещё одна точка доступа. Контроль только квартиры не спасает — нужен контроль всей длины.';
+    else if (dist < 900) fb.innerHTML = '<strong>Чердак.</strong> Чем длиннее линия, тем больше физических точек.';
+    else fb.innerHTML = '<strong>Кабельная трасса.</strong> Вся линия открыта. Защита начинается с контроля всей длины, а не только квартиры.';
+  }
+  slider.addEventListener('input', render);
+  currentRender = render;
+  render();
+  requestAnimationFrame(render);
+}
+
+function drawScene1(canvas, dist) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  const pad = 30, lineY = h * 0.55;
+  const lineLeft = pad, lineRight = w - pad;
+  const lineLen = lineRight - lineLeft;
+  const mToPx = (m) => lineLeft + (m / 1000) * lineLen;
+
+  // дома
+  [0, 200, 400, 700, 950].forEach(m => {
+    const x = mToPx(m);
+    ctx.fillStyle = '#1a2744';
+    ctx.fillRect(x - 12, lineY - 26, 24, 20);
+    ctx.beginPath();
+    ctx.moveTo(x - 14, lineY - 26); ctx.lineTo(x, lineY - 36); ctx.lineTo(x + 14, lineY - 26);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, lineY - 36); ctx.lineTo(x, lineY - 44); ctx.stroke();
+  });
+
+  // линия
+  ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+
+  // точки доступа
+  [{ m: 100, name: 'щиток' }, { m: 300, name: 'подвал' }, { m: 600, name: 'чердак' }, { m: 900, name: 'трасса' }].forEach(ap => {
+    if (dist >= ap.m - 50) {
+      const x = mToPx(ap.m);
+      ctx.save(); ctx.translate(x, lineY); ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = '#b02a1e'; ctx.fillRect(-8, -8, 16, 16); ctx.restore();
+      ctx.fillStyle = '#b02a1e'; ctx.font = 'bold 11px "Roboto Mono", monospace';
+      ctx.textAlign = 'center'; ctx.fillText(ap.name, x, lineY + 32);
+    }
+  });
+
+  ctx.fillStyle = '#4a5875'; ctx.font = '11px "Roboto Mono", monospace';
+  ctx.textAlign = 'left'; ctx.fillText('0 м', lineLeft, lineY + 55);
+  ctx.textAlign = 'right'; ctx.fillText('1000 м', lineRight, lineY + 55);
+}
+
+/* ---------- Сцена 3. Определения ---------- */
+function scene2(container) {
+  setTitle('Определения для тетради');
+  container.innerHTML = `
+    <h2>Определения для тетради</h2>
+    <p>Коротко, чтобы записать и дальше опираться.</p>
+    <div class="defs-box">
+      <dl>
+        <dt>Проводной канал утечки</dt>
+        <dd>Канал, в котором информативный сигнал распространяется по проводной линии: телефонной, радиовещательной, силовой, сигнализационной.</dd>
+
+        <dt>Конфиденциальность</dt>
+        <dd>Сигнал прочитан тем, кому не предназначен.</dd>
+
+        <dt>Целостность</dt>
+        <dd>Сигнал изменён или подменён по пути.</dd>
+
+        <dt>Доступность</dt>
+        <dd>Сигнал не доходит до получателя.</dd>
+
+        <dt>Параллельное подключение</dt>
+        <dd>Устройство съёма подключается к линии как дополнительная нагрузка. Меняет ток и импеданс линии.</dd>
+
+        <dt>Последовательное подключение</dt>
+        <dd>Устройство съёма разрывает линию и включается в разрыв. Меняет сопротивление участка.</dd>
+
+        <dt>Рефлектометрия (TDR)</dt>
+        <dd>Метод обнаружения неоднородностей в линии по отражённому импульсу. Позволяет найти место подключения или обрыва.</dd>
+      </dl>
+    </div>
+    <p style="color:#4a5875;font-size:14px;">Дальше — по одной угрозе. Сначала конфиденциальность: подключение к линии.</p>`;
+}
+
+/* ---------- хелперы отрисовки схемы ---------- */
+function drawLabel(ctx, text, x, y, align, size, color) {
+  align = align || 'center'; size = size || 13; color = color || '#1a2744';
+  ctx.font = 'bold ' + size + 'px "Roboto Mono", monospace';
+  const w = ctx.measureText(text).width;
+  let bx = x;
+  if (align === 'center') bx = x - w / 2;
+  else if (align === 'right') bx = x - w;
+  ctx.fillStyle = 'rgba(251,247,235,0.92)';
+  ctx.fillRect(bx - 4, y - size + 1, w + 8, size + 5);
+  ctx.fillStyle = color;
+  ctx.textAlign = 'left';
+  ctx.fillText(text, bx, y);
+}
+
+function drawDevice(ctx, cx, cy, w, h, label, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
+  ctx.strokeStyle = '#1a2744';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
+  ctx.fillStyle = '#efe8d8';
+  ctx.font = 'bold 12px "Oswald", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, cx, cy);
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawSourceBox(ctx, x, y, w, h, label) {
+  ctx.fillStyle = '#1a2744';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#efe8d8';
+  ctx.font = 'bold 12px "Oswald", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, x + w / 2, y + h / 2);
+  ctx.textBaseline = 'alphabetic';
+}
+
+/* ---------- Сцена 4. Конфиденциальность ---------- */
+function scene3(container) {
+  setTitle('Угроза конфиденциальности');
+  container.innerHTML = `
+    <h2>Угроза конфиденциальности: подключение к линии</h2>
+    <p>Злоумышленник подключается к линии, чтобы читать сигнал. Есть два способа: <strong>параллельно</strong> (дополнительная нагрузка) и <strong>последовательно</strong> (разрыв с вставкой). Каждый меняет параметры линии по-своему.</p>
+
+    <div class="controls">
+      <div class="seg" id="s3-type">
+        <button data-val="none" class="active">Нет</button>
+        <button data-val="parallel">Параллельное</button>
+        <button data-val="serial">Последовательное</button>
+      </div>
+      <div class="ctrl-row">
+        <label>R злоумышленника:</label>
+        <input type="range" id="s3-R" min="1" max="1000" step="1" value="1000">
+        <span class="val" id="s3-R-val">1000 Ом</span>
+      </div>
+      <div class="ctrl-row">
+        <label>Удалённость:</label>
+        <input type="range" id="s3-dist" min="50" max="950" step="10" value="300">
+        <span class="val" id="s3-dist-val">300 м</span>
+      </div>
+    </div>
+
+    <canvas class="viz tall" id="s3-canvas"></canvas>
+
+    <div class="readout">
+      <div class="item"><div class="lbl">Ток в линии</div><div class="val" id="s3-I">—</div></div>
+      <div class="item"><div class="lbl">Импеданс</div><div class="val" id="s3-Z">—</div></div>
+      <div class="item"><div class="lbl">Отражение Γ</div><div class="val" id="s3-G">—</div></div>
+    </div>
+
+    <div class="feedback" id="s3-feedback">Выберите тип подключения и двигайте ползунки.</div>`;
+
+  const st = { type: 'none', R: 1000, dist: 300 };
+  const canvas = container.querySelector('#s3-canvas');
+
+  function render() {
+    st.R = parseInt(container.querySelector('#s3-R').value);
+    st.dist = parseInt(container.querySelector('#s3-dist').value);
+    container.querySelector('#s3-R-val').textContent = st.R + ' Ом';
+    container.querySelector('#s3-dist-val').textContent = st.dist + ' м';
+
+    const Z0 = 100, U = 60;
+    let Z, I, Gamma;
+    const I0 = U / (2 * Z0);
+
+    if (st.type === 'none') {
+      Z = 2 * Z0; I = I0; Gamma = 0;
+    } else if (st.type === 'parallel') {
+      const Zt = (st.R * Z0) / (st.R + Z0);
+      Z = Z0 + Zt; I = U / Z;
+      Gamma = (Zt - Z0) / (Zt + Z0);
+    } else {
+      const Zt = Z0 + st.R;
+      Z = Z0 + Zt; I = U / Z;
+      Gamma = (Zt - Z0) / (Zt + Z0);
+    }
+    const dI = ((I - I0) / I0) * 100;
+
+    const iEl = container.querySelector('#s3-I');
+    iEl.textContent = I.toFixed(2) + ' А';
+    iEl.className = 'val' + (Math.abs(dI) > 5 ? ' warn' : '');
+    container.querySelector('#s3-Z').textContent = Z.toFixed(1) + ' Ом';
+    container.querySelector('#s3-G').textContent = Gamma.toFixed(3);
+
+    drawScene3(canvas, st, Gamma);
+
+    const fb = container.querySelector('#s3-feedback');
+    if (st.type === 'none') {
+      fb.innerHTML = 'Линия чистая. Параметры в норме.';
+    } else if (st.type === 'parallel') {
+      if (st.R < 5) {
+        fb.innerHTML = '<strong>Короткое замыкание.</strong> Сопротивление почти нулевое — это уже не скрытый съём, а авария. Система контроля должна сработать и на это.';
+      } else if (Math.abs(dI) < 5) {
+        fb.innerHTML = '<strong>Подключение маскируется.</strong> Сопротивление велико, ток изменился меньше чем на 5% — на глаз не заметить. Нужен точный контроль импеданса или рефлектометрия.';
+      } else {
+        fb.innerHTML = `<strong>Параллельное подключение.</strong> Линия шунтируется: сопротивление падает, ток растёт на ${Math.abs(dI).toFixed(1)}%. Если сравнивать с эталоном — заметно.`;
+      }
+    } else {
+      if (Math.abs(dI) < 5) {
+        fb.innerHTML = '<strong>Вставка почти невидима по току.</strong> Маленькое сопротивление в разрыве почти не меняет ток. Но рефлектометр видит неоднородность.';
+      } else {
+        fb.innerHTML = `<strong>Последовательное подключение.</strong> В линии появился разрыв с сопротивлением ${st.R} Ом. Ток упал на ${Math.abs(dI).toFixed(1)}%, рефлектограмма показывает отражение на расстоянии ${st.dist} м.`;
+      }
+    }
+  }
+
+  container.querySelectorAll('#s3-type button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('#s3-type button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      st.type = btn.dataset.val;
+      render();
+    });
+  });
+  container.querySelector('#s3-R').addEventListener('input', render);
+  container.querySelector('#s3-dist').addEventListener('input', render);
+
+  currentRender = render;
+  render();
+  requestAnimationFrame(render);
+}
+
+function drawScene3(canvas, st, Gamma) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  const padL = 36, padR = 36;
+  const lineLeft = padL, lineRight = w - padR;
+  const lineLen = lineRight - lineLeft;
+  const lineY = h * 0.26;
+  const mToPx = (m) => lineLeft + (m / 1000) * lineLen;
+
+  // источник и нагрузка
+  drawSourceBox(ctx, lineLeft - 26, lineY - 15, 26, 30, 'И');
+  drawSourceBox(ctx, lineRight, lineY - 15, 26, 30, 'Н');
+
+  // линия (с разрывом при последовательном)
+  ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+  if (st.type === 'serial') {
+    const tx = mToPx(st.dist);
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(tx - 24, lineY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx + 24, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+  }
+
+  // точка подключения
+  if (st.type === 'parallel') {
+    const tx = mToPx(st.dist);
+    const tx1 = tx - 32, tx2 = tx + 32;
+    const yBot = lineY + 52;
+
+    // параллельный контур: два отвода вниз + перемычка с устройством
+    ctx.strokeStyle = '#b02a1e'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(tx1, lineY); ctx.lineTo(tx1, yBot);
+    ctx.lineTo(tx - 24, yBot); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(tx2, lineY); ctx.lineTo(tx2, yBot);
+    ctx.lineTo(tx + 24, yBot); ctx.stroke();
+
+    // устройство злоумышленника в перемычке
+    drawDevice(ctx, tx, yBot, 48, 24, 'ЗЛ', '#b02a1e');
+
+    // подписи: удалённость над линией, сопротивление под устройством
+    drawLabel(ctx, st.dist + ' м', tx, lineY - 16, 'center', 13, '#b02a1e');
+    drawLabel(ctx, 'R = ' + st.R + ' Ом', tx, yBot + 30, 'center', 13, '#b02a1e');
+
+  } else if (st.type === 'serial') {
+    const tx = mToPx(st.dist);
+
+    // устройство в разрыве линии
+    drawDevice(ctx, tx, lineY, 48, 28, 'ЗЛ', '#b02a1e');
+
+    drawLabel(ctx, st.dist + ' м', tx, lineY - 28, 'center', 13, '#b02a1e');
+    drawLabel(ctx, 'R = ' + st.R + ' Ом', tx, lineY + 40, 'center', 13, '#b02a1e');
+  }
+
+  // рефлектограмма
+  const roY0 = h * 0.60, roH = h * 0.36;
+  ctx.fillStyle = '#fbf7eb'; ctx.fillRect(lineLeft, roY0, lineLen, roH);
+  ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 1; ctx.strokeRect(lineLeft, roY0, lineLen, roH);
+
+  ctx.strokeStyle = 'rgba(26,39,68,0.1)'; ctx.lineWidth = 0.5;
+  for (let i = 1; i < 10; i++) {
+    const x = lineLeft + (i / 10) * lineLen;
+    ctx.beginPath(); ctx.moveTo(x, roY0); ctx.lineTo(x, roY0 + roH); ctx.stroke();
+  }
+  const midY = roY0 + roH / 2;
+  ctx.strokeStyle = 'rgba(26,39,68,0.35)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(lineLeft, midY); ctx.lineTo(lineRight, midY); ctx.stroke();
+
+  if (st.type !== 'none' && Math.abs(Gamma) > 0.01) {
+    const px = mToPx(st.dist);
+    const amp = Math.abs(Gamma) * roH * 0.42;
+    const sign = Gamma < 0 ? -1 : 1;
+    const pw = Math.max(10, lineLen * 0.02);
+    ctx.fillStyle = Gamma < 0 ? '#b02a1e' : '#2d5a3d';
+    ctx.beginPath();
+    ctx.moveTo(px - pw, midY);
+    ctx.lineTo(px, midY + sign * amp);
+    ctx.lineTo(px + pw, midY);
+    ctx.lineTo(px, midY + sign * amp * 0.4);
+    ctx.closePath(); ctx.fill();
+    drawLabel(ctx, 't = ' + (2 * st.dist / 2e8 * 1e9).toFixed(0) + ' нс', px, roY0 - 8, 'center', 11);
+  }
+
+  drawLabel(ctx, 'Рефлектограмма', lineLeft + lineLen / 2, roY0 - 8, 'center', 12, '#4a5875');
+  drawLabel(ctx, '0 м', lineLeft + 4, roY0 + roH + 16, 'left', 12, '#4a5875');
+  drawLabel(ctx, '1000 м', lineRight - 4, roY0 + roH + 16, 'right', 12, '#4a5875');
+}
+
+/* ---------- Сцена 5. Целостность ---------- */
+function scene4(container) {
+  setTitle('Угроза целостности');
+  container.innerHTML = `
+    <h2>Угроза целостности: подмена сигнала</h2>
+    <p>Злоумышленник может не только слушать, но и <strong>говорить в линию</strong>. Для сети оповещения это худший сценарий: люди получают ложную команду. Сигнал в линии — суперпозиция полезного и постороннего.</p>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <label>Амплитуда врезки:</label>
+        <input type="range" id="s4-A" min="0" max="200" step="5" value="0">
+        <span class="val" id="s4-A-val">0 %</span>
+      </div>
+      <div class="ctrl-row">
+        <label>Частота врезки:</label>
+        <input type="range" id="s4-f" min="300" max="2000" step="10" value="1000">
+        <span class="val" id="s4-f-val">1000 Гц</span>
+      </div>
+      <div class="ctrl-row">
+        <label>Точка врезки:</label>
+        <input type="range" id="s4-dist" min="0" max="1000" step="10" value="500">
+        <span class="val" id="s4-dist-val">500 м</span>
+      </div>
+      <div class="seg" id="s4-auth">
+        <button data-val="off" class="active">Аутентификация выкл.</button>
+        <button data-val="on">Аутентификация вкл.</button>
+      </div>
+    </div>
+
+    <canvas class="viz" id="s4-canvas" style="height:300px;"></canvas>
+
+    <div class="readout">
+      <div class="item"><div class="lbl">Сигнал в приёмнике</div><div class="val" id="s4-state">ОПОВЕЩЕНИЕ</div></div>
+      <div class="item"><div class="lbl">A врезки / A полезного</div><div class="val" id="s4-snr">0.00</div></div>
+      <div class="item"><div class="lbl">Решение приёмника</div><div class="val" id="s4-dec">—</div></div>
+    </div>
+
+    <div class="feedback" id="s4-feedback">Увеличьте амплитуду врезки и посмотрите, что произойдёт.</div>`;
+
+  const st = { A2: 0, f2: 1000, dist: 500, auth: false };
+  const canvas = container.querySelector('#s4-canvas');
+  const A1 = 100, f1 = 1000;
+
+  function render() {
+    st.A2 = parseInt(container.querySelector('#s4-A').value);
+    st.f2 = parseInt(container.querySelector('#s4-f').value);
+    st.dist = parseInt(container.querySelector('#s4-dist').value);
+    container.querySelector('#s4-A-val').textContent = st.A2 + ' %';
+    container.querySelector('#s4-f-val').textContent = st.f2 + ' Гц';
+    container.querySelector('#s4-dist-val').textContent = st.dist + ' м';
+
+    const ratio = st.A2 / A1;
+    const sameFreq = Math.abs(st.f2 - f1) < 50;
+
+    let stateText, decision, cls = '';
+    let rejected = false;
+    if (st.A2 === 0) {
+      stateText = 'ОПОВЕЩЕНИЕ'; decision = '—';
+    } else if (st.auth) {
+      if (sameFreq && ratio < 1) { stateText = 'ОПОВЕЩЕНИЕ'; decision = 'ПРИНЯТ'; }
+      else { stateText = 'ОТКЛОНЁН'; decision = 'КОД НЕ СОВПАЛ'; rejected = true; }
+    } else {
+      if (ratio >= 1) { stateText = 'ЛОЖНЫЙ СИГНАЛ'; decision = '—'; cls = 'warn'; }
+      else if (ratio >= 0.3) { stateText = 'ИСКАЖЁН'; decision = '—'; cls = 'warn'; }
+      else { stateText = 'ОПОВЕЩЕНИЕ'; decision = '—'; }
+    }
+
+    const stEl = container.querySelector('#s4-state');
+    stEl.textContent = stateText;
+    stEl.className = 'val ' + (cls || (stateText === 'ОПОВЕЩЕНИЕ' ? 'ok' : ''));
+
+    container.querySelector('#s4-snr').textContent = ratio.toFixed(2);
+    const decEl = container.querySelector('#s4-dec');
+    decEl.textContent = decision;
+    decEl.className = 'val ' + (decision === 'ПРИНЯТ' ? 'ok' : (decision === 'КОД НЕ СОВПАЛ' ? 'warn' : ''));
+
+    const fb = container.querySelector('#s4-feedback');
+    if (st.A2 === 0) {
+      fb.innerHTML = 'Врезки нет, сигнал чистый. Приёмник видит только полезный сигнал.';
+    } else if (st.auth) {
+      if (stateText === 'ОПОВЕЩЕНИЕ') {
+        fb.innerHTML = '<strong>Аутентификация пропускает сигнал.</strong> Частота совпадает с ожидаемой, врезка слабее полезного сигнала. Приёмник не видит подмены.';
+      } else if (sameFreq) {
+        fb.innerHTML = '<strong>Аутентификация отклонила сигнал.</strong> Амплитуда врезки больше полезного сигнала — доминирующая частота изменилась. Приёмник это распознал.';
+      } else {
+        fb.innerHTML = '<strong>Аутентификация отклонила сигнал.</strong> В линии появилась посторонняя частота, отличная от ожидаемой. Приёмник проверяет код и не пропускает чужой сигнал.';
+      }
+    } else {
+      if (ratio >= 1) {
+        fb.innerHTML = '<strong>Полная маскировка.</strong> Амплитуда врезки больше полезного сигнала — приёмник «слышит» только злоумышленника. Люди получают ложное оповещение.';
+      } else if (ratio >= 0.3) {
+        fb.innerHTML = '<strong>Сигнал искажён.</strong> Врезка заметна, но не заглушает полезный сигнал. Приёмник видит смесь двух частот, разобрать трудно.';
+      } else {
+        fb.innerHTML = '<strong>Врезка мала.</strong> Она есть, но не влияет на приём. Приёмник не отличает её от шума.';
+      }
+    }
+
+    drawScene4(canvas, st, A1, f1, rejected);
+  }
+
+  container.querySelectorAll('#s4-auth button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('#s4-auth button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      st.auth = btn.dataset.val === 'on';
+      render();
+    });
+  });
+  container.querySelector('#s4-A').addEventListener('input', render);
+  container.querySelector('#s4-f').addEventListener('input', render);
+  container.querySelector('#s4-dist').addEventListener('input', render);
+
+  currentRender = render;
+  render();
+  requestAnimationFrame(render);
+}
+
+function drawScene4(canvas, st, A1, f1, rejected) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  const padX = 40, gw = w - 2 * padX;
+  const rowH = (h - 10) / 3;
+  const A_total = A1 + st.A2;
+
+  const rows = [
+    { label: 'Полезный сигнал', color: '#2d5a3d', kind: 'u' },
+    { label: 'Врезка злоумышленника', color: '#b02a1e', kind: 'n' },
+    { label: 'Сигнал в приёмнике', color: '#1a2744', kind: 's' }
+  ];
+
+  rows.forEach((row, idx) => {
+    const top = idx * rowH;
+    const centerY = top + rowH / 2;
+    const amp = rowH * 0.38;
+
+    ctx.fillStyle = idx === 2 ? '#f3ecd8' : '#fbf7eb';
+    ctx.fillRect(padX, top, gw, rowH - 4);
+    ctx.strokeStyle = 'rgba(26,39,68,0.2)'; ctx.lineWidth = 1;
+    ctx.strokeRect(padX, top, gw, rowH - 4);
+
+    ctx.strokeStyle = 'rgba(26,39,68,0.3)';
+    ctx.beginPath(); ctx.moveTo(padX, centerY); ctx.lineTo(padX + gw, centerY); ctx.stroke();
+
+    ctx.fillStyle = row.color;
+    ctx.font = 'bold 10px "Oswald", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(row.label, padX + 6, top + 14);
+
+    if (idx === 1 && st.A2 === 0) return;
+
+    const tx = padX + (st.dist / 1000) * gw;
+    const periods = 3;
+    const samples = 300;
+    const scale = amp / Math.max(1, A_total);
+
+    ctx.strokeStyle = row.color; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    let started = false;
+
+    for (let i = 0; i <= samples; i++) {
+      const x = padX + (i / samples) * gw;
+      const t = (i / samples) * periods / f1;
+
+      if (row.kind === 'u') {
+        const val = A1 * Math.sin(2 * Math.PI * f1 * t);
+        const y = centerY - val * scale;
+        if (!started) { ctx.moveTo(x, y); started = true; }
+        else ctx.lineTo(x, y);
+      } else if (row.kind === 'n') {
+        if (x < tx) continue;
+        const val = st.A2 * Math.sin(2 * Math.PI * st.f2 * t);
+        const y = centerY - val * scale;
+        if (!started) { ctx.moveTo(x, y); started = true; }
+        else ctx.lineTo(x, y);
+      } else {
+        // s
+        if (x < tx) {
+          const val = A1 * Math.sin(2 * Math.PI * f1 * t);
+          const y = centerY - val * scale;
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else ctx.lineTo(x, y);
+        } else {
+          if (rejected) {
+            if (!started) { ctx.moveTo(x, centerY); started = true; }
+            else ctx.lineTo(x, centerY);
+          } else {
+            const val = A1 * Math.sin(2 * Math.PI * f1 * t) + st.A2 * Math.sin(2 * Math.PI * st.f2 * t);
+            const y = centerY - val * scale;
+            if (!started) { ctx.moveTo(x, y); started = true; }
+            else ctx.lineTo(x, y);
+          }
+        }
+      }
+    }
+    ctx.stroke();
+  });
+
+  // вертикальная отметка точки врезки
+  if (st.A2 > 0) {
+    const tx = padX + (st.dist / 1000) * gw;
+    ctx.strokeStyle = 'rgba(176,42,30,0.5)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, h); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // надпись "ОТКЛОНЁН" при отклонении
+  if (rejected) {
+    const tx = padX + (st.dist / 1000) * gw;
+    const rowTop = 2 * rowH;
+    ctx.fillStyle = '#b02a1e';
+    ctx.font = 'bold 12px "Oswald", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ОТКЛОНЁН', tx + 8, rowTop + 20);
+  }
+}
+
+/* ---------- Сцена 6. Доступность ---------- */
+function scene5(container) {
+  setTitle('Угроза доступности');
+  container.innerHTML = `
+    <h2>Угроза доступности: обрыв и подавление</h2>
+    <p>Линию берегут именно за доступность — и её проще всего уничтожить физически. Обрыв, короткое замыкание или мощная помеха прерывают связь. Один и тот же рефлектометр видит и подключение (К), и обрыв (Д).</p>
+
+    <div class="controls">
+      <div class="seg" id="s5-type">
+        <button data-val="none" class="active">Нет</button>
+        <button data-val="break">Обрыв</button>
+        <button data-val="short">КЗ</button>
+        <button data-val="interf">Помеха</button>
+      </div>
+      <div class="ctrl-row">
+        <label>Точка воздействия:</label>
+        <input type="range" id="s5-dist" min="0" max="1000" step="10" value="500">
+        <span class="val" id="s5-dist-val">500 м</span>
+      </div>
+      <div class="seg" id="s5-backup">
+        <button data-val="off" class="active">Без резерва</button>
+        <button data-val="on">С резервом</button>
+      </div>
+    </div>
+
+    <canvas class="viz" id="s5-canvas" style="height:240px;"></canvas>
+
+    <div class="readout">
+      <div class="item"><div class="lbl">Доступность линии</div><div class="val" id="s5-state">НОРМА</div></div>
+      <div class="item"><div class="lbl">Абонентов без сигнала</div><div class="val" id="s5-affected">0</div></div>
+    </div>
+
+    <div class="feedback" id="s5-feedback">Выберите тип воздействия.</div>`;
+
+  const st = { type: 'none', dist: 500, backup: false };
+  const canvas = container.querySelector('#s5-canvas');
+  const houses = [50, 200, 350, 500, 650, 800, 950];
+
+  function render() {
+    st.dist = parseInt(container.querySelector('#s5-dist').value);
+    container.querySelector('#s5-dist-val').textContent = st.dist + ' м';
+
+    let affected = 0, stateText, cls = '';
+    if (st.type === 'none') { affected = 0; stateText = 'НОРМА'; cls = 'ok'; }
+    else if (st.type === 'break') {
+      if (st.backup) { affected = 0; stateText = 'ОБХОД'; cls = 'ok'; }
+      else { affected = houses.filter(m => m > st.dist).length; stateText = 'ОБРЫВ'; cls = 'warn'; }
+    } else if (st.type === 'short') { affected = houses.length; stateText = 'КЗ'; cls = 'warn'; }
+    else { affected = houses.filter(m => m > st.dist).length; stateText = 'ПОМЕХА'; cls = 'warn'; }
+
+    const stEl = container.querySelector('#s5-state');
+    stEl.textContent = stateText;
+    stEl.className = 'val ' + cls;
+    container.querySelector('#s5-affected').textContent = affected;
+
+    const fb = container.querySelector('#s5-feedback');
+    if (st.type === 'none') fb.innerHTML = 'Все абоненты получают сигнал. Линия в норме.';
+    else if (st.type === 'break') {
+      if (st.backup) fb.innerHTML = '<strong>Резервный маршрут сработал.</strong> Сигнал обошёл место обрыва. Резервирование — единственное средство, которое работает против обрыва. Обнаружение обрыва — не защита, а сигнал к действию.';
+      else fb.innerHTML = `<strong>Обрыв на ${st.dist} м.</strong> Абоненты дальше точки обрыва потеряли сигнал: их ${affected}. В линейной топологии один разрез убивает часть сети.`;
+    } else if (st.type === 'short') {
+      fb.innerHTML = '<strong>Короткое замыкание.</strong> Линия «села», сигнал пропал у всех абонентов. Это не съём, а авария — но система контроля должна её видеть. Резерв не спасает от КЗ.';
+    } else {
+      fb.innerHTML = `<strong>Мощная помеха на ${st.dist} м.</strong> Сигнал есть, но разобрать его нельзя. Абонентов после точки помехи без связи: ${affected}. Против помехи работает не резервирование, а помехоустойчивость.`;
+    }
+
+    drawScene5(canvas, st, houses);
+  }
+
+  container.querySelectorAll('#s5-type button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('#s5-type button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      st.type = btn.dataset.val;
+      render();
+    });
+  });
+  container.querySelectorAll('#s5-backup button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('#s5-backup button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      st.backup = btn.dataset.val === 'on';
+      render();
+    });
+  });
+  container.querySelector('#s5-dist').addEventListener('input', render);
+
+  currentRender = render;
+  render();
+  requestAnimationFrame(render);
+}
+
+function drawScene5(canvas, st, houses) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+
+  const padL = 30, padR = 30;
+  const lineLeft = padL, lineRight = w - padR;
+  const lineLen = lineRight - lineLeft;
+  const lineY = h * 0.55;
+  const mToPx = (m) => lineLeft + (m / 1000) * lineLen;
+
+  // резерв
+  if (st.backup) {
+    ctx.strokeStyle = '#2d5a3d'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.beginPath();
+    ctx.moveTo(lineLeft, lineY);
+    ctx.bezierCurveTo(lineLeft + lineLen * 0.3, lineY - 50, lineRight - lineLen * 0.3, lineY - 50, lineRight, lineY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#2d5a3d'; ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('резервный маршрут', (lineLeft + lineRight) / 2, lineY - 55);
+  }
+
+  // линия
+  if (st.type === 'break') {
+    ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(mToPx(st.dist) - 8, lineY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mToPx(st.dist) + 8, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+    ctx.strokeStyle = '#b02a1e'; ctx.lineWidth = 3;
+    const bx = mToPx(st.dist);
+    ctx.beginPath(); ctx.moveTo(bx - 8, lineY - 10); ctx.lineTo(bx - 8, lineY + 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx + 8, lineY - 10); ctx.lineTo(bx + 8, lineY + 10); ctx.stroke();
+  } else if (st.type === 'short') {
+    ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+    const x = mToPx(st.dist);
+    ctx.strokeStyle = '#b02a1e'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, lineY); ctx.lineTo(x, lineY + 25); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 10, lineY + 25); ctx.lineTo(x + 10, lineY + 25); ctx.stroke();
+    ctx.fillStyle = '#b02a1e'; ctx.font = 'bold 11px "Roboto Mono", monospace';
+    ctx.textAlign = 'center'; ctx.fillText('КЗ', x, lineY + 42);
+  } else if (st.type === 'interf') {
+    ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(mToPx(st.dist), lineY); ctx.stroke();
+    ctx.strokeStyle = '#b02a1e'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    const x0 = mToPx(st.dist), x1 = lineRight;
+    for (let i = 0; i <= 100; i++) {
+      const x = x0 + (i / 100) * (x1 - x0);
+      const y = lineY + Math.sin(i * 0.6) * 3;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = '#1a2744'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(lineLeft, lineY); ctx.lineTo(lineRight, lineY); ctx.stroke();
+  }
+
+  // дома
+  houses.forEach(m => {
+    const x = mToPx(m);
+    const afterBreak = st.type === 'break' && m > st.dist;
+    const afterShort = st.type === 'short';
+    const afterInterf = st.type === 'interf' && m > st.dist;
+    const bad = (afterBreak || afterShort || afterInterf) && !(st.backup && st.type === 'break');
+
+    ctx.fillStyle = bad ? '#b02a1e' : '#1a2744';
+    ctx.fillRect(x - 10, lineY - 24, 20, 16);
+    ctx.beginPath();
+    ctx.moveTo(x - 12, lineY - 24); ctx.lineTo(x, lineY - 33); ctx.lineTo(x + 12, lineY - 24);
+    ctx.closePath(); ctx.fill();
+
+    if (bad) {
+      ctx.strokeStyle = '#b02a1e'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x - 5, lineY - 45); ctx.lineTo(x + 5, lineY - 35);
+      ctx.moveTo(x + 5, lineY - 45); ctx.lineTo(x - 5, lineY - 35); ctx.stroke();
+    } else {
+      ctx.strokeStyle = '#2d5a3d'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, lineY - 45, 4, -Math.PI, 0); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, lineY - 45, 8, -Math.PI, 0); ctx.stroke();
+    }
+  });
+
+  ctx.fillStyle = '#4a5875'; ctx.font = '11px "Roboto Mono", monospace';
+  ctx.textAlign = 'left'; ctx.fillText('0 м', lineLeft, lineY + 60);
+  ctx.textAlign = 'right'; ctx.fillText('1000 м', lineRight, lineY + 60);
+  ctx.textAlign = 'center'; ctx.fillText('Линейная топология' + (st.backup ? ' + кольцевой резерв' : ''), (lineLeft + lineRight) / 2, 20);
+}
+
+/* ---------- Сцена 7. Применение ---------- */
+function scene6(container) {
+  setTitle('Средства защиты по триаде');
+  container.innerHTML = `
+    <h2>Применение: средства защиты по триаде</h2>
+    <p>Один и тот же инструмент может закрывать разные угрозы. Нажмите на угрозу — раскроются средства защиты.</p>
+
+    <div class="triad" id="s6-triad">
+      <div class="card active" data-key="k"><span class="icon">👁</span><h4>Конфиденциальность</h4><p>Найти подключение и не дать ему работать</p></div>
+      <div class="card" data-key="c"><span class="icon">✎</span><h4>Целостность</h4><p>Отличить «свой» сигнал от «чужого»</p></div>
+      <div class="card" data-key="d"><span class="icon">⛓</span><h4>Доступность</h4><p>Сохранить путь сигнала или восстановить</p></div>
+    </div>
+
+    <div id="s6-content"></div>`;
+
+  const data = {
+    k: {
+      title: 'Конфиденциальность',
+      items: [
+        ['Рефлектометрия (TDR)', 'Находит неоднородность в линии: параллельное подключение даёт отрицательное отражение.'],
+        ['Контроль импеданса и тока', 'Сравнение с эталоном выявляет подключение: импеданс падает, ток растёт.'],
+        ['«Выжигание»', 'Высоковольтный импульс в линию выводит из строя параллельно подключённое устройство.'],
+        ['Пломбирование и контроль трасс', 'Не даёт физически добраться до линии — организационная защита.']
+      ]
+    },
+    c: {
+      title: 'Целостность',
+      items: [
+        ['Аутентификация сигнала', 'Тональный код, последовательность посылок — приёмник проверяет «тот или не тот» сигнал.'],
+        ['Контроль уровня', 'Слишком сильный сигнал, доминирующая посторонняя частота — признаки врезки.'],
+        ['Проверка на посторонние несущие', 'В линии не должно быть частот, отличных от рабочих.'],
+        ['Организационный контроль', 'Если злоумышленник знает код — это утечка регламента, а не техники.']
+      ]
+    },
+    d: {
+      title: 'Доступность',
+      items: [
+        ['Резервирование маршрутов', 'Кольцевая топология: при обрыве сигнал идёт в обход.'],
+        ['Мониторинг целостности', 'Рефлектометр видит обрыв так же, как и подключение.'],
+        ['Автономное питание', 'Линия питается от самой себя — уже часть защиты доступности.'],
+        ['Обходы и патрулирование', 'Организационная защита трасс от физического обрыва.']
+      ]
+    }
+  };
+
+  const content = container.querySelector('#s6-content');
+
+  function show(key) {
+    const d = data[key];
+    let html = `<h3>${d.title}: средства защиты</h3><ul style="padding-left:20px;">`;
+    d.items.forEach(([name, desc]) => { html += `<li style="margin:8px 0;"><strong>${name}.</strong> ${desc}</li>`; });
+    html += '</ul>';
+    if (key === 'k' || key === 'd') {
+      html += `<div class="feedback"><strong>Обрати внимание:</strong> рефлектометр стоит в двух строках. Для конфиденциальности он ищет подключение, для доступности — обрыв. Инструмент один, угрозы разные.</div>`;
+    }
+    if (key === 'd') {
+      html += `<div class="feedback"><strong>Связь с новостью:</strong> проводную сеть оповещения сохраняют именно за доступность. Но та же сеть физически доступна — значит, доступность защищают не только от аварий, но и от намеренного обрыва.</div>`;
+    }
+    content.innerHTML = html;
+  }
+
+  container.querySelectorAll('#s6-triad .card').forEach(card => {
+    card.addEventListener('click', () => {
+      container.querySelectorAll('#s6-triad .card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      show(card.dataset.key);
+    });
+  });
+  show('k');
+}
+
+/* ---------- Сцена 8. Тест ---------- */
+function scene7(container) {
+  setTitle('Проверка понимания');
+  const questions = [
+    {
+      q: 'Параллельное подключение изменило ток в линии на 6%. Что нарушено?',
+      opts: ['Конфиденциальность', 'Целостность', 'Доступность', 'Ничего'],
+      correct: 0,
+      explain: 'Параллельное подключение = кто-то читает сигнал. Сигнал доходит до получателя неизменным (целостность цела), доступность не нарушена. Нарушена конфиденциальность.'
+    },
+    {
+      q: 'В линию внедрён сигнал с посторонней частотой. Аутентификация включена. Что произойдёт?',
+      opts: ['Сигнал будет отклонён как чужой', 'Сигнал пройдёт без изменений', 'Линия оборвётся', 'Приёмник сгорит'],
+      correct: 0,
+      explain: 'Аутентификация проверяет код (частоту, последовательность). Посторонняя частота — отклонение.'
+    },
+    {
+      q: 'Аутентификация не спасла от врезки, потому что злоумышленник знал код. Это…',
+      opts: ['Техническая уязвимость', 'Утечка регламента', 'Отказ оборудования', 'Ошибка проектирования'],
+      correct: 1,
+      explain: 'Если код известен — защита переносится в организационную плоскость. Это уже не техника, а регламент доступа к документации.'
+    },
+    {
+      q: 'Рефлектометр показывает неоднородность на 300 м. Это…',
+      opts: ['Только подключение', 'Только обрыв', 'И подключение, и обрыв', 'Ошибка прибора'],
+      correct: 2,
+      explain: 'Метод видит любую неоднородность. Характер отражения (положительное или отрицательное) и дополнительные измерения помогают различить.'
+    },
+    {
+      q: 'Какое средство работает против обрыва, а какое — только сообщает о нём?',
+      opts: ['Резервирование работает, мониторинг сообщает', 'Мониторинг работает, резервирование сообщает', 'Оба работают', 'Оба только сообщают'],
+      correct: 0,
+      explain: 'Резервирование сохраняет связь (обходит обрыв). Мониторинг только обнаруживает — это сигнал к действию, не защита.'
+    },
+    {
+      q: 'Почему проводное радиовещание устойчиво к кибератакам, но уязвимо по всем трём осям ИБ?',
+      opts: ['Не зависит от цифровых сетей и электричества, но физически доступно', 'Оно не использует электричество', 'В нём нет информации', 'Оно защищено государством'],
+      correct: 0,
+      explain: 'Энергонезависимость — защита от кибератак и аварий электросети. Но провод физически доступен: можно подслушать (К), подменить сигнал (Ц), оборвать (Д).'
+    }
+  ];
+
+  container.innerHTML = `
+    <h2>Проверка понимания</h2>
+    <p>Шесть вопросов по трём угрозам. После ответа — пояснение.</p>
+    <div id="s7-questions"></div>
+    <div class="checklist" id="s7-checklist" style="display:none;">
+      <h3>Чек-лист конспекта</h3>
+      <ul>
+        <li>Определения: проводной канал, конфиденциальность, целостность, доступность, параллельное/последовательное подключение, рефлектометрия.</li>
+        <li>Формула: L = v · t / 2, Γ = (Z_н − Z₀) / (Z_н + Z₀).</li>
+        <li>Таблица «угроза → средство».</li>
+        <li>Три крайних случая: короткое замыкание (К), совпадение кода (Ц), обрыв в начале линии (Д).</li>
+      </ul>
+    </div>`;
+
+  const qs = container.querySelector('#s7-questions');
+  let answered = 0;
+
+  questions.forEach((q, qi) => {
+    const item = document.createElement('div');
+    item.className = 'test-item';
+    item.innerHTML = `<div class="q">${qi + 1}. ${q.q}</div><div class="opts">${q.opts.map((opt, oi) => `<div class="opt" data-oi="${oi}">${opt}</div>`).join('')}</div><div class="explain">${q.explain}</div>`;
+    qs.appendChild(item);
+
+    let done = false;
+    item.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (done) return;
+        done = true;
+        const oi = parseInt(opt.dataset.oi);
+        item.querySelectorAll('.opt').forEach((o, idx) => {
+          o.classList.add('disabled');
+          if (idx === q.correct) o.classList.add('correct');
+          else if (idx === oi) o.classList.add('wrong');
+        });
+        item.querySelector('.explain').classList.add('visible');
+        answered++;
+        if (answered === questions.length) {
+          container.querySelector('#s7-checklist').style.display = 'block';
+        }
+      });
+    });
+  });
+}
+
+/* ---------- Сцена 9. Итог ---------- */
+function scene8(container) {
+  setTitle('Итог');
+  container.innerHTML = `
+    <h2>Итог</h2>
+    <p>Линия под контролем — это не один прибор, а система. У каждой угрозы своё средство, и часто они пересекаются.</p>
+
+    <div class="checklist">
+      <h3>Что вы теперь умеете</h3>
+      <ul>
+        <li>Объяснять, почему проводной канал важен даже в цифровую эпоху: энергонезависимость и независимость от цифровых сетей.</li>
+        <li>Различать три угрозы ИБ применительно к проводной линии — конфиденциальность, целостность, доступность.</li>
+        <li>Для каждой угрозы называть способ атаки и средство защиты.</li>
+        <li>Объяснять, что один инструмент (рефлектометр) может закрывать разные угрозы.</li>
+      </ul>
+    </div>
+
+    <div class="defs-box">
+      <dl>
+        <dt>Главное различие</dt>
+        <dd><strong>К:</strong> сигнал прочитан. <strong>Ц:</strong> сигнал изменён. <strong>Д:</strong> сигнал не дошёл. Одно подключение — это К. Врезка с подменой — это Ц. Обрыв — это Д. Три разных средства, три разных метода обнаружения.</dd>
+      </dl>
+    </div>
+
+    <p style="margin-top:24px;color:#4a5875;font-size:14px;">Тема 4.2, ПМ.03.01. Интерактив собран по методике «Заслон»: спецификация → генерация → верификация → защита. Модель не заменяет реальный прибор: она показывает физику, с которой прибор работает.</p>`;
+}
+
+/* ---------- Навигация ---------- */
+const scenes = [scene0, scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8];
+let current = 0;
+
+function showScene(i) {
+  stopAnim();
+  currentRender = null;
+  current = Math.max(0, Math.min(scenes.length - 1, i));
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  scenes[current](main);
+
+  // нумерация в шапке
+  document.getElementById('sceneNum').textContent = 'Сцена ' + (current + 1) + ' из ' + scenes.length;
+
+  // префикс "Сцена N." к заголовку h2 (кроме сцены 0, где h1)
+  const h2 = main.querySelector('h2');
+  if (h2 && !/^Сцена\s/.test(h2.textContent)) {
+    h2.textContent = 'Сцена ' + (current + 1) + '. ' + h2.textContent;
+  }
+
+  document.getElementById('counter').textContent = (current + 1) + ' / ' + scenes.length;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === scenes.length - 1;
+  document.getElementById('progressFill').style.width = ((current + 1) / scenes.length * 100) + '%';
+
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => showScene(current - 1));
+document.getElementById('nextBtn').addEventListener('click', () => showScene(current + 1));
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (currentRender) currentRender(); }, 150);
+});
+
+showScene(0);
+</script>
+</body>
+</html>

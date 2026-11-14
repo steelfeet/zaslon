@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эфир-1: Принципы радиосвязи</title>
+<style>
+:root {
+  --paper: #f4ecd8;
+  --paper-dark: #e8dcc0;
+  --ink: #1a2a4a;
+  --ink-light: #3a4a6a;
+  --red: #b22222;
+  --green: #2a6a3a;
+  --blue: #1a4a7a;
+  --purple: #6a3a8a;
+  --mono: 'Roboto Mono', 'Courier New', monospace;
+  --serif: 'PT Serif', Georgia, serif;
+  --sans: 'Oswald', 'Arial Narrow', sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.5;
+}
+header {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+header h1 {
+  font-family: var(--sans);
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+header .sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  opacity: 0.7;
+}
+#progress-bar { height: 4px; background: var(--paper-dark); }
+#progress-fill { height: 100%; background: var(--red); width: 9.1%; transition: width 0.3s; }
+main { max-width: 900px; margin: 0 auto; padding: 20px; }
+.scene { display: none; }
+.scene.active { display: block; animation: fadeIn 0.25s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+h2 {
+  font-family: var(--sans);
+  color: var(--red);
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 6px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 22px;
+}
+p { margin: 8px 0; }
+.lead { font-size: 17px; color: var(--ink-light); }
+ul { padding-left: 22px; }
+canvas { display: block; width: 100%; background: var(--paper-dark); border: 1px solid var(--ink); margin: 12px 0; }
+.controls { background: var(--paper-dark); border: 1px solid var(--ink); padding: 12px 16px; margin: 12px 0; }
+.control-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; flex-wrap: wrap; }
+.control-row label { font-family: var(--mono); font-size: 13px; min-width: 240px; }
+input[type=range] { flex: 1; min-width: 140px; accent-color: var(--red); }
+.value-box {
+  font-family: var(--mono);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 8px;
+  font-size: 13px;
+  min-width: 90px;
+  text-align: center;
+}
+.readout {
+  font-family: var(--mono);
+  font-size: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 14px;
+  margin: 12px 0;
+  line-height: 1.7;
+}
+.readout .hl { color: #ffd700; }
+.feedback {
+  border-left: 4px solid var(--red);
+  background: rgba(178,34,34,0.08);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 15px;
+}
+.notebook {
+  background: #fffef5;
+  border: 2px solid var(--ink);
+  border-left: 6px solid var(--red);
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+.notebook .nb-title {
+  font-family: var(--sans);
+  color: var(--red);
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.notebook dt { font-family: var(--mono); font-weight: bold; margin-top: 8px; }
+.notebook dd { margin: 0; color: var(--ink-light); font-family: var(--mono); font-size: 13px; }
+.btn {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 10px 24px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s;
+}
+.btn:hover { background: var(--red); }
+.btn.small { padding: 6px 16px; font-size: 13px; }
+.btn.active { background: var(--red); }
+.nav { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--ink); }
+.legend { font-family: var(--mono); font-size: 12px; color: var(--ink-light); margin: 8px 0; }
+.cards-area { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.card {
+  background: var(--paper-dark);
+  border: 1px solid var(--ink);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+.card:hover { background: #fff; }
+.card.selected { border-color: var(--red); border-width: 2px; background: #fff; box-shadow: 0 0 0 2px rgba(178,34,34,0.25); }
+.bins-area { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+.bin {
+  border: 2px dashed var(--ink);
+  min-height: 90px;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bin:hover { border-color: var(--red); background: rgba(178,34,34,0.05); }
+.bin .bin-title { font-family: var(--sans); font-size: 12px; letter-spacing: 1px; color: var(--red); display: block; margin-bottom: 4px; }
+.bin .bin-item { font-family: var(--mono); font-size: 10px; display: block; padding: 1px 0; color: var(--green); }
+.question { background: var(--paper-dark); border: 1px solid var(--ink); padding: 14px 18px; margin: 14px 0; }
+.question .q-num { font-family: var(--sans); color: var(--red); font-size: 14px; letter-spacing: 1px; }
+.question .q-text { font-size: 16px; margin: 4px 0 10px; }
+.question .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; font-size: 15px; border: 1px solid transparent; }
+.question .options label:hover { background: rgba(0,0,0,0.04); }
+.question .options input { margin-right: 8px; }
+.question .explain { display: none; margin-top: 10px; padding: 8px 12px; font-size: 14px; border-left: 3px solid var(--red); background: rgba(178,34,34,0.08); }
+.question .explain.show { display: block; }
+.question .explain.correct { border-color: var(--green); background: rgba(42,106,58,0.1); }
+.toggles { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+.toggle-item {
+  background: var(--paper-dark);
+  border: 1px solid var(--ink);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  user-select: none;
+  transition: all 0.15s;
+}
+.toggle-item.on { background: var(--green); color: var(--paper); border-color: var(--green); }
+.risk-bars { margin: 12px 0; }
+.risk-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-family: var(--mono); font-size: 13px; }
+.risk-row .risk-label { min-width: 110px; }
+.risk-track { flex: 1; height: 16px; background: var(--paper-dark); border: 1px solid var(--ink); }
+.risk-fill { height: 100%; transition: width 0.3s, background 0.3s; }
+.checklist { background: #fffef5; border: 2px solid var(--green); padding: 16px 20px; margin: 20px 0; }
+.checklist .nb-title { font-family: var(--sans); color: var(--green); font-size: 16px; letter-spacing: 2px; margin-bottom: 8px; }
+.checklist ul { margin: 0; padding-left: 20px; }
+.checklist li { margin: 4px 0; font-family: var(--mono); font-size: 13px; }
+.score-box { font-family: var(--sans); font-size: 24px; color: var(--red); text-align: center; padding: 16px; border: 2px solid var(--red); margin: 20px 0; }
+footer { text-align: center; padding: 20px; font-family: var(--mono); font-size: 11px; color: var(--ink-light); border-top: 1px solid var(--ink); margin-top: 40px; }
+@media (max-width: 600px) {
+  .bins-area { grid-template-columns: repeat(2, 1fr); }
+  .control-row label { min-width: 140px; font-size: 12px; }
+  header h1 { font-size: 16px; }
+  main { padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Эфир-1 · Принципы радиосвязи</h1>
+  <div class="sub">ПМ.03.01 · Заслон · v0.1-spec</div>
+</header>
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<main id="app">
+
+<!-- 1 -->
+<section class="scene active" data-scene="1">
+  <h2>1. Цель</h2>
+  <p class="lead">Этот интерактив — про то, как радиоволна выбирается из передатчика, что с ней происходит по дороге и почему разные диапазоны ведут себя по-разному.</p>
+  <p>После прохождения вы сможете:</p>
+  <ul>
+    <li>по частоте определить диапазон, длину волны и место на шкале ЭМ излучений;</li>
+    <li>объяснить, почему ДВ огибает холм, а Wi-Fi за тем же холмом не работает;</li>
+    <li>объяснить, почему КВ слышно за тысячи километров, а УКВ — только в прямой видимости;</li>
+    <li>выбрать диапазон под задачу (подводная связь, вещание, мобильная, спутник);</li>
+    <li>объяснить, чем амплитудная, частотная и фазовая модуляции отличаются и где какая применяется;</li>
+    <li>объяснить, как направленная антенна, ППРЧ и экранирование снижают риск перехвата и подавления.</li>
+  </ul>
+  <div class="nav"><span></span><button class="btn" onclick="goTo(2)">Начать →</button></div>
+</section>
+
+<!-- 2 -->
+<section class="scene" data-scene="2">
+  <h2>2. Актуализация: волна и шкала</h2>
+  <p>Колеблющийся заряд создаёт переменное электромагнитное поле, которое распространяется в пространстве со скоростью света. Частота f и длина волны λ связаны: <b>λ = c / f</b>, c = 3·10⁸ м/с.</p>
+  <p>Двигайте ползунок — частота, длина волны и энергия кванта меняются вместе.</p>
+  <canvas id="c-spectrum"></canvas>
+  <p class="legend">Видимый свет — узкая полоска в середине шкалы. Глаз видит только её.</p>
+  <div class="controls">
+    <div class="control-row">
+      <label>Частота f</label>
+      <input type="range" id="s-freq" min="3.48" max="20.48" step="0.01" value="6">
+      <span class="value-box" id="v-freq">1 МГц</span>
+    </div>
+  </div>
+  <div class="readout" id="r-spectrum"></div>
+  <div class="feedback" id="fb-spectrum"></div>
+  <div class="nav"><button class="btn" onclick="goTo(1)">← Назад</button><button class="btn" onclick="goTo(3)">Далее →</button></div>
+</section>
+
+<!-- 3 -->
+<section class="scene" data-scene="3">
+  <h2>3. Определения для тетради</h2>
+  <div class="notebook">
+    <div class="nb-title">ЗАПИШИ В ТЕТРАДЬ</div>
+    <dl>
+      <dt>Электромагнитная волна</dt>
+      <dd>Распространяющееся в пространстве переменное ЭМ поле. В вакууме c = 3·10⁸ м/с.</dd>
+      <dt>Длина волны</dt>
+      <dd>λ = c / f, [м]. Частота f, [Гц].</dd>
+      <dt>Модулирующий сигнал</dt>
+      <dd>Низкочастотный сигнал, содержащий информацию. Обозначение F<sub>м</sub>, [Гц].</dd>
+      <dt>Несущая</dt>
+      <dd>Высокочастотное колебание, переносящее сигнал. Обозначение f<sub>c</sub>, [Гц].</dd>
+      <dt>Амплитудная модуляция (АМ)</dt>
+      <dd>Амплитуда несущей меняется по закону сигнала. Полоса B = 2F<sub>м</sub>.</dd>
+      <dt>Частотная модуляция (ЧМ)</dt>
+      <dd>Частота несущей меняется по закону сигнала, амплитуда постоянна. Девиация Δf. Индекс β = Δf/F<sub>м</sub>. Полоса по Карсону B ≈ 2(Δf + F<sub>м</sub>).</dd>
+      <dt>Фазовая модуляция (ФМ)</dt>
+      <dd>Фаза несущей меняется по закону сигнала, амплитуда постоянна. Индекс β. Полоса B ≈ 2F<sub>м</sub>(β + 1).</dd>
+      <dt>Дифракция</dt>
+      <dd>Огибание волной препятствий, соизмеримых с λ.</dd>
+      <dt>Ионосфера</dt>
+      <dd>Ионизированные слои атмосферы (D, E, F), отражающие КВ.</dd>
+      <dt>Радиогоризонт</dt>
+      <dd>d ≈ 3.57·(√h₁ + √h₂) км, h₁,h₂ — высоты антенн в метрах.</dd>
+    </dl>
+  </div>
+  <p class="legend">Переход не блокируется: не записали — вернитесь позже. Определения короткие, в тетрадь, не для чтения.</p>
+  <div class="nav"><button class="btn" onclick="goTo(2)">← Назад</button><button class="btn" onclick="goTo(4)">Далее →</button></div>
+</section>
+
+<!-- 4 -->
+<section class="scene" data-scene="4">
+  <h2>4. Амплитудная модуляция (АМ)</h2>
+  <p>Информацию переносит не сама несущая, а её изменение. Передатчик формирует высокочастотную несущую, модулятор накладывает на неё сигнал, антенна излучает. Приёмник отделяет сигнал обратно.</p>
+
+  <div class="feedback" style="border-left-color:#2a6a3a;background:rgba(42,106,58,0.08)">
+    <b>Зачем вообще модуляция?</b> Антенна эффективна, когда её длина соизмерима с λ/4. Для звука 1 кГц λ = 300 км, антенна — 75 км. Нереально. Для несущей 1 МГц λ = 300 м, антенна — 75 м. Уже можно. Модуляция сдвигает сигнал на высокую частоту, где антенна работает. Плюс: на разных несущих можно передавать разные сигналы одновременно — частотное разделение каналов.
+  </div>
+
+  <p><b>Модулирующий сигнал F<sub>м</sub></b> — низкочастотный, содержит информацию. <b>Несущая f<sub>c</sub></b> — высокочастотная, переносит её. При амплитудной модуляции амплитуда несущей меняется по закону модулирующего сигнала. Значит <b>огибающая АМ-сигнала повторяет F<sub>м</sub></b>, а заполнение под ней — это несущая f<sub>c</sub>. Глубина модуляции m — насколько сильно, полоса B = 2F<sub>м</sub>.</p>
+  <canvas id="c-mod"></canvas>
+  <div class="controls">
+    <div class="control-row">
+      <label>Модулирующий сигнал (звук) F<sub>м</sub></label>
+      <input type="range" id="s-fm" min="1" max="20" step="0.5" value="5">
+      <span class="value-box" id="v-fm">5 кГц</span>
+    </div>
+    <div class="control-row">
+      <label>Несущая f<sub>c</sub></label>
+      <input type="range" id="s-fc" min="0.5" max="5" step="0.1" value="1">
+      <span class="value-box" id="v-fc">1.0 МГц</span>
+    </div>
+    <div class="control-row">
+      <label>Глубина модуляции m</label>
+      <input type="range" id="s-m" min="0" max="1.5" step="0.01" value="0.7">
+      <span class="value-box" id="v-m">0.70</span>
+    </div>
+  </div>
+  <div class="readout" id="r-mod"></div>
+  <div class="feedback" id="fb-mod"></div>
+  <p class="legend">Верхний график — модулирующий сигнал F_м (зелёный). Средний — несущая f_c (синяя). Нижний — АМ-сигнал: <b style="color:#b22222">красная огибающая точно повторяет верхний график (F_м)</b>, <b style="color:#1a4a7a">заполнение под ней — несущая f_c, то же число осцилляций, что на среднем</b>. При движении F_м меняется только огибающая. При движении f_c — только число осцилляций несущей.</p>
+  <div class="nav"><button class="btn" onclick="goTo(3)">← Назад</button><button class="btn" onclick="goTo(5)">Далее →</button></div>
+</section>
+
+<!-- 5: ЧМ -->
+<section class="scene" data-scene="5">
+  <h2>5. Частотная модуляция (ЧМ)</h2>
+  <p>В АМ меняется амплитуда несущей, а частота постоянна. В ЧМ наоборот: <b>амплитуда постоянна, а частота несущей меняется по закону модулирующего сигнала</b>. Информация заложена в отклонении частоты от среднего значения — в девиации.</p>
+  <p><b>Девиация Δf</b> — максимальное отклонение мгновенной частоты от несущей. <b>Индекс модуляции β = Δf / F<sub>м</sub></b>. Полоса по Карсону: <b>B ≈ 2(Δf + F<sub>м</sub>)</b>.</p>
+  <canvas id="c-fm"></canvas>
+  <div class="controls">
+    <div class="control-row">
+      <label>Модулирующий сигнал F<sub>м</sub></label>
+      <input type="range" id="s-fm-fm" min="1" max="20" step="0.5" value="5">
+      <span class="value-box" id="v-fm-fm">5 кГц</span>
+    </div>
+    <div class="control-row">
+      <label>Несущая f<sub>c</sub></label>
+      <input type="range" id="s-fc-fm" min="0.5" max="5" step="0.1" value="1">
+      <span class="value-box" id="v-fc-fm">1.0 МГц</span>
+    </div>
+    <div class="control-row">
+      <label>Девиация Δf</label>
+      <input type="range" id="s-dev-fm" min="1" max="50" step="1" value="10">
+      <span class="value-box" id="v-dev-fm">10 кГц</span>
+    </div>
+  </div>
+  <div class="readout" id="r-fm"></div>
+  <div class="feedback" id="fb-fm"></div>
+  <p class="legend">Верхний — модулирующий F_м. Средний — несущая f_c без модуляции (для сравнения). Нижний — ЧМ-сигнал: <b style="color:#6a3a8a">амплитуда постоянна</b>, но осцилляции <b>сгущаются</b> при положительной полуволне модулирующего и <b>разрежаются</b> при отрицательной.</p>
+  <div class="nav"><button class="btn" onclick="goTo(4)">← Назад</button><button class="btn" onclick="goTo(6)">Далее →</button></div>
+</section>
+
+<!-- 6: ФМ -->
+<section class="scene" data-scene="6">
+  <h2>6. Фазовая модуляция (ФМ)</h2>
+  <p>В ФМ <b>амплитуда тоже постоянна</b>, но меняется не частота, а <b>фаза несущей</b> — она сдвигается вперёд-назад по закону модулирующего сигнала. Внешне похоже на ЧМ, но отличие принципиальное: в ЧМ мгновенная частота пропорциональна модулирующему (sin), а в ФМ сама фаза пропорциональна модулирующему. Значит, мгновенная частота в ФМ меняется по производной — по cos, со сдвигом π/2.</p>
+  <p><b>Индекс модуляции β</b> — максимальный сдвиг фазы в радианах. Полоса: <b>B ≈ 2F<sub>м</sub>(β + 1)</b>.</p>
+  <canvas id="c-pm"></canvas>
+  <div class="controls">
+    <div class="control-row">
+      <label>Модулирующий сигнал F<sub>м</sub></label>
+      <input type="range" id="s-fm-pm" min="1" max="20" step="0.5" value="5">
+      <span class="value-box" id="v-fm-pm">5 кГц</span>
+    </div>
+    <div class="control-row">
+      <label>Несущая f<sub>c</sub></label>
+      <input type="range" id="s-fc-pm" min="0.5" max="5" step="0.1" value="1">
+      <span class="value-box" id="v-fc-pm">1.0 МГц</span>
+    </div>
+    <div class="control-row">
+      <label>Индекс модуляции β</label>
+      <input type="range" id="s-beta-pm" min="0" max="10" step="0.1" value="2">
+      <span class="value-box" id="v-beta-pm">2.0</span>
+    </div>
+  </div>
+  <div class="readout" id="r-pm"></div>
+  <div class="feedback" id="fb-pm"></div>
+  <p class="legend">Верхний — модулирующий F_м. Средний — несущая f_c без модуляции. Нижний — ФМ-сигнал: амплитуда постоянна, <b style="color:#6a3a8a">фаза смещается вперёд-назад</b> — видно, как осцилляции сдвигаются вправо-влево в такт с модулирующим, но частота меняется не в фазе с ним, а со сдвигом π/2.</p>
+  <div class="nav"><button class="btn" onclick="goTo(5)">← Назад</button><button class="btn" onclick="goTo(7)">Далее →</button></div>
+</section>
+
+<!-- 7: дифракция -->
+<section class="scene" data-scene="7">
+  <h2>7. Распространение: дифракция и прямая видимость</h2>
+  <p>Волна огибает препятствие, если её длина соизмерима с препятствием. Если λ много меньше — за препятствием тень.</p>
+  <p>Передатчик и приёмник на земле, по 10 км от препятствия. Меняйте λ и высоту препятствия h — смотрите, как меняется волновое поле и что доходит до приёмника.</p>
+  <canvas id="c-diff"></canvas>
+  <div class="controls">
+    <div class="control-row">
+      <label>Длина волны λ</label>
+      <input type="range" id="s-lam" min="0" max="4" step="0.01" value="2">
+      <span class="value-box" id="v-lam">100 м</span>
+    </div>
+    <div class="control-row">
+      <label>Высота препятствия h</label>
+      <input type="range" id="s-h" min="0" max="500" step="10" value="200">
+      <span class="value-box" id="v-h">200 м</span>
+    </div>
+  </div>
+  <div class="readout" id="r-diff"></div>
+  <div class="feedback" id="fb-diff"></div>
+  <p class="legend">Шаг волновых фронтов = λ в масштабе экрана: при λ много меньше h фронты мелкие и за препятствием гаснут, при λ ~ h фронты крупные и огибают. Модель ножевого края (ITU-R P.526).</p>
+  <div class="nav"><button class="btn" onclick="goTo(6)">← Назад</button><button class="btn" onclick="goTo(8)">Далее →</button></div>
+</section>
+
+<!-- 8: ионосфера -->
+<section class="scene" data-scene="8">
+  <h2>8. Ионосфера: отражение и поглощение</h2>
+  <p>Ионосфера — ионизированные слои атмосферы. Радиоволна может отразиться от них, пройти сквозь или поглотиться — это зависит от частоты и от солнечной активности (чем она выше, тем ионизация сильнее).</p>
+
+  <div class="notebook" style="margin-bottom:12px">
+    <div class="nb-title">СЛОИ ИОНОСФЕРЫ</div>
+    <dl>
+      <dt>D (60–90 км)</dt>
+      <dd>Существует только днём. Поглощает ДВ/СВ и нижние КВ. Ночью исчезает.</dd>
+      <dt>E (90–120 км)</dt>
+      <dd>Отражает СВ и нижние КВ. Днём ионизация выше — слой плотнее и чуть выше.</dd>
+      <dt>F (150–400 км)</dt>
+      <dd>Основной слой для КВ. Ночью ниже (~250 км), днём выше (~400 км). Выше слой — дальше точка отражения и приёма.</dd>
+    </dl>
+  </div>
+
+  <canvas id="c-iono"></canvas>
+  <div class="controls">
+    <div class="control-row">
+      <label>Частота f</label>
+      <input type="range" id="s-iono-f" min="5" max="10" step="0.01" value="7">
+      <span class="value-box" id="v-iono-f">10 МГц</span>
+    </div>
+    <div class="control-row">
+      <label>Солнечная активность</label>
+      <input type="range" id="s-iono-s" min="0" max="100" step="5" value="50">
+      <span class="value-box" id="v-iono-s">50%</span>
+    </div>
+  </div>
+  <div class="readout" id="r-iono"></div>
+  <div class="feedback" id="fb-iono"></div>
+  <p class="legend">Солнечная активность: 0% — ночь, 100% — полдень. Угол выхода луча фиксирован (50° от вертикали). При росте активности слой F поднимается — точка отражения на слое и точка приёма на Земле сдвигаются вправо. Поверхность Земли изогнута; вертикальный масштаб увеличен для наглядности.</p>
+  <div class="nav"><button class="btn" onclick="goTo(7)">← Назад</button><button class="btn" onclick="goTo(9)">Далее →</button></div>
+</section>
+
+<!-- 9 -->
+<section class="scene" data-scene="9">
+  <h2>9. Тренажёр диапазонов</h2>
+  <p>Выберите карточку, затем нажмите на корзину. Верно — карточка встанет на место с пояснением.</p>
+  <div id="trainer"></div>
+  <div class="feedback" id="fb-trainer" style="display:none"></div>
+  <div class="nav"><button class="btn" onclick="goTo(8)">← Назад</button><button class="btn" onclick="goTo(10)">Далее →</button></div>
+</section>
+
+<!-- 10 -->
+<section class="scene" data-scene="10">
+  <h2>10. Применение и ИБ: атака и защита</h2>
+  <p>Распространение волн — это ещё и зона перехвата. Чем шире зона, тем больше возможностей у «красных».</p>
+  <canvas id="c-sec"></canvas>
+  <div class="toggles" id="sec-toggles">
+    <div class="toggle-item" data-key="antenna">Направленная антенна</div>
+    <div class="toggle-item" data-key="fhss">ППРЧ (перестройка частоты)</div>
+    <div class="toggle-item" data-key="shield">Экранирование</div>
+  </div>
+  <div class="risk-bars" id="risk-bars"></div>
+  <div class="feedback" id="fb-sec"></div>
+  <p class="legend">Связь с триадой КЦД: перехват — конфиденциальность, подавление — доступность, имитация — целостность.</p>
+  <div class="nav"><button class="btn" onclick="goTo(9)">← Назад</button><button class="btn" onclick="goTo(11)">Далее →</button></div>
+</section>
+
+<!-- 11 -->
+<section class="scene" data-scene="11">
+  <h2>11. Проверка</h2>
+  <p>Девять вопросов. После ответа — пояснение. Оценка — за первую попытку.</p>
+  <div id="test-container"></div>
+  <div class="score-box" id="score-box">Отвечено: 0 / 9</div>
+  <div style="text-align:center"><button class="btn" onclick="initTest()">Пересдать</button></div>
+  <div class="checklist" id="checklist" style="display:none">
+    <div class="nb-title">ЧЕК-ЛИСТ КОНСПЕКТА</div>
+    <ul>
+      <li>λ = c / f, c = 3·10⁸ м/с</li>
+      <li>АМ: меняется амплитуда. Огибающая = модулирующий F_м, заполнение = несущая f_c. B = 2F_м.</li>
+      <li>ЧМ: меняется частота, амплитуда постоянна. Девиация Δf, индекс β = Δf/F_м. B ≈ 2(Δf + F_м).</li>
+      <li>ФМ: меняется фаза, амплитуда постоянна. Индекс β. B ≈ 2F_м(β + 1).</li>
+      <li>Дифракция: λ соизмерима с h → огибает; λ ≪ h → тень</li>
+      <li>Ионосфера: D поглощает днём, E отражает СВ, F — основной слой КВ. Чем выше солнечная активность, тем выше F и дальше приём.</li>
+      <li>Радиогоризонт: d ≈ 3.57·(√h₁ + √h₂) км</li>
+      <li>Направленная антенна сужает зону перехвата, ППРЧ защищает от узкополосной помехи, экранирование снижает утечку</li>
+    </ul>
+  </div>
+  <div class="nav"><button class="btn" onclick="goTo(10)">← Назад</button><span></span></div>
+</section>
+
+</main>
+
+<footer>Эфир-1 · Заслон · ПМ.03.01 · Модель не прибор · v0.1-spec</footer>
+
+<script>
+'use strict';
+
+let currentScene = 1;
+let currentDraw = null;
+const TOTAL_SCENES = 11;
+
+/* ---------- helpers ---------- */
+function prepCanvas(canvas, cssH) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = canvas.clientWidth || 800;
+  const H = cssH;
+  if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.height = H + 'px';
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  return { ctx, W, H };
+}
+
+function formatFreq(f) {
+  if (f >= 1e18) return (f / 1e18).toFixed(1) + ' ЭГц';
+  if (f >= 1e15) return (f / 1e15).toFixed(1) + ' ПГц';
+  if (f >= 1e12) return (f / 1e12).toFixed(1) + ' ТГц';
+  if (f >= 1e9)  return (f / 1e9).toFixed(1) + ' ГГц';
+  if (f >= 1e6)  return (f / 1e6).toFixed(1) + ' МГц';
+  if (f >= 1e3)  return (f / 1e3).toFixed(1) + ' кГц';
+  return f.toFixed(0) + ' Гц';
+}
+
+function formatLambda(l) {
+  if (l >= 1000) return (l / 1000).toFixed(1) + ' км';
+  if (l >= 1)    return l.toFixed(1) + ' м';
+  if (l >= 0.01) return (l * 100).toFixed(1) + ' см';
+  if (l >= 0.001) return (l * 1000).toFixed(1) + ' мм';
+  if (l >= 1e-6) return (l * 1e6).toFixed(1) + ' мкм';
+  if (l >= 1e-9) return (l * 1e9).toFixed(1) + ' нм';
+  return (l * 1e12).toFixed(1) + ' пм';
+}
+
+function formatEV(eV) {
+  if (eV >= 1e6) return (eV / 1e6).toFixed(1) + ' МэВ';
+  if (eV >= 1e3) return (eV / 1e3).toFixed(1) + ' кэВ';
+  if (eV >= 1)   return eV.toFixed(2) + ' эВ';
+  if (eV >= 1e-3) return (eV * 1e3).toFixed(2) + ' мэВ';
+  return (eV * 1e6).toFixed(2) + ' мкэВ';
+}
+
+/* ---------- navigation ---------- */
+function goTo(n) {
+  currentDraw = null;
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  const scene = document.querySelector('.scene[data-scene="' + n + '"]');
+  if (scene) scene.classList.add('active');
+  currentScene = n;
+  document.getElementById('progress-fill').style.width = (n / TOTAL_SCENES * 100) + '%';
+  window.scrollTo(0, 0);
+  if (n === 2) initSpectrum();
+  if (n === 4) initMod();
+  if (n === 5) initFM();
+  if (n === 6) initPM();
+  if (n === 7) initDiff();
+  if (n === 8) initIono();
+  if (n === 9) initTrainer();
+  if (n === 10) initSecurity();
+  if (n === 11) initTest();
+}
+
+window.addEventListener('resize', () => { if (currentDraw) currentDraw(); });
+
+/* ============================================================
+   SCENE 2 — EM spectrum
+   ============================================================ */
+function initSpectrum() {
+  const canvas = document.getElementById('c-spectrum');
+  const slider = document.getElementById('s-freq');
+  const logMin = 3.48, logMax = 20.48;
+
+  const bands = [
+    { from: 3.48,  to: 4.48,  color: '#3a5a85', label: 'СДВ' },
+    { from: 4.48,  to: 5.48,  color: '#4a6fa5', label: 'ДВ' },
+    { from: 5.48,  to: 6.48,  color: '#5a7fb5', label: 'СВ' },
+    { from: 6.48,  to: 7.48,  color: '#6a8fc5', label: 'КВ' },
+    { from: 7.48,  to: 9.48,  color: '#7a9fd5', label: 'УКВ' },
+    { from: 9.48,  to: 11.48, color: '#8aafe5', label: 'СВЧ' },
+    { from: 11.48, to: 14.63, color: '#d08050', label: 'ИК' },
+    { from: 14.63, to: 14.9,  color: '#e0d040', label: '' },
+    { from: 14.9,  to: 16.48, color: '#a060c0', label: 'УФ' },
+    { from: 16.48, to: 19.48, color: '#7040a0', label: 'Рентг.' },
+    { from: 19.48, to: 20.48, color: '#402060', label: 'Гамма' }
+  ];
+
+  function bandInfo(logf) {
+    if (logf < 11.48) return { name: 'Радиоволны', comment: 'Энергия кванта мала — вещество не ионизирует. Проникает сквозь диэлектрики, отражается от металла.' };
+    if (logf < 14.63) return { name: 'Инфракрасное', comment: 'Тепловое излучение. Греет, но не ионизирует.' };
+    if (logf < 14.9)  return { name: 'Видимое', comment: 'Узкая полоска — глаз видит только её. Энергия кванта ~2 эВ.' };
+    if (logf < 16.48) return { name: 'Ультрафиолет', comment: 'Начинает ионизировать. Загар, витамин D, но и ожоги.' };
+    if (logf < 19.48) return { name: 'Рентген', comment: 'Ионизирует сильно. Проникает сквозь мягкие ткани.' };
+    return { name: 'Гамма', comment: 'Ионизирует очень сильно. Требует тяжёлой защиты.' };
+  }
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 180);
+    const logf = parseFloat(slider.value);
+    const f = Math.pow(10, logf);
+
+    const margin = 30;
+    const barY = 55, barH = 60;
+    const x0 = margin, x1 = W - margin;
+    const range = logMax - logMin;
+    const xOf = lf => x0 + (lf - logMin) / range * (x1 - x0);
+
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '11px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('ШКАЛА ЭЛЕКТРОМАГНИТНЫХ ИЗЛУЧЕНИЙ (лог. масштаб)', x0, 20);
+
+    bands.forEach(b => {
+      const bx0 = xOf(b.from), bx1 = xOf(b.to);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(bx0, barY, bx1 - bx0, barH);
+      if (b.label && bx1 - bx0 > 26) {
+        ctx.fillStyle = '#fff';
+        ctx.font = '10px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(b.label, (bx0 + bx1) / 2, barY + barH / 2 + 3);
+      }
+    });
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x0, barY, x1 - x0, barH);
+
+    const mx = xOf(logf);
+    ctx.fillStyle = '#b22222';
+    ctx.beginPath();
+    ctx.moveTo(mx, barY - 4);
+    ctx.lineTo(mx - 7, barY - 16);
+    ctx.lineTo(mx + 7, barY - 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(mx - 1, barY, 2, barH);
+
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
+    [3.48, 6.48, 9.48, 12.48, 15.48, 18.48, 20.48].forEach(lf => {
+      ctx.fillText(formatFreq(Math.pow(10, lf)), xOf(lf), barY + barH + 14);
+    });
+
+    const lambda = 3e8 / f;
+    const eV = 4.136e-15 * f;
+    document.getElementById('v-freq').textContent = formatFreq(f);
+    document.getElementById('r-spectrum').innerHTML =
+      'Частота: <span class="hl">' + formatFreq(f) + '</span><br>' +
+      'Длина волны: <span class="hl">' + formatLambda(lambda) + '</span><br>' +
+      'Энергия кванта: <span class="hl">' + formatEV(eV) + '</span>';
+    const info = bandInfo(logf);
+    document.getElementById('fb-spectrum').innerHTML = '<b>' + info.name + '.</b> ' + info.comment;
+  }
+
+  currentDraw = draw;
+  slider.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 4 — AM
+   ============================================================ */
+function initMod() {
+  const canvas = document.getElementById('c-mod');
+  const sFm = document.getElementById('s-fm');
+  const sFc = document.getElementById('s-fc');
+  const sM = document.getElementById('s-m');
+
+  const T_MOD_MS = 4;
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 540);
+    const Fm = parseFloat(sFm.value);
+    const Fc = parseFloat(sFc.value);
+    const m = parseFloat(sM.value);
+
+    const nMod = Fm * T_MOD_MS;
+    const nOscDisplay = 30 + 170 * (Fc - 0.5) / 4.5;
+
+    const x0 = 55, x1 = W - 20;
+    const midX = (x0 + x1) / 2;
+
+    const mY = 22, mH = 80;
+    const mMid = mY + mH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('МОДУЛИРУЮЩИЙ СИГНАЛ F_м = ' + Fm.toFixed(1) + ' кГц', x0, mY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, mMid);
+    ctx.lineTo(x1, mMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, mY);
+    ctx.lineTo(x0, mY + mH);
+    ctx.stroke();
+
+    const mSamples = Math.max(200, Math.ceil(nMod * 20));
+    ctx.strokeStyle = '#2a6a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= mSamples; i++) {
+      const x = x0 + (x1 - x0) * i / mSamples;
+      const phase = (i / mSamples) * nMod * 2 * Math.PI;
+      const y = mMid - (mH / 2 - 6) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.fillStyle = '#3a4a6a';
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('циклов: ' + nMod.toFixed(0), x1, mY - 6);
+
+    const cY = 145, cH = 80;
+    const cMid = cY + cH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('НЕСУЩАЯ f_c = ' + Fc.toFixed(1) + ' МГц', x0, cY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, cMid);
+    ctx.lineTo(x1, cMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, cY);
+    ctx.lineTo(x0, cY + cH);
+    ctx.stroke();
+
+    const cSamples = Math.max(600, Math.ceil(nOscDisplay * 16));
+    ctx.strokeStyle = '#1a4a7a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= cSamples; i++) {
+      const x = x0 + (x1 - x0) * i / cSamples;
+      const phase = (i / cSamples) * nOscDisplay * 2 * Math.PI;
+      const y = cMid - (cH / 2 - 4) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.fillStyle = '#3a4a6a';
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('осцилляций: ' + nOscDisplay.toFixed(0), x1, cY - 6);
+
+    const tY = 265, tH = 140;
+    const tMid = tY + tH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('АМ-СИГНАЛ: огибающая = модулирующий F_м, заполнение = несущая f_c', x0, tY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, tMid);
+    ctx.lineTo(x1, tMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, tY);
+    ctx.lineTo(x0, tY + tH);
+    ctx.stroke();
+
+    const ampBase = (tH / 2 - 6) / 1.6;
+
+    ctx.strokeStyle = 'rgba(178,34,34,0.9)';
+    ctx.lineWidth = 2;
+    for (let sign = -1; sign <= 1; sign += 2) {
+      ctx.beginPath();
+      for (let i = 0; i <= 400; i++) {
+        const x = x0 + (x1 - x0) * i / 400;
+        const tNorm = i / 400;
+        const env = 1 + m * Math.sin(2 * Math.PI * nMod * tNorm);
+        const y = tMid - sign * ampBase * env;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    const tSamples = Math.max(1200, Math.ceil(nOscDisplay * 16));
+    ctx.strokeStyle = '#1a4a7a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= tSamples; i++) {
+      const x = x0 + (x1 - x0) * i / tSamples;
+      const tNorm = i / tSamples;
+      const env = 1 + m * Math.sin(2 * Math.PI * nMod * tNorm);
+      const osc = Math.sin(2 * Math.PI * nOscDisplay * tNorm);
+      const y = tMid - ampBase * env * osc;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    if (m > 1) {
+      ctx.fillStyle = '#b22222';
+      ctx.font = 'bold 11px "Roboto Mono", monospace';
+      ctx.fillText('ПЕРЕМОДУЛЯЦИЯ: огибающая пересекает ноль', x0, tY + tH + 14);
+    }
+
+    const sY = 440, sH = 80;
+    const sBase = sY + sH;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('СПЕКТР: несущая f_c и две боковые на f_c ± F_м', x0, sY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, sBase);
+    ctx.lineTo(x1, sBase);
+    ctx.stroke();
+
+    const fcX = midX;
+    const maxDev = 30;
+    const pxPerKHz = (x1 - x0) * 0.35 / maxDev;
+    const sbOff = pxPerKHz * Fm;
+
+    function drawStick(x, h, color, label) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, sBase);
+      ctx.lineTo(x, sBase - h);
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.font = '10px "Roboto Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, sBase - h - 5);
+    }
+
+    drawStick(fcX, 50, '#1a4a7a', 'f_c');
+    if (m > 0) {
+      drawStick(fcX - sbOff, 50 * m / 2, '#b22222', 'f_c−F_м');
+      drawStick(fcX + sbOff, 50 * m / 2, '#b22222', 'f_c+F_м');
+
+      ctx.strokeStyle = '#2a6a3a';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(fcX - sbOff, sBase - 60);
+      ctx.lineTo(fcX + sbOff, sBase - 60);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#2a6a3a';
+      ctx.textAlign = 'center';
+      ctx.fillText('B = 2F_м = ' + (2 * Fm).toFixed(1) + ' кГц', fcX, sBase - 66);
+    }
+
+    const lamC = 300 / Fc;
+    const lamMod = 3e8 / (Fm * 1e3);
+    const lamModStr = lamMod >= 1000 ? (lamMod / 1000).toFixed(1) + ' км' : lamMod.toFixed(0) + ' м';
+
+    document.getElementById('v-fm').textContent = Fm.toFixed(1) + ' кГц';
+    document.getElementById('v-fc').textContent = Fc.toFixed(1) + ' МГц';
+    document.getElementById('v-m').textContent = m.toFixed(2);
+
+    document.getElementById('r-mod').innerHTML =
+      'F_м = <span class="hl">' + Fm.toFixed(1) + ' кГц</span> (λ = ' + lamModStr + ')<br>' +
+      'f_c = <span class="hl">' + Fc.toFixed(1) + ' МГц</span> (λ = ' + lamC.toFixed(0) + ' м)<br>' +
+      'm = <span class="hl">' + m.toFixed(2) + '</span> · B = 2F_м = <span class="hl">' + (2 * Fm).toFixed(1) + ' кГц</span>';
+
+    let fb;
+    if (m === 0) fb = 'Несущая есть, информации нет.';
+    else if (m <= 0.5) fb = 'Малая глубина — сигнал слабый.';
+    else if (m <= 1) fb = 'Глубина в норме. Боковые растут, полоса B = 2F_м.';
+    else fb = 'Перемодуляция: огибающая пересекает ноль, приёмник искажает.';
+    document.getElementById('fb-mod').textContent = fb;
+  }
+
+  currentDraw = draw;
+  sFm.oninput = draw;
+  sFc.oninput = draw;
+  sM.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 5 — ЧМ
+   ============================================================ */
+function initFM() {
+  const canvas = document.getElementById('c-fm');
+  const sFm = document.getElementById('s-fm-fm');
+  const sFc = document.getElementById('s-fc-fm');
+  const sDev = document.getElementById('s-dev-fm');
+
+  const T_MOD_MS = 4;
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 420);
+    const Fm = parseFloat(sFm.value);
+    const Fc = parseFloat(sFc.value);
+    const Dev = parseFloat(sDev.value);
+
+    const nMod = Fm * T_MOD_MS;
+    const nOscDisplay = 30 + 170 * (Fc - 0.5) / 4.5;
+    const beta = Dev / Fm;
+
+    const x0 = 55, x1 = W - 20;
+
+    const mY = 22, mH = 80;
+    const mMid = mY + mH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('МОДУЛИРУЮЩИЙ СИГНАЛ F_м = ' + Fm.toFixed(1) + ' кГц', x0, mY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, mMid);
+    ctx.lineTo(x1, mMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, mY);
+    ctx.lineTo(x0, mY + mH);
+    ctx.stroke();
+
+    const mSamples = Math.max(200, Math.ceil(nMod * 20));
+    ctx.strokeStyle = '#2a6a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= mSamples; i++) {
+      const x = x0 + (x1 - x0) * i / mSamples;
+      const phase = (i / mSamples) * nMod * 2 * Math.PI;
+      const y = mMid - (mH / 2 - 6) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    const cY = 145, cH = 80;
+    const cMid = cY + cH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('НЕСУЩАЯ f_c = ' + Fc.toFixed(1) + ' МГц (без модуляции, для сравнения)', x0, cY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, cMid);
+    ctx.lineTo(x1, cMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, cY);
+    ctx.lineTo(x0, cY + cH);
+    ctx.stroke();
+
+    const cSamples = Math.max(600, Math.ceil(nOscDisplay * 16));
+    ctx.strokeStyle = '#1a4a7a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= cSamples; i++) {
+      const x = x0 + (x1 - x0) * i / cSamples;
+      const phase = (i / cSamples) * nOscDisplay * 2 * Math.PI;
+      const y = cMid - (cH / 2 - 4) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    const tY = 265, tH = 130;
+    const tMid = tY + tH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('ЧМ-СИГНАЛ: амплитуда постоянна, частота меняется по закону F_м', x0, tY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, tMid);
+    ctx.lineTo(x1, tMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, tY);
+    ctx.lineTo(x0, tY + tH);
+    ctx.stroke();
+
+    const ampBase = (tH / 2 - 4);
+    const tSamples = Math.max(1500, Math.ceil(nOscDisplay * 20));
+
+    ctx.strokeStyle = '#6a3a8a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= tSamples; i++) {
+      const x = x0 + (x1 - x0) * i / tSamples;
+      const tNorm = i / tSamples;
+      const phase = 2 * Math.PI * nOscDisplay * tNorm - beta * Math.cos(2 * Math.PI * nMod * tNorm);
+      const y = tMid - ampBase * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.fillStyle = '#3a4a6a';
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('осцилляций: ' + nOscDisplay.toFixed(0) + ' · индекс β = Δf/F_м = ' + beta.toFixed(2), x0, tY + tH + 14);
+
+    const lamC = 300 / Fc;
+    const carson = 2 * (Dev + Fm);
+    document.getElementById('v-fm-fm').textContent = Fm.toFixed(1) + ' кГц';
+    document.getElementById('v-fc-fm').textContent = Fc.toFixed(1) + ' МГц';
+    document.getElementById('v-dev-fm').textContent = Dev.toFixed(0) + ' кГц';
+
+    document.getElementById('r-fm').innerHTML =
+      'F_м = <span class="hl">' + Fm.toFixed(1) + ' кГц</span> · ' +
+      'f_c = <span class="hl">' + Fc.toFixed(1) + ' МГц</span> (λ = ' + lamC.toFixed(0) + ' м)<br>' +
+      'Δf = <span class="hl">' + Dev.toFixed(0) + ' кГц</span> · ' +
+      'β = Δf/F_м = <span class="hl">' + beta.toFixed(2) + '</span><br>' +
+      'Полоса по Карсону B ≈ 2(Δf + F_м) = <span class="hl">' + carson.toFixed(0) + ' кГц</span>';
+
+    let fb;
+    if (beta < 0.5) fb = 'Узкополосная ЧМ (β < 0.5): по спектру похожа на АМ, но амплитуда постоянна — это плюс по помехоустойчивости.';
+    else if (beta < 5) fb = 'Обычная ЧМ (0.5 ≤ β < 5): заметно сгущение и разрежение осцилляций.';
+    else fb = 'Широкополосная ЧМ (β ≥ 5): большая девиация, широкая полоса, высокая помехоустойчивость.';
+    document.getElementById('fb-fm').textContent = fb;
+  }
+
+  currentDraw = draw;
+  sFm.oninput = draw;
+  sFc.oninput = draw;
+  sDev.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 6 — ФМ
+   ============================================================ */
+function initPM() {
+  const canvas = document.getElementById('c-pm');
+  const sFm = document.getElementById('s-fm-pm');
+  const sFc = document.getElementById('s-fc-pm');
+  const sBeta = document.getElementById('s-beta-pm');
+
+  const T_MOD_MS = 4;
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 420);
+    const Fm = parseFloat(sFm.value);
+    const Fc = parseFloat(sFc.value);
+    const beta = parseFloat(sBeta.value);
+
+    const nMod = Fm * T_MOD_MS;
+    const nOscDisplay = 30 + 170 * (Fc - 0.5) / 4.5;
+
+    const x0 = 55, x1 = W - 20;
+
+    const mY = 22, mH = 80;
+    const mMid = mY + mH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('МОДУЛИРУЮЩИЙ СИГНАЛ F_м = ' + Fm.toFixed(1) + ' кГц', x0, mY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, mMid);
+    ctx.lineTo(x1, mMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, mY);
+    ctx.lineTo(x0, mY + mH);
+    ctx.stroke();
+
+    const mSamples = Math.max(200, Math.ceil(nMod * 20));
+    ctx.strokeStyle = '#2a6a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= mSamples; i++) {
+      const x = x0 + (x1 - x0) * i / mSamples;
+      const phase = (i / mSamples) * nMod * 2 * Math.PI;
+      const y = mMid - (mH / 2 - 6) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    const cY = 145, cH = 80;
+    const cMid = cY + cH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('НЕСУЩАЯ f_c = ' + Fc.toFixed(1) + ' МГц (без модуляции, для сравнения)', x0, cY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, cMid);
+    ctx.lineTo(x1, cMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, cY);
+    ctx.lineTo(x0, cY + cH);
+    ctx.stroke();
+
+    const cSamples = Math.max(600, Math.ceil(nOscDisplay * 16));
+    ctx.strokeStyle = '#1a4a7a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= cSamples; i++) {
+      const x = x0 + (x1 - x0) * i / cSamples;
+      const phase = (i / cSamples) * nOscDisplay * 2 * Math.PI;
+      const y = cMid - (cH / 2 - 4) * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    const tY = 265, tH = 130;
+    const tMid = tY + tH / 2;
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('ФМ-СИГНАЛ: амплитуда постоянна, фаза сдвигается по закону F_м', x0, tY - 6);
+
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(x0, tMid);
+    ctx.lineTo(x1, tMid);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, tY);
+    ctx.lineTo(x0, tY + tH);
+    ctx.stroke();
+
+    const ampBase = (tH / 2 - 4);
+    const tSamples = Math.max(1500, Math.ceil(nOscDisplay * 20));
+
+    ctx.strokeStyle = '#6a3a8a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= tSamples; i++) {
+      const x = x0 + (x1 - x0) * i / tSamples;
+      const tNorm = i / tSamples;
+      const phase = 2 * Math.PI * nOscDisplay * tNorm + beta * Math.sin(2 * Math.PI * nMod * tNorm);
+      const y = tMid - ampBase * Math.sin(phase);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    ctx.fillStyle = '#3a4a6a';
+    ctx.font = '9px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('осцилляций: ' + nOscDisplay.toFixed(0) + ' · индекс β = ' + beta.toFixed(2) + ' рад', x0, tY + tH + 14);
+
+    const lamC = 300 / Fc;
+    const pmBand = 2 * Fm * (beta + 1);
+    document.getElementById('v-fm-pm').textContent = Fm.toFixed(1) + ' кГц';
+    document.getElementById('v-fc-pm').textContent = Fc.toFixed(1) + ' МГц';
+    document.getElementById('v-beta-pm').textContent = beta.toFixed(1);
+
+    document.getElementById('r-pm').innerHTML =
+      'F_м = <span class="hl">' + Fm.toFixed(1) + ' кГц</span> · ' +
+      'f_c = <span class="hl">' + Fc.toFixed(1) + ' МГц</span> (λ = ' + lamC.toFixed(0) + ' м)<br>' +
+      'β = <span class="hl">' + beta.toFixed(2) + ' рад</span><br>' +
+      'Полоса B ≈ 2F_м(β + 1) = <span class="hl">' + pmBand.toFixed(0) + ' кГц</span>';
+
+    let fb;
+    if (beta < 0.5) fb = 'Малый индекс: фаза колеблется слабо, спектр узкий.';
+    else if (beta < 5) fb = 'Обычная ФМ: заметны сдвиги фазы, частота меняется по cos — со сдвигом π/2 относительно модулирующего.';
+    else fb = 'Большой индекс: сильные фазовые сдвиги, широкая полоса.';
+    document.getElementById('fb-pm').textContent = fb;
+  }
+
+  currentDraw = draw;
+  sFm.oninput = draw;
+  sFc.oninput = draw;
+  sBeta.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 7 — дифракция
+   ============================================================ */
+function initDiff() {
+  const canvas = document.getElementById('c-diff');
+  const sLam = document.getElementById('s-lam');
+  const sH = document.getElementById('s-h');
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 320);
+    const logLam = parseFloat(sLam.value);
+    const lambda = Math.pow(10, logLam);
+    const h = parseFloat(sH.value);
+
+    const v = h / (50 * Math.sqrt(lambda));
+    let L = 0;
+    if (v > -0.7) {
+      L = 6.9 + 20 * Math.log10(Math.sqrt((v - 0.1) * (v - 0.1) + 1) + v - 0.1);
+    }
+    if (!isFinite(L) || L < 0) L = 0;
+
+    const groundY = H - 20;
+    const losY = groundY - 25;
+    const txX = 50, rxX = W - 50;
+    const obsX = W / 2;
+
+    const vScale = 150 / 500;
+    const hPix = h * vScale;
+    const obsTopY = losY - hPix;
+
+    const pxPerMeter = (W - 100) / 20000;
+    const stepPix = lambda * pxPerMeter;
+
+    ctx.fillStyle = '#c8b890';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.lineTo(W, groundY);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(26,42,74,0.3)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(txX, losY);
+    ctx.lineTo(rxX, losY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const shadowAmp = Math.max(0.03, Math.min(1, Math.pow(10, -L / 20)));
+
+    if (stepPix < 3) {
+      ctx.fillStyle = 'rgba(26,42,74,0.18)';
+      ctx.fillRect(txX, 0, obsX - txX, groundY);
+      const a = 0.18 * shadowAmp;
+      ctx.fillStyle = 'rgba(26,42,74,' + a.toFixed(3) + ')';
+      ctx.fillRect(obsX, 0, rxX - obsX, groundY);
+    } else {
+      const maxR = Math.hypot(rxX - txX, groundY - losY) + stepPix;
+      for (let r = stepPix; r < maxR; r += stepPix) {
+        const segCount = Math.max(24, Math.floor(Math.PI * Math.min(r, 400) / 6));
+        for (let s = 0; s < segCount; s++) {
+          const th1 = Math.PI - (s / segCount) * Math.PI;
+          const th2 = Math.PI - ((s + 1) / segCount) * Math.PI;
+          const x1 = txX + r * Math.cos(th1);
+          const y1 = losY - r * Math.sin(th1);
+          const x2 = txX + r * Math.cos(th2);
+          const y2 = losY - r * Math.sin(th2);
+          if (y1 > groundY || y2 > groundY) continue;
+          if (x1 < 2 || x1 > W - 2 || x2 < 2 || x2 > W - 2) continue;
+
+          let alpha = 0.45;
+          const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+          if (mx > obsX) {
+            const yShadow = (losY - hPix) + (mx - obsX) / (rxX - obsX) * hPix;
+            if (my > yShadow) {
+              alpha = 0.45 * shadowAmp;
+              if (alpha < 0.02) continue;
+            }
+          }
+          ctx.strokeStyle = 'rgba(26,42,74,' + alpha.toFixed(3) + ')';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+      }
+    }
+
+    if (hPix > 0) {
+      ctx.fillStyle = '#8a7a5a';
+      ctx.beginPath();
+      ctx.moveTo(obsX - 8, groundY);
+      ctx.lineTo(obsX, obsTopY);
+      ctx.lineTo(obsX + 8, groundY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#1a2a4a';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#3a4a6a';
+      ctx.font = '9px "Roboto Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('h = ' + h.toFixed(0) + ' м', obsX - 12, (groundY + obsTopY) / 2);
+    }
+
+    ctx.fillStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(txX, losY - 15);
+    ctx.lineTo(txX - 8, losY + 5);
+    ctx.lineTo(txX + 8, losY + 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(rxX, losY - 15);
+    ctx.lineTo(rxX - 8, losY + 5);
+    ctx.lineTo(rxX + 8, losY + 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('ПРД', txX, losY + 20);
+    ctx.fillText('ПРМ', rxX, losY + 20);
+
+    const barH = 44, barW = 12;
+    const barX = rxX + 18;
+    const level = Math.max(0, Math.min(1, shadowAmp));
+    ctx.fillStyle = '#e8dcc0';
+    ctx.fillRect(barX, losY - barH / 2, barW, barH);
+    ctx.fillStyle = L < 10 ? '#2a6a3a' : L < 25 ? '#d4a020' : '#b22222';
+    const fillH = barH * level;
+    ctx.fillRect(barX, losY - barH / 2 + (barH - fillH), barW, fillH);
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.strokeRect(barX, losY - barH / 2, barW, barH);
+
+    ctx.fillStyle = '#1a2a4a';
+    ctx.textAlign = 'left';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.fillText('λ = ' + formatLambda(lambda), 10, 16);
+    if (stepPix < 3) {
+      ctx.fillStyle = '#3a4a6a';
+      ctx.fillText('фронты λ неразличимы — показано сплошное поле', 10, 30);
+    } else {
+      ctx.fillStyle = '#3a4a6a';
+      ctx.fillText('шаг фронтов: ' + stepPix.toFixed(0) + ' px', 10, 30);
+    }
+
+    document.getElementById('v-lam').textContent = formatLambda(lambda);
+    document.getElementById('v-h').textContent = h.toFixed(0) + ' м';
+    document.getElementById('r-diff').innerHTML =
+      'λ = <span class="hl">' + formatLambda(lambda) + '</span> · h = <span class="hl">' + h.toFixed(0) + ' м</span><br>' +
+      'Параметр Френеля v = <span class="hl">' + v.toFixed(2) + '</span><br>' +
+      'Потери L = <span class="hl">' + L.toFixed(1) + ' дБ</span>';
+
+    let fb;
+    if (L < 8) fb = 'λ соизмерима с h или больше. Дифракция: волна огибает препятствие, сигнал доходит.';
+    else if (L < 18) fb = 'Частичная тень: волна огибает край, но с потерями.';
+    else fb = 'λ много меньше h. Тень: за препятствием сигнала практически нет.';
+    document.getElementById('fb-diff').textContent = fb;
+  }
+
+  currentDraw = draw;
+  sLam.oninput = draw;
+  sH.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 8 — ионосфера
+   Передатчик смещён влево (18% ширины) и является центром дуги Земли.
+   ============================================================ */
+function initIono() {
+  const canvas = document.getElementById('c-iono');
+  const sF = document.getElementById('s-iono-f');
+  const sS = document.getElementById('s-iono-s');
+
+  const H_CANVAS = 440;
+  const theta = 50 * Math.PI / 180;
+  const tanTheta = Math.tan(theta);
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, H_CANVAS);
+    const logf = parseFloat(sF.value);
+    const f = Math.pow(10, logf);
+    const S = parseFloat(sS.value);
+
+    let mode, reflectLayer = null, hReflect = null, absorbed = false;
+    if (f < 3e6) {
+      mode = 'ДВ/СВ';
+      if (S > 30) {
+        absorbed = true;
+        hReflect = 75;
+      } else {
+        reflectLayer = 'E';
+        hReflect = 90 + 30 * S / 100;
+      }
+    } else if (f <= 3e7) {
+      mode = 'КВ';
+      reflectLayer = 'F';
+      hReflect = 250 + 150 * S / 100;
+    } else {
+      mode = 'УКВ+';
+    }
+
+    let xRefKm = 0, xRxKm = 0;
+    if (hReflect !== null) {
+      xRefKm = hReflect * tanTheta;
+      xRxKm = 2 * xRefKm;
+    }
+
+    // передатчик — на 18% ширины; центр дуги Земли = передатчик
+    const txX = Math.round(W * 0.18);
+    const cx = txX;
+    const R_px = 1700;
+    const cy_bottom = H + R_px - 50;
+    const hScaleX = (W - txX - 60) / 2000;   // масштаб 2000 км = оставшееся справа место
+    const vScale = 0.5;
+
+    const groundAt = x => cy_bottom - Math.sqrt(R_px * R_px - (x - cx) * (x - cx));
+    const layerY = h => H - 50 - h * vScale;
+
+    // фон (небо)
+    ctx.fillStyle = '#e8eef5';
+    ctx.fillRect(0, 0, W, H);
+
+    // слои
+    function fillLayer(h1, h2, color) {
+      const r1 = R_px + h1 * vScale;
+      const r2 = R_px + h2 * vScale;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 6) {
+        const dx1 = x - cx;
+        const sq1 = r1 * r1 - dx1 * dx1;
+        const y = cy_bottom - Math.sqrt(Math.max(0, sq1));
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      for (let x = W; x >= 0; x -= 6) {
+        const dx2 = x - cx;
+        const sq2 = r2 * r2 - dx2 * dx2;
+        const y = cy_bottom - Math.sqrt(Math.max(0, sq2));
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (S > 30) fillLayer(60, 90, 'rgba(140,120,160,0.35)');
+    fillLayer(90, 120, 'rgba(100,160,100,0.30)');
+    fillLayer(150, 400, 'rgba(200,120,120,0.20)');
+
+    // подписи слоёв слева
+    function layerLabel(h, text, color) {
+      const r = R_px + h * vScale;
+      const dx = 60 - cx;
+      const yl = cy_bottom - Math.sqrt(Math.max(0, r * r - dx * dx));
+      ctx.fillStyle = color;
+      ctx.font = 'bold 11px "Roboto Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(text, 60, yl + 4);
+    }
+    if (S > 30) layerLabel(75, 'D 60–90 км', '#6a5a8a');
+    layerLabel(105, 'E 90–120 км', '#3a7a3a');
+    layerLabel(275, 'F 150–400 км', '#a06060');
+
+    // Земля
+    ctx.fillStyle = '#c8b890';
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 6) {
+      const dx = x - cx;
+      const sq = R_px * R_px - dx * dx;
+      const y = cy_bottom - Math.sqrt(Math.max(0, sq));
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#1a2a4a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 6) {
+      const dx = x - cx;
+      const sq = R_px * R_px - dx * dx;
+      const y = cy_bottom - Math.sqrt(Math.max(0, sq));
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    const txY = groundAt(txX);
+
+    // земная волна
+    const gwEndKm = 400;
+    ctx.strokeStyle = 'rgba(42,106,58,0.85)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let d = 0; d <= gwEndKm; d += 6) {
+      const x = txX + d * hScaleX;
+      if (x > W - 4) break;
+      const y = groundAt(x);
+      if (d === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(42,106,58,0.95)';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('земная волна', txX + 12, groundAt(txX + 80 * hScaleX) + 22);
+
+    // луч
+    if (absorbed) {
+      const refX = txX + xRefKm * hScaleX;
+      const refY = layerY(hReflect);
+      ctx.strokeStyle = 'rgba(178,34,34,0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(txX, txY);
+      ctx.lineTo(refX, refY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = '#b22222';
+      ctx.lineWidth = 2;
+      const sz = 8;
+      ctx.beginPath();
+      ctx.moveTo(refX - sz, refY - sz);
+      ctx.lineTo(refX + sz, refY + sz);
+      ctx.moveTo(refX - sz, refY + sz);
+      ctx.lineTo(refX + sz, refY - sz);
+      ctx.stroke();
+      ctx.fillStyle = '#b22222';
+      ctx.font = 'bold 11px "Roboto Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('поглощение в D', refX + 14, refY);
+    } else if (hReflect !== null) {
+      const refX = txX + xRefKm * hScaleX;
+      const refY = layerY(hReflect);
+      const rxXCalc = txX + xRxKm * hScaleX;
+      const rxX = Math.min(rxXCalc, W - 20);
+      const rxY = groundAt(rxX);
+
+      ctx.strokeStyle = '#1a4a7a';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(txX, txY);
+      ctx.lineTo(refX, refY);
+      ctx.lineTo(rxX, rxY);
+      ctx.stroke();
+
+      // точка отражения
+      ctx.fillStyle = '#b22222';
+      ctx.beginPath();
+      ctx.arc(refX, refY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = '10px "Roboto Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#b22222';
+      ctx.fillText('точка отражения', refX + 10, refY - 6);
+
+      // приёмник — подпись над точкой, чтобы не уходить за край
+      ctx.fillStyle = '#1a2a4a';
+      ctx.beginPath();
+      ctx.arc(rxX, rxY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.textAlign = 'center';
+      ctx.fillText('приём', rxX, rxY - 12);
+
+      // мёртвая зона
+      const gwEndX = txX + gwEndKm * hScaleX;
+      if (rxX > gwEndX + 15) {
+        ctx.fillStyle = 'rgba(178,34,34,0.10)';
+        ctx.beginPath();
+        for (let x = gwEndX; x <= rxX; x += 6) {
+          const dx = x - cx;
+          const sq = R_px * R_px - dx * dx;
+          const y = cy_bottom - Math.sqrt(Math.max(0, sq));
+          if (x === gwEndX) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.lineTo(rxX, H);
+        ctx.lineTo(gwEndX, H);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#b22222';
+        ctx.font = 'bold 10px "Roboto Mono", monospace';
+        ctx.textAlign = 'center';
+        const midX = (gwEndX + rxX) / 2;
+        const dxm = midX - cx;
+        const sqm = R_px * R_px - dxm * dxm;
+        const ym = cy_bottom - Math.sqrt(Math.max(0, sqm));
+        ctx.fillText('мёртвая зона', midX, ym + 22);
+      }
+    } else {
+      ctx.strokeStyle = '#1a4a7a';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(txX, txY);
+      ctx.lineTo(txX + 200, 20);
+      ctx.stroke();
+      const ax = txX + 200, ay = 20;
+      ctx.fillStyle = '#1a4a7a';
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - 12, ay + 14);
+      ctx.lineTo(ax + 4, ay + 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.font = '10px "Roboto Mono", monospace';
+      ctx.fillText('проходит сквозь ионосферу', txX + 210, 26);
+    }
+
+    // передатчик значок
+    ctx.fillStyle = '#1a2a4a';
+    ctx.beginPath();
+    ctx.moveTo(txX, txY - 20);
+    ctx.lineTo(txX - 8, txY);
+    ctx.lineTo(txX + 8, txY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('ПРД', txX, txY + 18);
+
+    // readout
+    document.getElementById('v-iono-f').textContent = formatFreq(f);
+    document.getElementById('v-iono-s').textContent = S.toFixed(0) + '%';
+
+    let status;
+    if (absorbed) status = 'поглощение в D-слое';
+    else if (hReflect !== null) status = 'отражение от ' + reflectLayer + '-слоя';
+    else status = 'проходит сквозь ионосферу';
+
+    let extra = '';
+    if (hReflect !== null && !absorbed) {
+      extra = 'Высота отражения: <span class="hl">' + hReflect.toFixed(0) + ' км</span><br>' +
+              'Расстояние до приёма: <span class="hl">' + xRxKm.toFixed(0) + ' км</span>';
+    }
+
+    document.getElementById('r-iono').innerHTML =
+      'f = <span class="hl">' + formatFreq(f) + '</span> · ' + mode + '<br>' +
+      'Солнце: <span class="hl">' + S.toFixed(0) + '%</span> · ' + status +
+      (extra ? '<br>' + extra : '');
+
+    let fb;
+    if (absorbed) fb = 'D-слой днём ионизирован и поглощает ДВ/СВ. Ночью D исчезает — дальний приём возвращается.';
+    else if (hReflect !== null && f <= 3e7) fb = 'Выше солнечная активность — выше F-слой — дальше точка отражения и приёма. Угол выхода луча фиксирован, меняется высота отражения.';
+    else if (hReflect !== null) fb = 'Отражение от E-слоя. Ночью слой ниже — приём ближе.';
+    else fb = 'УКВ и выше проходит сквозь ионосферу. Только прямая видимость.';
+    document.getElementById('fb-iono').textContent = fb;
+  }
+
+  currentDraw = draw;
+  sF.oninput = draw;
+  sS.oninput = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 9 — trainer
+   ============================================================ */
+const rangeData = [
+  { id: 1,  text: 'Связь с подводной лодкой',     bin: 'dv',   expl: 'ДВ/СДВ проникают в воду на десятки метров. УКВ в воде затухает за сантиметры.' },
+  { id: 2,  text: 'Международное КВ-вещание',      bin: 'kv',   expl: 'КВ отражается от ионосферы (слой F) и огибает Землю многократными скачками.' },
+  { id: 3,  text: 'Местная AM-радиостанция',       bin: 'sv',   expl: 'СВ — сотни кГц. Земная волна вдоль поверхности. Днём D-слой поглощает дальний приём.' },
+  { id: 4,  text: 'Wi-Fi 2.4 ГГц',                 bin: 'svch', expl: '2.4 ГГц — СВЧ. Прямая видимость в помещении, мебель огибает плохо.' },
+  { id: 5,  text: 'Мобильный телефон 900 МГц',     bin: 'ukv',  expl: '900 МГц — УКВ (дециметровый). Прямая видимость до базовой станции.' },
+  { id: 6,  text: 'Радиорелейная линия',           bin: 'svch', expl: 'СВЧ, узкий луч, прямая видимость. Между вышками.' },
+  { id: 7,  text: 'Спутниковое ТВ',                bin: 'svch', expl: 'СВЧ проходит сквозь ионосферу — спутник видит Землю, Земля видит спутник.' },
+  { id: 8,  text: 'Радиолокатор аэропорта',        bin: 'svch', expl: 'СВЧ, узкий луч, малая λ — высокое разрешение.' },
+  { id: 9,  text: 'Телевидение ДМВ',               bin: 'ukv',  expl: 'ДМВ — УКВ. Прямая видимость, вышки на холмах.' },
+  { id: 10, text: 'Навигационный радиомаяк',       bin: 'dv',   expl: 'ДВ/СВ — земная волна, устойчивый приём на большие расстояния.' }
+];
+const binNames = { dv: 'ДВ/СДВ', sv: 'СВ', kv: 'КВ', ukv: 'УКВ', svch: 'СВЧ' };
+
+function initTrainer() {
+  const container = document.getElementById('trainer');
+  const fb = document.getElementById('fb-trainer');
+  let selectedCard = null;
+  let placed = {};
+
+  function showFeedback(text, correct) {
+    if (correct) {
+      fb.textContent = 'Верно. ' + text;
+      fb.style.borderColor = '#2a6a3a';
+      fb.style.background = 'rgba(42,106,58,0.1)';
+    } else {
+      fb.textContent = 'Неверно. Вспомните: как волна распространяется в этом диапазоне?';
+      fb.style.borderColor = '#b22222';
+      fb.style.background = 'rgba(178,34,34,0.1)';
+    }
+    fb.style.display = 'block';
+  }
+
+  function render() {
+    container.innerHTML = '';
+    const cardsDiv = document.createElement('div');
+    cardsDiv.className = 'cards-area';
+    rangeData.forEach(card => {
+      if (placed[card.id]) return;
+      const el = document.createElement('div');
+      el.className = 'card' + (selectedCard === card.id ? ' selected' : '');
+      el.textContent = card.text;
+      el.onclick = () => {
+        selectedCard = selectedCard === card.id ? null : card.id;
+        render();
+      };
+      cardsDiv.appendChild(el);
+    });
+    container.appendChild(cardsDiv);
+
+    const binsDiv = document.createElement('div');
+    binsDiv.className = 'bins-area';
+    Object.keys(binNames).forEach(binKey => {
+      const bin = document.createElement('div');
+      bin.className = 'bin';
+      bin.innerHTML = '<span class="bin-title">' + binNames[binKey] + '</span>';
+      rangeData.filter(c => placed[c.id] === binKey).forEach(c => {
+        const item = document.createElement('span');
+        item.className = 'bin-item';
+        item.textContent = '✓ ' + c.text;
+        bin.appendChild(item);
+      });
+      bin.onclick = () => {
+        if (selectedCard === null) return;
+        const card = rangeData.find(c => c.id === selectedCard);
+        if (card.bin === binKey) {
+          placed[card.id] = binKey;
+          showFeedback(card.expl, true);
+          selectedCard = null;
+        } else {
+          showFeedback(card.expl, false);
+        }
+        render();
+      };
+      binsDiv.appendChild(bin);
+    });
+    container.appendChild(binsDiv);
+
+    if (Object.keys(placed).length === rangeData.length) {
+      const done = document.createElement('div');
+      done.className = 'feedback';
+      done.innerHTML = '<b>Все карточки разложены.</b> Почему СВЧ так часто? Высокая частота даёт широкую полосу и узкий луч, малая λ — высокое разрешение. Цена — прямая видимость.';
+      container.appendChild(done);
+    }
+  }
+
+  render();
+}
+
+/* ============================================================
+   SCENE 10 — security
+   ============================================================ */
+function initSecurity() {
+  const canvas = document.getElementById('c-sec');
+  const state = { antenna: false, fhss: false, shield: false };
+
+  function computeRisks() {
+    const intercept = 85 - (state.antenna ? 30 : 0) - (state.fhss ? 15 : 0) - (state.shield ? 10 : 0);
+    const jam = 80 - (state.fhss ? 40 : 0) - (state.antenna ? 10 : 0);
+    const leak = 70 - (state.shield ? 40 : 0) - (state.antenna ? 10 : 0);
+    const clamp = x => Math.max(10, Math.min(90, x));
+    return { intercept: clamp(intercept), jam: clamp(jam), leak: clamp(leak) };
+  }
+
+  function draw() {
+    const { ctx, W, H } = prepCanvas(canvas, 260);
+    const risks = computeRisks();
+
+    const txX = 120, txY = 130;
+    const rxX = W - 120, rxY = 130;
+
+    ctx.strokeStyle = 'rgba(26,42,74,0.3)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(txX, txY);
+    ctx.lineTo(rxX, rxY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const intR = state.antenna ? 50 : 110;
+    ctx.fillStyle = 'rgba(178,34,34,' + (0.10 + risks.intercept / 300) + ')';
+    ctx.beginPath();
+    ctx.ellipse(txX, txY, intR, intR * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(178,34,34,0.5)';
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const jamX = W / 2, jamY = 232;
+    ctx.fillStyle = '#8a2a2a';
+    ctx.beginPath();
+    ctx.arc(jamX, jamY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a2a4a';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('ПОМЕХА', jamX, jamY + 20);
+
+    if (state.fhss) {
+      ctx.strokeStyle = 'rgba(178,34,34,0.4)';
+      ctx.setLineDash([3, 3]);
+      for (let r = 20; r < 80; r += 20) {
+        ctx.beginPath();
+        ctx.arc(jamX, jamY, r, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = 'rgba(178,34,34,0.6)';
+      for (let r = 20; r < 100; r += 20) {
+        ctx.beginPath();
+        ctx.arc(jamX, jamY, r, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      }
+    }
+
+    function tower(x, y, label) {
+      ctx.fillStyle = '#1a2a4a';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 25);
+      ctx.lineTo(x - 8, y + 10);
+      ctx.lineTo(x + 8, y + 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(x - 2, y + 10, 4, 15);
+      ctx.font = '10px "Roboto Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y + 40);
+    }
+    tower(txX, txY, 'ПРД');
+    tower(rxX, rxY, 'ПРМ');
+
+    if (state.antenna) {
+      ctx.fillStyle = 'rgba(26,42,74,0.12)';
+      ctx.beginPath();
+      ctx.moveTo(txX, txY);
+      ctx.lineTo(rxX - 40, rxY - 40);
+      ctx.lineTo(rxX - 40, rxY + 40);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (state.shield) {
+      ctx.strokeStyle = '#2a6a3a';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(txX, txY, 36, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#2a6a3a';
+      ctx.font = '9px "Roboto Mono", monospace';
+      ctx.fillText('ЭКРАН', txX, txY - 42);
+    }
+
+    function colorFor(v) {
+      if (v > 60) return '#b22222';
+      if (v > 35) return '#d4a020';
+      return '#2a6a3a';
+    }
+    function bar(label, value) {
+      return '<div class="risk-row"><span class="risk-label">' + label +
+        '</span><div class="risk-track"><div class="risk-fill" style="width:' + value +
+        '%;background:' + colorFor(value) + '"></div></div><span style="min-width:32px;text-align:right">' +
+        value + '</span></div>';
+    }
+    document.getElementById('risk-bars').innerHTML =
+      bar('Перехват', risks.intercept) +
+      bar('Подавление', risks.jam) +
+      bar('Утечка', risks.leak);
+
+    const fb = [];
+    if (!state.antenna && !state.fhss && !state.shield) {
+      fb.push('Все меры выключены: широкая зона перехвата, помеха накрывает сигнал, утечка через корпус.');
+    }
+    if (state.antenna) fb.push('Направленная антенна сузила зону перехвата, но требует наведения.');
+    if (state.fhss) fb.push('ППРЧ: узкополосная помеха промахивается. От широкополосной не спасает.');
+    if (state.shield) fb.push('Экранирование снизило утечку, но не дальность полезного сигнала.');
+    document.getElementById('fb-sec').textContent = fb.join(' ');
+  }
+
+  document.querySelectorAll('#sec-toggles .toggle-item').forEach(el => {
+    el.onclick = () => {
+      const key = el.dataset.key;
+      state[key] = !state[key];
+      el.classList.toggle('on', state[key]);
+      draw();
+    };
+  });
+
+  currentDraw = draw;
+  draw();
+}
+
+/* ============================================================
+   SCENE 11 — test
+   ============================================================ */
+const testQuestions = [
+  {
+    q: 'λ = 30 м. Какая частота и диапазон?',
+    opts: ['10 МГц, КВ', '1 МГц, СВ', '100 МГц, УКВ', '30 кГц, ДВ'],
+    correct: 0,
+    expl: 'f = c/λ = 3·10⁸ / 30 = 10⁷ Гц = 10 МГц. Это КВ (3–30 МГц).'
+  },
+  {
+    q: 'Почему ДВ слышно за горизонтом?',
+    opts: ['Ионосфера отражает', 'Дифракция: λ соизмерима с препятствиями', 'Земная волна идёт по прямой', 'Тропосферное рассеяние'],
+    correct: 1,
+    expl: 'λ на ДВ — сотни метров, соизмерима с холмами. Волна огибает препятствия (дифракция).'
+  },
+  {
+    q: 'Почему УКВ не отражается от ионосферы?',
+    opts: ['Слишком большая мощность', 'Частота выше плазменной частоты слоя', 'Ионосфера есть только ночью', 'УКВ отражается, но мы не замечаем'],
+    correct: 1,
+    expl: 'Ионосфера отражает, пока f ниже плазменной частоты слоя. Для УКВ f выше — проходит насквозь.'
+  },
+  {
+    q: 'Где полоса шире — на несущей 1 МГц или 100 МГц при той же F_м?',
+    opts: ['На 1 МГц', 'На 100 МГц', 'Одинакова: B = 2F_м', 'Зависит от глубины модуляции'],
+    correct: 2,
+    expl: 'Полоса АМ-сигнала B = 2F_м зависит от модулирующего сигнала, не от несущей.'
+  },
+  {
+    q: 'Какой диапазон для связи со спутником?',
+    opts: ['ДВ', 'КВ', 'УКВ', 'СВЧ'],
+    correct: 3,
+    expl: 'СВЧ проходит сквозь ионосферу. КВ отражается, УКВ частично поглощается.'
+  },
+  {
+    q: 'Что такое перемодуляция?',
+    opts: ['m = 0', 'm > 1, огибающая пересекает ноль', 'F_м > f_с', 'Полоса шире несущей'],
+    correct: 1,
+    expl: 'При m > 1 огибающая пересекает ноль. Приёмник искажает: не может восстановить сигнал.'
+  },
+  {
+    q: 'Почему днём СВ хуже слышно на дальних расстояниях?',
+    opts: ['D-слой поглощает', 'Ионосфера исчезает', 'Антенна хуже работает', 'Помехи от Солнца'],
+    correct: 0,
+    expl: 'Днём D-слой ионизирован и поглощает СВ. Ночью D исчезает — дальний приём возвращается.'
+  },
+  {
+    q: 'Где заложена информация в ЧМ-сигнале?',
+    opts: ['В амплитуде несущей', 'В отклонении частоты несущей от среднего (девиации)', 'В самой несущей частоте', 'В длине волны'],
+    correct: 1,
+    expl: 'В ЧМ амплитуда постоянна, а мгновенная частота меняется по закону модулирующего: f(t) = f_c + Δf·sin(2π·F_м·t). Информация — в девиации Δf.'
+  },
+  {
+    q: 'Чем ЧМ отличается от ФМ при одной и той же несущей и модулирующем сигнале?',
+    opts: ['В ЧМ меняется амплитуда, в ФМ — частота', 'В ЧМ мгновенная частота пропорциональна модулирующему, в ФМ — сама фаза', 'Это одно и то же, только названия разные', 'В ЧМ полоса уже, чем в АМ'],
+    correct: 1,
+    expl: 'В ЧМ f(t) = f_c + Δf·sin(2π·F_м·t) — частота меняется по синусу. В ФМ φ(t) = 2π·f_c·t + β·sin(2π·F_м·t) — фаза меняется по синусу, а частота (производная фазы) — по косинусу, со сдвигом π/2.'
+  }
+];
+
+function initTest() {
+  const container = document.getElementById('test-container');
+  container.innerHTML = '';
+  let answered = 0;
+  let correct = 0;
+  document.getElementById('checklist').style.display = 'none';
+
+  testQuestions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML =
+      '<div class="q-num">ВОПРОС ' + (i + 1) + ' / ' + testQuestions.length + '</div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="options">' +
+      q.opts.map((o, j) => '<label><input type="radio" name="q' + i + '" value="' + j + '"> ' + o + '</label>').join('') +
+      '</div>' +
+      '<div class="explain" id="expl-' + i + '"></div>';
+    container.appendChild(div);
+
+    div.querySelectorAll('input').forEach(inp => {
+      inp.onchange = () => {
+        if (div.dataset.answered) return;
+        div.dataset.answered = '1';
+        const val = parseInt(inp.value, 10);
+        const ok = val === q.correct;
+        const expl = document.getElementById('expl-' + i);
+        expl.innerHTML = '<b>' + (ok ? 'Верно.' : 'Неверно.') + '</b> ' + q.expl;
+        expl.className = 'explain show' + (ok ? ' correct' : '');
+        div.querySelectorAll('input').forEach(r => r.disabled = true);
+        answered++;
+        if (ok) correct++;
+        updateScore();
+      };
+    });
+  });
+
+  function updateScore() {
+    const box = document.getElementById('score-box');
+    if (answered < testQuestions.length) {
+      box.textContent = 'Отвечено: ' + answered + ' / ' + testQuestions.length;
+    } else {
+      box.textContent = 'Результат: ' + correct + ' из ' + testQuestions.length;
+      document.getElementById('checklist').style.display = 'block';
+    }
+  }
+
+  document.getElementById('score-box').textContent = 'Отвечено: 0 / ' + testQuestions.length;
+}
+
+/* ---------- init ---------- */
+goTo(1);
+</script>
+</body>
+</html>
