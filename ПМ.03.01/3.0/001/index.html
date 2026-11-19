@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#9C27B0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>HarmoniX v21.0 | Academy & InfoSec</title>
+
+    <style>
+        /* ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ДИНАМИЧЕСКИЕ ТЕМЫ */
+        :root {
+            --bg-color: #f6f8fb; --panel-rgb: 255, 255, 255; --text-color: #1a1a24; 
+            --border-color: rgba(156, 39, 176, 0.35); --accent: #9C27B0; 
+            --base-wave: #2196F3; --accent-alt: #FF5722; --btn-glow: rgba(156, 39, 176, 0.45);
+            --canvas-bg: rgba(250, 250, 250, 0.9); --glass-alpha: 0.88; 
+            --glass-blur: 16px; --glass-saturate: 135%; --glass-border: rgba(255, 255, 255, 0.85); 
+            --element-border: rgba(156, 39, 176, 0.45); --content-bg: rgba(255, 255, 255, 0.92); 
+            --badge-bg: rgba(156, 39, 176, 0.12); --tzi-color: #00E676; --tzi-glow: rgba(0, 230, 118, 0.5);
+            --wave-btn-radius: 18px 6px 18px 6px; --wave-btn-hover: 6px 18px 6px 18px;
+        }
+
+        [data-theme="dark"] { --bg-color: #121214; --panel-rgb: 28, 28, 34; --text-color: #eeeeee; --border-color: rgba(187, 134, 252, 0.4); --accent: #bb86fc; --base-wave: #03dac6; --accent-alt: #FF9800; --btn-glow: rgba(187, 134, 252, 0.6); --canvas-bg: rgba(18, 18, 22, 0.9); --glass-border: rgba(255, 255, 255, 0.16); --element-border: rgba(187, 134, 252, 0.5); --content-bg: rgba(28, 28, 34, 0.92); --badge-bg: rgba(187, 134, 252, 0.18); }
+        [data-theme="neon"] { --bg-color: #000016; --panel-rgb: 10, 10, 30; --text-color: #00ffff; --border-color: rgba(255, 0, 255, 0.7); --accent: #ff00ff; --base-wave: #00ffff; --accent-alt: #FFEA00; --btn-glow: rgba(255, 0, 255, 0.8); --canvas-bg: rgba(0, 0, 0, 0.9); --glass-border: rgba(0, 255, 255, 0.5); --element-border: rgba(255, 0, 255, 0.7); --content-bg: rgba(10, 10, 25, 0.95); --badge-bg: rgba(255, 0, 255, 0.2); }
+        [data-theme="ocean"] { --bg-color: #0f2027; --panel-rgb: 15, 32, 39; --text-color: #e0f7fa; --border-color: rgba(33, 147, 176, 0.6); --accent: #2193b0; --base-wave: #4facfe; --accent-alt: #FFCA28; --btn-glow: rgba(33, 147, 176, 0.6); --canvas-bg: rgba(10, 20, 25, 0.9); --glass-border: rgba(79, 172, 254, 0.4); --element-border: rgba(33, 147, 176, 0.6); --content-bg: rgba(20, 40, 50, 0.9); --badge-bg: rgba(33, 147, 176, 0.2); }
+        [data-theme="forest"] { --bg-color: #134e5e; --panel-rgb: 19, 78, 94; --text-color: #e8f5e9; --border-color: rgba(113, 178, 128, 0.6); --accent: #71b280; --base-wave: #a8e063; --accent-alt: #FFB300; --btn-glow: rgba(113, 178, 128, 0.6); --canvas-bg: rgba(10, 40, 30, 0.9); --glass-border: rgba(168, 224, 99, 0.4); --element-border: rgba(113, 178, 128, 0.6); --content-bg: rgba(25, 60, 50, 0.9); --badge-bg: rgba(113, 178, 128, 0.2); }
+        [data-theme="sunset"] { --bg-color: #2b1055; --panel-rgb: 43, 16, 85; --text-color: #ffe53b; --border-color: rgba(255, 37, 37, 0.6); --accent: #ff2525; --base-wave: #ff2525; --accent-alt: #ff9100; --btn-glow: rgba(255, 37, 37, 0.6); --canvas-bg: rgba(20, 10, 40, 0.9); --glass-border: rgba(255, 229, 59, 0.4); --element-border: rgba(255, 37, 37, 0.6); --content-bg: rgba(40, 20, 60, 0.9); --badge-bg: rgba(255, 37, 37, 0.2); }
+        [data-theme="cyber"] { --bg-color: #fcee0a; --panel-rgb: 20, 20, 20; --text-color: #00ffff; --border-color: rgba(255, 0, 85, 0.9); --accent: #ff0055; --base-wave: #0ff; --accent-alt: #00E5FF; --btn-glow: rgba(255, 0, 85, 0.8); --canvas-bg: rgba(0, 0, 0, 0.95); --glass-border: rgba(255, 238, 10, 0.7); --element-border: rgba(255, 0, 85, 0.9); --content-bg: rgba(20, 20, 20, 0.95); --badge-bg: rgba(255, 0, 85, 0.25); }
+        [data-theme="coffee"] { --bg-color: #f3e5f5; --panel-rgb: 239, 222, 205; --text-color: #4e342e; --border-color: rgba(141, 110, 99, 0.6); --accent: #795548; --base-wave: #8d6e63; --accent-alt: #d84315; --btn-glow: rgba(121, 85, 72, 0.6); --canvas-bg: rgba(255, 248, 225, 0.9); --glass-border: rgba(255, 255, 255, 0.7); --element-border: rgba(141, 110, 99, 0.6); --content-bg: rgba(245, 230, 215, 0.9); --badge-bg: rgba(121, 85, 72, 0.2); }
+        [data-theme="space"] { --bg-color: #000000; --panel-rgb: 15, 10, 30; --text-color: #e0e0e0; --border-color: rgba(126, 87, 194, 0.6); --accent: #7e57c2; --base-wave: #b39ddb; --accent-alt: #00e676; --btn-glow: rgba(126, 87, 194, 0.6); --canvas-bg: rgba(5, 5, 15, 0.9); --glass-border: rgba(179, 157, 219, 0.35); --element-border: rgba(126, 87, 194, 0.6); --content-bg: rgba(20, 15, 40, 0.9); --badge-bg: rgba(126, 87, 194, 0.22); }
+        [data-theme="sakura"] { --bg-color: #fff0f5; --panel-rgb: 255, 240, 245; --text-color: #880e4f; --border-color: rgba(216, 27, 96, 0.5); --accent: #d81b60; --base-wave: #f06292; --accent-alt: #ff6f00; --btn-glow: rgba(216, 27, 96, 0.6); --canvas-bg: rgba(255, 250, 250, 0.9); --glass-border: rgba(255, 255, 255, 0.8); --element-border: rgba(216, 27, 96, 0.55); --content-bg: rgba(255, 235, 240, 0.9); --badge-bg: rgba(216, 27, 96, 0.18); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: var(--text-color); background-color: var(--bg-color); overflow-x: hidden; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+        .emoji-fix { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif; }
+
+        /* УВЕДОМЛЕНИЯ (TOASTS) */
+        #toast-container { position: fixed; bottom: 25px; right: 25px; z-index: 9999999; display: flex; flex-direction: column; gap: 14px; pointer-events: none; }
+        .toast { pointer-events: auto; background: rgba(var(--panel-rgb), 0.92); border-left: 5px solid var(--accent); border-radius: 12px; padding: 16px 20px; width: 330px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); backdrop-filter: blur(12px); transform: translateX(120%); transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s ease; display: flex; gap: 14px; align-items: flex-start; cursor: pointer; position: relative; overflow: hidden; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast:hover { transform: translateX(-5px) scale(1.02); box-shadow: 0 15px 40px var(--btn-glow); }
+        .toast-icon { font-size: 26px; animation: toastBounce 2s infinite; }
+        .toast-content { flex-grow: 1; }
+        .toast-title { font-weight: 900; font-size: 15px; color: var(--accent); margin-bottom: 4px; }
+        .toast-text { font-size: 13px; line-height: 1.4; color: var(--text-color); font-weight: 500; }
+        @keyframes toastBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        /* СИСТЕМА ПОДСКАЗОК (СТРЕЛОЧКИ) */
+        .onboarding-hint { position: absolute; z-index: 5000; animation: pointBounce 1.5s infinite; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .onboarding-text { background: var(--accent); color: #fff; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 15px var(--btn-glow); border: 1.5px solid #fff; }
+        @keyframes pointBounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
+
+        /* РЕЙТИНГ ЗВЕЗДЫ */
+        .star-rating { display: inline-flex; flex-direction: row-reverse; gap: 6px; justify-content: center; margin: 15px 0; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 38px; color: #ccc; cursor: pointer; transition: 0.2s; text-shadow: 0 2px 4px rgba(0,0,0,0.2); line-height: 1; }
+        .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7); transform: scale(1.15); }
+
+        /* ГЛОБАЛЬНЫЙ RIPPLE ЭФФЕКТ (КРУГИ ПО ВОДЕ) */
+        .global-ripple { position: fixed; border-radius: 50%; border: 2.5px solid var(--accent); transform: translate(-50%, -50%); pointer-events: none; animation: rippleAnim 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; z-index: 9999999; box-shadow: 0 0 15px var(--btn-glow); }
+        @keyframes rippleAnim { 0% { width: 0; height: 0; opacity: 1; border-width: 4px; } 100% { width: 120px; height: 120px; opacity: 0; border-width: 1px; } }
+
+        /* ВОЛНОВЫЕ КНОПКИ С КОНТРАСТОМ ДЛЯ ПАНЕЛЕЙ */
+        .btn, .btn-enter, .premium-link-btn, .lang-btn, .step-btn, 
+        .accordion-btn, .formula-card, .menu-btn-special, 
+        .btn-test-special, .btn-reload-styled, .file-upload-btn, 
+        .glass-controls button, .quiz-option, .tab, .btn-submit-main, 
+        .btn-tzi, .quiz-nav-btn {
+            border-radius: var(--wave-btn-radius) !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            border: 2px solid rgba(255,255,255,0.7) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        }
+
+        .btn:hover, .btn-enter:hover, .premium-link-btn:hover, .lang-btn:hover, 
+        .step-btn:hover, .accordion-btn:hover, .formula-card:hover, 
+        .menu-btn-special:hover, .btn-test-special:hover, .btn-reload-styled:hover, 
+        .file-upload-btn:hover, .glass-controls button:hover, .quiz-option:hover, 
+        .tab:hover, .btn-submit-main:hover, .btn-tzi:hover, .quiz-nav-btn:hover {
+            border-radius: var(--wave-btn-hover) !important;
+            transform: translateY(-3px); box-shadow: 0 8px 20px var(--btn-glow);
+        }
+
+        .btn-pause, .btn-medium, .premium-link-btn[style*="FF9800"] {
+            background: linear-gradient(135deg, #FF6F00, #E64A19) !important;
+            color: #ffffff !important; border: 2px solid rgba(255, 255, 255, 0.85) !important;
+            box-shadow: 0 4px 14px rgba(230, 74, 25, 0.45) !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .btn-pause.active { background: linear-gradient(135deg, #D81B60, #AD1457) !important; border-color: #ffffff !important; box-shadow: 0 0 18px rgba(216, 27, 96, 0.7) !important; }
+
+        .premium-link-btn.foxford-btn {
+            background: linear-gradient(135deg, #FF6D00, #DD2C00) !important; color: #ffffff !important; border: 2px solid #ffffff !important;
+            box-shadow: 0 4px 15px rgba(221, 44, 0, 0.5) !important; text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
+        }
+
+        /* УНИКАЛЬНАЯ КНОПКА КАМЕРЫ (СНИМОК) С ИНТЕРАКТИВОМ */
+        .btn-camera-snap {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 18px; font-size: 13px; font-weight: 900; cursor: pointer;
+            background: linear-gradient(135deg, #651FFF, #3D5AFE) !important; color: #fff !important; border: 2px solid #fff !important;
+            border-radius: 24px 6px 24px 6px !important; box-shadow: 0 4px 15px rgba(101, 31, 255, 0.4) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: visible; z-index: 10;
+        }
+        .btn-camera-snap:hover { border-radius: 6px 24px 6px 24px !important; transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 20px rgba(101, 31, 255, 0.6) !important; }
+        .btn-camera-snap:active { transform: scale(0.9); }
+        
+        .camera-flash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 10; opacity: 0; pointer-events: none; border-radius: 12px; }
+        @keyframes flashAnim { 0% { opacity: 0; } 10% { opacity: 1; } 100% { opacity: 0; } }
+
+        #bg-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 10% 20%, rgba(156, 39, 176, 0.08), transparent 40%), radial-gradient(circle at 90% 80%, rgba(33, 150, 243, 0.08), transparent 40%), linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px; background-color: var(--bg-color); z-index: -2; transition: filter 0.4s ease, background-image 0.4s ease; }
+        .gradient-text { animation: colorFlow 6s ease infinite; font-weight: bold; }
+        @keyframes colorFlow { 0% { color: #ff00cc; } 50% { color: #3333ff; } 100% { color: #ff00cc; } }
+
+        .glass-panel { background: rgba(var(--panel-rgb), var(--glass-alpha)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)); border: 1.5px solid var(--glass-border); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); }
+        .glass-element { position: relative; overflow: hidden; background: rgba(var(--panel-rgb), calc(var(--glass-alpha) - 0.15)); border: 1.5px solid var(--element-border); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.2s ease, box-shadow 0.2s ease, border-radius 0.3s ease; color: var(--text-color); cursor: pointer; user-select: none; }
+        .btn-shine::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent); transform: skewX(-20deg); pointer-events: none; animation: shine 4.5s infinite; }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        #global-tooltip { position: fixed; top: 0; left: 0; z-index: 999999; background: linear-gradient(135deg, rgba(20, 20, 30, 0.98), rgba(40, 20, 40, 0.98)); color: #fff; padding: 14px 18px; border-radius: var(--wave-btn-radius); font-size: 13.5px; max-width: 290px; pointer-events: none; opacity: 0; transition: opacity 0.2s ease, transform 0.15s ease-out; border: 2px solid var(--accent); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); line-height: 1.5; text-align: center; font-weight: 500; transform: scale(0.95); }
+        .hint-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: #FFC107; color: #000; font-size: 12px; font-weight: bold; cursor: help; margin-left: 6px; vertical-align: middle; box-shadow: 0 0 10px rgba(255, 193, 7, 0.6); transition: 0.2s; border: 1.5px solid #fff; }
+        .hint-icon:hover { transform: scale(1.2); filter: brightness(1.1); box-shadow: 0 0 15px rgba(255, 193, 7, 0.9); }
+        .pulse-alert { animation: pulseAlert 1.5s infinite; }
+        @keyframes pulseAlert { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(1.2); } 100% { transform: scale(1); filter: brightness(1); } }
+
+        @media (hover: hover) and (pointer: fine) {
+            .glass-element:hover { background: rgba(var(--panel-rgb), calc(var(--glass-alpha) - 0.05)); border-color: var(--accent); box-shadow: 0 6px 16px var(--btn-glow); }
+            .accordion-btn:hover { background: var(--accent); color: white; padding-left: 22px; }
+            .info-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 15px 35px var(--btn-glow); border-color: var(--accent); z-index: 5; }
+            .btn-enter:hover { transform: translateY(-4px) scale(1.04) !important; box-shadow: 0 15px 40px var(--btn-glow) !important; }
+            .interactive-hover:hover { box-shadow: 0 8px 25px var(--btn-glow); }
+        }
+
+        .glass-element:active { transform: scale(0.96) !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important; }
+        .btn-enter { position: relative; z-index: 10; padding: 16px 44px; font-size: 22px; font-weight: bold; color: #fff !important; background: linear-gradient(135deg, var(--accent), #ff00cc) !important; border: 2px solid rgba(255, 255, 255, 0.9) !important; border-radius: 35px; box-shadow: 0 0 25px var(--btn-glow); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); outline: none; }
+        .btn-enter:active { transform: scale(0.96) !important; }
+
+        .top-bar-wrapper { display: none; position: fixed; top: 0; left: 0; width: 100%; z-index: 2000; padding: max(10px, env(safe-area-inset-top)) 10px 10px; pointer-events: none; justify-content: center; }
+        .top-bar { pointer-events: auto; display: inline-flex; align-items: center; gap: clamp(6px, 1.5vw, 12px); padding: 8px 16px; border-radius: 35px; box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3); background: rgba(var(--panel-rgb), 0.98); border: 2px solid var(--accent); position: relative; }
+        
+        .nav-logo { font-size: clamp(16px, 3.5vw, 20px); display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-weight: 900; background: transparent !important; border: none !important; cursor: pointer; }
+        .nav-logo .logo-super-shape.small { width: 36px; height: 36px; animation: morphRing 3s ease-in-out infinite alternate, ringGlow 2s infinite alternate; }
+
+        .menu-btn-special { font-size: clamp(13px, 2vw, 15px); font-weight: 900; background: linear-gradient(135deg, #7B1FA2, #E91E63) !important; color: white !important; cursor: pointer; padding: 10px 22px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(123, 31, 162, 0.45) !important; }
+        .btn-test-special { font-size: clamp(13px, 2vw, 15px); font-weight: 900; background: linear-gradient(135deg, #FF5722, #C2185B) !important; color: white !important; cursor: pointer; padding: 10px 18px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.45) !important; position: relative; }
+        .btn-reload-styled { font-size: clamp(13px, 2vw, 15px); font-weight: 900; background: linear-gradient(135deg, #0091EA, #0052cc) !important; color: white !important; cursor: pointer; padding: 10px 16px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0, 145, 234, 0.45) !important; }
+        .btn-fullscreen-compact { width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: rgba(var(--panel-rgb), 0.9); border: 2px solid var(--border-color) !important; color: var(--text-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        .lang-btn { flex: 1; padding: 10px; font-weight: bold; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; background: rgba(var(--panel-rgb), 0.85); border: 1.5px solid var(--border-color) !important; }
+        .lang-btn.active { border-color: var(--accent) !important; background: var(--accent) !important; color: white; box-shadow: 0 0 16px var(--btn-glow); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+
+        .logo-super-shape { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 120px; height: 120px; padding: 6px; background: linear-gradient(135deg, var(--accent), #ff00cc, #00d4ff, var(--accent-alt)); background-size: 300% 300%; border-radius: 32% 68% 65% 35% / 40% 35% 65% 60%; animation: morphRing 5s ease-in-out infinite alternate, ringGlow 3s infinite alternate; margin-bottom: 10px; }
+        .logo-super-shape.small { width: 32px; height: 32px; padding: 2px; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; margin-bottom: 0; }
+        .logo-inner-content { background: var(--bg-color); border-radius: inherit; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3); }
+
+        @keyframes morphRing { 0% { border-radius: 32% 68% 65% 35% / 40% 35% 65% 60%; } 50% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 100% { border-radius: 40% 60% 70% 30% / 40% 60% 40% 60%; } }
+        @keyframes ringGlow { 0% { box-shadow: 0 0 15px var(--btn-glow); } 100% { box-shadow: 0 0 35px var(--accent); } }
+
+        #welcome-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, rgba(156, 39, 176, 0.1) 0%, var(--bg-color) 100%); z-index: 9000; transition: opacity 0.35s ease; padding: 20px; text-align: center; }
+        .welcome-orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.6; animation: floatOrb 10s infinite alternate ease-in-out; pointer-events: none; }
+        .orb-1 { width: 50vmin; height: 50vmin; background: var(--accent); top: -5%; left: -5%; }
+        .orb-2 { width: 40vmin; height: 40vmin; background: var(--base-wave); bottom: -5%; right: -5%; animation-delay: -3s; }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.1); } }
+        .app-title { font-size: clamp(34px, 8vw, 64px); margin: 20px 0 5px; line-height: 1.2; letter-spacing: 1px; }
+        .app-subtitle { font-size: clamp(14px, 3.5vw, 18px); color: var(--text-color); margin-bottom: 35px; opacity: 0.85; max-width: 600px; font-weight: 500; }
+
+        #main-app { display: none; width: 100%; max-width: 1300px; margin: 0 auto; padding: calc(max(10px, env(safe-area-inset-top)) + 80px) 14px 40px; flex-direction: column; }
+        #sidebar { position: fixed; left: -360px; top: 0; width: 320px; max-width: 85%; height: 100vh; z-index: 3000; transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); padding: max(20px, env(safe-area-inset-top)) 20px 30px; overflow-y: auto; display: flex; flex-direction: column; border-right: 2px solid var(--accent); }
+        #sidebar.open { left: 0; }
+        #sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 1999; backdrop-filter: blur(4px); }
+        #sidebar-overlay.show { display: block; }
+        
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .sidebar-header h2 .emoji-fix { display: inline-block; transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .sidebar-header:hover h2 .emoji-fix { transform: rotate(180deg) scale(1.2); }
+        .close-sidebar { font-size: 34px; cursor: pointer; color: var(--text-color); transition: 0.2s; padding: 5px; }
+        .close-sidebar:hover { color: var(--accent); transform: scale(1.1); }
+        
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-title { font-size: 13px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; font-weight: bold; letter-spacing: 0.5px; }
+        
+        /* ИНТЕРАКТИВНЫЕ КНОПКИ МЕНЮ С ЭФФЕКТОМ ЗАЛИВКИ */
+        .sidebar-btn-asym { 
+            padding: 12px 16px; margin-bottom: 8px; font-weight: bold; display: flex; align-items: center; gap: 10px; 
+            font-size: 14px; border-left: 4px solid var(--accent); cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; z-index: 1;
+        }
+        .sidebar-btn-asym::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent)); transition: all 0.4s ease; z-index: -1;
+        }
+        .sidebar-btn-asym:hover { transform: translateX(8px) scale(1.02); color: white; border-color: white; box-shadow: 0 4px 15px var(--btn-glow); }
+        .sidebar-btn-asym:hover::before { left: 0; }
+        
+        .setting-block { margin-bottom: 15px; }
+        .setting-block label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+        .setting-block select { width: 100%; padding: 10px; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; border: 1.5px solid var(--element-border); background: rgba(var(--panel-rgb), 0.95); color: var(--text-color); font-weight: bold; transition: 0.3s; cursor: pointer; }
+        .setting-block select:hover { border-color: var(--accent); box-shadow: 0 0 10px var(--btn-glow); }
+
+        .file-upload-wrapper { position: relative; overflow: hidden; display: block; margin-bottom: 8px; }
+        .file-upload-input { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
+        .file-upload-btn { background: rgba(var(--panel-rgb), 0.9); border: 2px dashed var(--accent) !important; color: var(--text-color); padding: 11px; text-align: center; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        
+        .glass-controls { display: flex; gap: 6px; margin-bottom: 10px; }
+        .glass-controls button { flex: 1; padding: 9px; font-size: 13px; font-weight: 800; cursor: pointer; border: 1.5px solid var(--element-border) !important; background: rgba(var(--panel-rgb), 0.9); color: var(--text-color); }
+        .btn-glass-on.active { background: var(--accent) !important; color: white !important; border-color: #fff !important; box-shadow: 0 0 12px var(--btn-glow) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        
+        .btn-tzi { background: var(--tzi-color) !important; color: #000 !important; border: 2px solid #fff !important; box-shadow: 0 0 16px var(--tzi-glow); font-weight: 900; position: relative; }
+        input[type=range] { width: 100%; margin-top: 5px; accent-color: var(--accent); cursor: pointer; transition: 0.2s; }
+        input[type=range]:hover { transform: scale(1.02); filter: brightness(1.2); }
+
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; min-height: 75vh; margin-bottom: 30px; }
+        .panel { padding: 16px; background: rgba(var(--panel-rgb), 0.85); border: 1px solid var(--border-color); display: flex; flex-direction: column; min-height: 0; position: relative; border-radius: 16px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; flex-wrap: wrap; gap: 8px; }
+        
+        /* 3D ИНТЕРАКТИВ ДЛЯ ГРАФИКОВ */
+        .canvas-wrapper { flex-grow: 1; position: relative; width: 100%; height: 260px; min-height: 160px; resize: both; overflow: hidden; border-radius: 12px; border: 2px solid var(--element-border); background: var(--canvas-bg); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .canvas-wrapper:hover { transform: scale(1.01); box-shadow: 0 12px 35px var(--btn-glow); z-index: 10; border-color: var(--accent); }
+        canvas { display: block; position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+
+        .chart-telemetry { position: absolute; bottom: 8px; left: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none; }
+        .chart-telemetry.hidden { display: none; }
+        .telemetry-chip { background: rgba(var(--panel-rgb), 0.96); border: 1.5px solid var(--element-border); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--text-color); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); backdrop-filter: blur(8px); font-variant-numeric: tabular-nums; transition: 0.3s; }
+        .telemetry-chip .val-highlight { color: var(--accent); font-weight: 900; font-size: 13px; }
+        .telemetry-chip .val-fixed { display: inline-block; min-width: 42px; text-align: right; }
+
+        .tabs { display: flex; gap: 8px; margin: 8px 0; flex-shrink: 0; width: 100%; }
+        .tab { padding: 9px 12px; flex: 1; text-align: center; font-weight: 900; font-size: 15px; cursor: pointer; border: 2px solid var(--element-border) !important; background: rgba(var(--panel-rgb), 0.85); color: var(--text-color); }
+        .tab.active { background: var(--accent) !important; color: #fff !important; border-color: #fff !important; transform: scale(1.02); box-shadow: 0 4px 14px var(--btn-glow); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        .presets-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; width: 100%; }
+        .presets-row button { padding: 9px 4px; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; min-width: 0; text-align: center; border: 1.5px solid var(--element-border) !important; background: rgba(var(--panel-rgb), 0.85); color: var(--text-color); transition: 0.2s; }
+        .presets-row button.active { background: var(--accent) !important; color: #fff !important; border-color: #fff !important; box-shadow: 0 0 12px var(--btn-glow) !important; transform: scale(1.03); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        .control-row { margin-bottom: 11px; display: flex; align-items: center; flex-shrink: 0; gap: 10px; width: 100%; }
+        .control-label { width: 135px; font-weight: bold; font-size: 14px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+        .control-body { display: flex; align-items: center; flex-grow: 1; gap: 10px; width: 100%; }
+        
+        .secondary-params { background: rgba(var(--panel-rgb), 0.5); border: 2px dashed var(--element-border); border-radius: 14px; padding: 12px; margin-top: 8px; }
+        .step-toggle { display: flex; background: rgba(var(--panel-rgb), 0.8); border-radius: 12px; padding: 4px; border: 1.5px solid var(--element-border); flex-grow: 1; }
+        .step-btn { flex: 1; padding: 6px 12px; text-align: center; font-size: 14px; font-weight: 800; cursor: pointer; color: var(--text-color); transition: 0.3s; }
+        .step-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px var(--btn-glow); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        .input-wrapper { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .value-input { width: 80px; padding: 6px; border-radius: 8px; border: 2px solid var(--accent); font-weight: 900; font-size: 15px; text-align: center; outline: none; background: var(--badge-bg); color: var(--accent); font-family: monospace; transition: all 0.25s ease; }
+        .value-input:focus { box-shadow: 0 0 15px var(--btn-glow); background: rgba(var(--panel-rgb), 0.98); transform: scale(1.08); border-color: var(--accent-alt); color: var(--accent-alt); }
+
+        .slider-alt { accent-color: var(--accent-alt) !important; }
+        .input-alt { border-color: var(--accent-alt) !important; color: var(--accent-alt) !important; background: rgba(230, 74, 25, 0.12) !important; }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .btn { padding: 11px 14px; font-weight: 900; color: white; flex-grow: 1; text-align: center; font-family: inherit; font-size: 14px; cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.85) !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
+        .btn-audio { background: linear-gradient(135deg, #0288D1, #01579B) !important; box-shadow: 0 4px 12px rgba(2, 136, 209, 0.4) !important; }
+        .btn-audio.active { background: linear-gradient(135deg, #2E7D32, #1B5E20) !important; border-color: #A5D6A7 !important; box-shadow: 0 0 16px rgba(46, 125, 50, 0.7) !important; }
+        .btn-dist { background: linear-gradient(135deg, #8E24AA, #4A148C) !important; box-shadow: 0 4px 12px rgba(142, 36, 170, 0.4) !important; }
+        .btn-dist.active { background: linear-gradient(135deg, #D50000, #B71C1C) !important; border-color: #FF8A80 !important; box-shadow: 0 0 16px rgba(213, 0, 0, 0.7) !important; }
+        .btn-reset { background: linear-gradient(135deg, #546E7A, #37474F) !important; box-shadow: 0 4px 12px rgba(84, 110, 122, 0.4) !important; }
+
+        .site-content { padding: 35px; border-radius: 20px; margin-bottom: 30px; background: var(--content-bg); border: 2px solid var(--border-color); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12); }
+        .content-header { text-align: center; margin-bottom: 35px; font-size: clamp(22px, 5vw, 28px); font-weight: 800; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .info-card { padding: 22px; background: rgba(var(--panel-rgb), 0.85); border: 2px solid var(--border-color); border-radius: 16px; }
+        .info-card h3 { color: var(--accent); margin-top: 0; font-size: 18px; font-weight: 900; }
+        .info-card p { line-height: 1.6; font-size: 15px; margin-bottom: 0; }
+        .key-term { font-weight: 800; letter-spacing: 0.5px; color: var(--accent); text-decoration: underline dotted; }
+        .faq-link { color: var(--base-wave); text-decoration: none; font-weight: bold; transition: color 0.2s; display: inline-block; margin-top: 6px; }
+        .faq-link:hover { color: var(--accent); text-decoration: underline; }
+
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+        .wave-calculator { background: #111119; border: 2.5px solid #2a2a38; padding: 22px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); color: #fff; transition: 0.4s; }
+        .wave-calculator:hover { transform: translateY(-5px); border-color: #00E676; box-shadow: 0 15px 40px rgba(0, 230, 118, 0.2); }
+        .calc-screen { background: #051007 !important; border: 2px solid #1b5e20; border-radius: 12px; padding: 16px; box-shadow: inset 0 0 15px rgba(0, 230, 118, 0.15); margin-bottom: 15px; transition: 0.3s; }
+        .calc-formula { font-family: 'Courier New', monospace; font-size: 18px; color: #81c784; margin-bottom: 8px; font-weight: bold; }
+        .calc-result { font-family: 'Courier New', monospace; font-size: 26px; font-weight: 900; color: #00E676; text-shadow: 0 0 10px rgba(0, 230, 118, 0.7); margin-top: 5px; }
+        .calc-controls { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .calc-input { font-size: 16px; padding: 8px; width: 110px; text-align: center; border-radius: 8px; border: 2px solid #444; background: #0a0a10 !important; color: #00E676 !important; font-weight: 900; outline: none; font-family: 'Courier New', monospace; transition: all 0.3s; }
+        .calc-input:focus { border-color: #00E676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.5); transform: scale(1.08); }
+        .calc-select { font-size: 14px; padding: 6px; border-radius: 8px; border: 2px solid #444; background: #0a0a10; color: #00E676; font-weight: bold; outline: none; font-family: 'Courier New', monospace; cursor: pointer; transition: 0.3s; max-width: 150px; }
+        .calc-select:focus { border-color: #00E676; box-shadow: 0 0 15px rgba(0,230,118,0.5); }
+
+        .accordion { width: 100%; margin-top: 15px; }
+        .accordion-btn { background: rgba(var(--panel-rgb), 0.95); color: var(--text-color); cursor: pointer; padding: 16px 22px; width: 100%; border: 2px solid var(--border-color); text-align: left; outline: none; font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 8px; position: relative; overflow: hidden; z-index: 1;}
+        .accordion-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(156, 39, 176, 0.2)); transition: all 0.4s ease; z-index: -1; }
+        .accordion-btn:hover::before { left: 0; }
+        .accordion-btn.active { background: var(--accent); color: #fff; border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 0; }
+        .accordion-content { padding: 0 22px; background: rgba(var(--panel-rgb), 0.85); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; margin-bottom: 8px; }
+        .accordion-content p { padding: 16px 0; line-height: 1.6; margin: 0; font-size: 15px; }
+
+        .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 20px; }
+        .premium-link-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 18px; font-weight: 900; font-size: 14px; color: #fff !important; text-decoration: none; font-family: inherit; border: 2px solid rgba(255, 255, 255, 0.7) !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
+        .premium-link-btn.sim-btn { background: linear-gradient(135deg, #00C853, #00796B); }
+        .premium-link-btn.wiki-btn { background: linear-gradient(135deg, #1976D2, #0D47A1); }
+        .premium-link-btn.youtube-btn { background: linear-gradient(135deg, #E53935, #B71C1C); }
+        .premium-link-btn.ru-btn { background: linear-gradient(135deg, #303F9F, #1A237E); }
+        .premium-link-btn.rutube-btn { background: linear-gradient(135deg, #111, #222); border-color: #00D1FF !important; }
+
+        .app-footer { text-align: center; font-size: 13px; opacity: 0.85; padding: 25px 15px 40px; border-top: 1.5px solid var(--border-color); font-weight: bold; margin-top: 20px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); z-index: 3500; justify-content: center; align-items: center; padding: 12px; backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.show { opacity: 1; display: flex; }
+        .modal-content { padding: 28px; border-radius: 22px; width: 100%; max-width: 800px; max-height: 85vh; overflow-y: auto; position: relative; border: 2.5px solid var(--accent); }
+        .close-btn { position: absolute; top: 12px; right: 15px; font-size: 30px; cursor: pointer; color: var(--text-color); padding: 4px; z-index: 10; transition: transform 0.2s; font-weight: bold; }
+        .close-btn:hover { transform: scale(1.15) rotate(90deg); color: var(--accent); }
+
+        .about-section { background: rgba(var(--panel-rgb), 0.8); border: 1.5px solid var(--border-color); padding: 20px; margin-bottom: 18px; border-radius: 16px; }
+        .about-section h3 { margin-top: 0; color: var(--accent); display: flex; align-items: center; gap: 10px; font-size: 18px; }
+        .about-section p { line-height: 1.6; font-size: 15px; margin-bottom: 0; }
+        
+        /* КРАСИВЫЙ ЖУРНАЛ ИЗМЕНЕНИЙ (CHANGELOG) */
+        .timeline { border-left: 3px solid var(--accent); padding-left: 18px; margin-left: 10px; position: relative; margin-top: 15px; }
+        .timeline-item { position: relative; margin-bottom: 22px; font-size: 14px; line-height: 1.6; background: rgba(var(--panel-rgb), 0.6); padding: 15px; border-radius: 10px; border: 1.5px solid var(--border-color); transition: 0.3s; }
+        .timeline-item:hover { background: rgba(var(--panel-rgb), 0.95); transform: translateX(8px) scale(1.01); box-shadow: 0 8px 25px var(--btn-glow); border-color: var(--accent); }
+        .timeline-item::before { content: ''; position: absolute; left: -26px; top: 18px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg-color); box-shadow: 0 0 10px var(--btn-glow); transition: 0.3s; }
+        .timeline-item:hover::before { transform: scale(1.3); background: #fff; border-color: var(--accent); }
+        .timeline-item h4 { color: var(--accent); display: block; font-size: 16px; margin: 0 0 8px 0; font-weight: 900; }
+        .timeline-item ul { margin: 0; padding-left: 20px; color: var(--text-color); font-weight: 500; list-style-type: none; }
+        .timeline-item ul li { margin-bottom: 5px; position: relative; }
+        .timeline-item ul li::before { content: "🔹"; position: absolute; left: -22px; font-size: 12px; top: 2px; }
+
+        .formula-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
+        @media (min-width: 600px) { .formula-grid { grid-template-columns: 1fr 1fr; } }
+        .formula-card { padding: 14px 18px; font-size: 14px; line-height: 1.6; border-left: 4px solid var(--accent); background: rgba(var(--panel-rgb), 0.8); font-family: monospace; font-weight: bold; border-radius: 12px; transition: 0.3s; }
+        .formula-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 8px 25px var(--btn-glow); border-color: var(--accent); z-index: 2; }
+        .formula-card b { display: block; color: var(--accent); margin-bottom: 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, sans-serif; }
+
+        /* ИНТЕРАКТИВНЫЕ ТЕСТЫ И СЛАЙДЕР С SVG АНИМАЦИЕЙ */
+        .quiz-timer-pill { position: sticky; top: -10px; z-index: 100; width: 100%; max-width: 440px; margin: 0 auto 20px auto; background: rgba(15, 15, 25, 0.95); border: 2px solid var(--accent); border-radius: 40px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(14px); display: flex; flex-direction: column; overflow: hidden; }
+        .timer-progress-bg { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.12); position: relative; }
+        .timer-progress-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #00E676 0%, #00B0FF 100%); box-shadow: 0 0 12px rgba(0, 230, 118, 0.6); transition: width 1s linear, background 0.4s ease, box-shadow 0.4s ease; }
+        .timer-content { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px; position: relative; z-index: 2; }
+        .timer-display { color: #00E676; font-size: 22px; font-weight: bold; font-family: monospace; letter-spacing: 1px; transition: color 0.3s; text-shadow: 0 0 10px rgba(0, 230, 118, 0.5); }
+        .timer-orange { color: #FF9800 !important; text-shadow: 0 0 10px rgba(255, 152, 0, 0.6); }
+        .timer-red-blink { color: #f44336 !important; animation: timerBlink 1s infinite; text-shadow: 0 0 15px rgba(244, 67, 54, 0.8); }
+
+        @keyframes timerBlink { 0%, 100% { opacity: 1; text-shadow: 0 0 18px rgba(244, 67, 54, 0.9); } 50% { opacity: 0.5; text-shadow: 0 0 6px rgba(244, 67, 54, 0.4); } }
+
+        .test-modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 25px; }
+        .test-modes .btn { font-size: 15px; padding: 16px 10px; color: #ffffff !important; font-weight: 900; text-align: center; border: 2px solid rgba(255, 255, 255, 0.8) !important; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s ease !important; }
+        .btn-easy { background: linear-gradient(135deg, #4CAF50, #2E7D32) !important; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important; }
+        .btn-easy:hover { box-shadow: 0 0 25px rgba(76, 175, 80, 0.9) !important; border-color: #fff !important; filter: brightness(1.15); transform: translateY(-3px) scale(1.02); }
+        .btn-medium { background: linear-gradient(135deg, #FF9800, #EF6C00) !important; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3) !important; }
+        .btn-medium:hover { box-shadow: 0 0 25px rgba(255, 152, 0, 0.9) !important; border-color: #fff !important; filter: brightness(1.15); transform: translateY(-3px) scale(1.02); }
+        .btn-hard { background: linear-gradient(135deg, #F44336, #C62828) !important; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3) !important; }
+        .btn-hard:hover { box-shadow: 0 0 25px rgba(244, 67, 54, 0.9) !important; border-color: #fff !important; filter: brightness(1.15); transform: translateY(-3px) scale(1.02); }
+        .btn-ultra { background: linear-gradient(135deg, #9C27B0, #E91E63) !important; border: 2.5px solid #FF80AB !important; box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3) !important; }
+        .btn-ultra:hover { box-shadow: 0 0 25px rgba(233, 30, 99, 0.9) !important; border-color: #fff !important; filter: brightness(1.15); transform: translateY(-3px) scale(1.02); }
+
+        .question-card-wrapper { margin-top: 10px; min-height: 250px; }
+        .question { margin-bottom: 20px; padding: 24px; background: rgba(var(--panel-rgb), 0.85); border: 2px solid var(--border-color); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); border-radius: var(--wave-btn-radius); animation: fadeInUp 0.4s ease-out forwards; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .question-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: 900; font-size: 15px; color: var(--accent); }
+        .question p { font-weight: bold; margin-top: 0; margin-bottom: 20px; font-size: 18px; line-height: 1.5; color: var(--text-color); }
+
+        .quiz-option { display: flex; align-items: center; padding: 16px 20px; margin-bottom: 12px; font-size: 16px; cursor: pointer; border: 2px solid var(--element-border); background: rgba(var(--panel-rgb), 0.9); transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; font-weight: bold; }
+        .quiz-option input { display: none; }
+        .custom-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--accent); margin-right: 14px; position: relative; flex-shrink: 0; transition: 0.2s; }
+        .quiz-option.selected { border-color: var(--accent); background: rgba(156, 39, 176, 0.15); transform: scale(1.03); box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3); border-radius: var(--wave-btn-hover) !important; z-index: 2;}
+        .quiz-option.selected .custom-radio { border-color: var(--accent); box-shadow: 0 0 15px var(--btn-glow); }
+        .quiz-option.selected .custom-radio::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+        .quiz-option.selected .option-text { color: var(--accent); }
+
+        .quiz-option.correct-answer { background: rgba(76, 175, 80, 0.22) !important; border-color: #4CAF50 !important; color: #1B5E20 !important; box-shadow: 0 0 14px rgba(76, 175, 80, 0.4); transform: scale(1.02); }
+        .quiz-option.correct-answer::after { content: '✔'; position: absolute; right: 16px; color: #2E7D32; font-size: 20px; font-weight: 900; }
+        .quiz-option.wrong-answer { background: rgba(244, 67, 54, 0.22) !important; border-color: #f44336 !important; color: #B71C1C !important; box-shadow: 0 0 14px rgba(244, 67, 54, 0.4); transform: scale(1.02); }
+        .quiz-option.wrong-answer::after { content: '✖'; position: absolute; right: 16px; color: #C62828; font-size: 20px; font-weight: 900; }
+
+        .quiz-nav-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 15px; }
+        .quiz-nav-btn { padding: 12px 24px; font-weight: 900; font-size: 15px; cursor: pointer; border: 2px solid var(--accent); background: rgba(var(--panel-rgb), 0.95); color: var(--text-color); }
+        .quiz-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        #test-result-screen { display: none; text-align: center; padding: 15px 5px; }
+        
+        .score-circle-wrapper { position: relative; width: 140px; height: 140px; margin: 0 auto 20px auto; }
+        .circular-progress { transform: rotate(-90deg); width: 140px; height: 140px; filter: drop-shadow(0 0 10px var(--accent)); transition: filter 0.5s; }
+        .circular-progress circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+        .circular-progress .bg { stroke: rgba(var(--panel-rgb), 0.5); }
+        .circular-progress .progress { stroke: var(--accent); stroke-dasharray: 339.292; stroke-dashoffset: 339.292; transition: stroke-dashoffset 1s ease-out, stroke 0.5s; }
+        .score-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: var(--accent); transition: color 0.5s; }
+
+        .review-box { margin-top: 20px; text-align: left; max-height: 300px; overflow-y: auto; background: rgba(var(--panel-rgb), 0.9); border: 2px solid var(--element-border); padding: 15px; border-radius: 16px; animation: fadeInUp 0.6s ease-out forwards; box-shadow: inset 0 0 15px rgba(0,0,0,0.05); }
+
+        .btn-submit-main { background: #00E676 !important; color: #fff !important; font-size: 16px; padding: 10px 25px; box-shadow: 0 5px 20px rgba(0, 230, 118, 0.5) !important; border: 2px solid #fff !important; cursor: pointer; font-weight: 900; transition: 0.2s; }
+        .btn-submit-main:active { transform: scale(0.95); }
+
+        @media screen and (max-width: 820px) {
+            #main-app { padding: calc(max(10px, env(safe-area-inset-top)) + 70px) 10px 20px 10px; }
+            .grid-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+            .panel { padding: 16px; }
+            .canvas-wrapper { height: 260px; min-height: 160px; }
+            .presets-row { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+            .presets-row button { padding: 10px 2px; font-size: 11px; }
+            .control-row { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+            .control-label { width: 100%; }
+            .control-body { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+            .btn-group { flex-direction: column; gap: 10px; margin-top: 10px; }
+            .btn { width: 100%; padding: 14px; font-size: 15px; }
+            .info-grid, .calc-grid { grid-template-columns: 1fr; }
+            .site-content { padding: 18px; }
+            .modal-content { padding: 20px; }
+            .test-modes { grid-template-columns: 1fr; }
+            .hide-mobile { display: none; }
+            .btn-reload-styled { display: flex; }
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-color);">
+    <div id="bg-layer"></div>
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div id="global-tooltip"></div>
+    
+    <!-- КОНТЕЙНЕР ДЛЯ НОВЫХ УВЕДОМЛЕНИЙ -->
+    <div id="toast-container"></div>
+
+    <div id="welcome-screen">
+        <div class="welcome-bg-grid"></div>
+        <div class="welcome-orb orb-1"></div>
+        <div class="welcome-orb orb-2"></div>
+        <div class="logo-super-shape">
+            <div class="logo-inner-content"><span class="emoji-fix" style="font-size: 44px;">〽️</span></div>
+        </div>
+        <h1 class="app-title gradient-text" data-i18n="appTitle" style="margin-top:20px;">HarmoniX</h1>
+        <h2 class="app-subtitle" data-i18n="appSubtitle">Интерактивная Лаборатория Волновой Физики</h2>
+        <div style="margin-bottom: 25px; font-size: 13.5px; font-weight: bold; color: var(--accent); background: rgba(var(--panel-rgb), 0.95); padding: 8px 18px; border-radius: var(--wave-btn-radius); border: 2px solid var(--accent); box-shadow: 0 0 25px rgba(156, 39, 176, 0.45);">
+            <span class="emoji-fix">✨</span> <span data-i18n="hintYellow">Версия 21.0 Nova | Максимальный интерактив!</span>
+        </div>
+        <button class="btn-enter glass-element interactive-hover btn-shine" onclick="startApp()"><span class="emoji-fix">▶</span> <span data-i18n="btnStart">Начать работу</span></button>
+    </div>
+
+    <!-- МЕНЮ НАСТРОЕК -->
+    <div id="sidebar" class="glass-panel">
+        <div class="sidebar-header">
+            <h2 class="gradient-text" style="margin:0; font-size: 18px;"><span class="emoji-fix">⚙</span> <span data-i18n="menuSettings">Настройки</span></h2>
+            <div class="close-sidebar" onclick="toggleSidebar(); playAudioCue('menuClick');">&times;</div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="sidebar-title"><span class="emoji-fix">🌐</span> Язык / Language</h3>
+            <div class="glass-controls">
+                <button class="lang-btn lang-ru active interactive-hover" onclick="setLang('ru'); playAudioCue('menuClick');">🇷🇺 Русский</button>
+                <button class="lang-btn lang-en interactive-hover" onclick="setLang('en'); playAudioCue('menuClick');">🇬🇧 English</button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="sidebar-title"><span class="emoji-fix">📌</span> <span data-i18n="navHeader">Разделы и Инфо</span></h3>
+            <div class="sidebar-btn-asym glass-element" onclick="toggleSidebar(); window.scrollTo({top: 0, behavior: 'smooth'}); playAudioCue('menuClick');">🏠 <span data-i18n="navMain">Главная панель</span></div>
+            <div class="sidebar-btn-asym glass-element" onclick="openTestMenu(); toggleSidebar(); playAudioCue('menuClick');">🎓 <span data-i18n="navTest">Итоговое Тестирование</span></div>
+            <div class="sidebar-btn-asym glass-element" onclick="showInfoModal('formulas'); toggleSidebar(); playAudioCue('menuClick');">📚 <span data-i18n="navFormulas">Справочник формул</span></div>
+            <div class="sidebar-btn-asym glass-element" onclick="showInfoModal('about'); toggleSidebar(); playAudioCue('menuClick');">ℹ️ <span data-i18n="navAbout">О платформе</span></div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="sidebar-title"><span class="emoji-fix">⚡</span> <span data-i18n="lblGraphTools">Инструменты графиков</span></h3>
+            <div class="glass-controls">
+                <button id="btnLabelsToggle" class="btn-glass-on active glass-element" onclick="toggleLabels(); playAudioCue('menuClick');"><span data-i18n="lblLabels">Подписи: Вкл</span></button>
+                <button id="btnGlowToggle" class="btn-glass-on glass-element" style="background: rgba(var(--panel-rgb), 0.3);" onclick="toggleGlow(); playAudioCue('menuClick');"><span data-i18n="lblNeon">Неон: Выкл</span></button>
+            </div>
+            <div class="glass-controls">
+                <button id="btnGridToggle" class="btn-glass-on active glass-element" onclick="toggleGrid(); playAudioCue('menuClick');"><span data-i18n="lblGrid">Сетка: Вкл</span></button>
+                <button id="btnLissajous" class="btn-glass-on glass-element" style="background: rgba(var(--panel-rgb), 0.3);" onclick="toggleLissajous(); playAudioCue('menuClick');"><span data-i18n="lblLissajous">Лиссажу: Выкл</span></button>
+            </div>
+            <div style="margin-top: 10px;">
+                <label style="font-size:11px; font-weight:bold; display:block;" data-i18n="lblHeightResize">Высота холстов графиков:</label>
+                <input type="range" id="canvasHeightSlider" min="160" max="450" value="260" oninput="setCanvasHeight(this.value)">
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="sidebar-title"><span class="emoji-fix">🧊</span> <span data-i18n="lblGlass">Жидкое стекло</span></h3>
+            <div class="glass-controls">
+                <button id="btnGOn" class="btn-glass-on active glass-element" onclick="setGlassState(true); playAudioCue('menuClick');">Вкл</button>
+                <button id="btnGOff" class="btn-glass-on glass-element" style="background: rgba(var(--panel-rgb), 0.3);" onclick="setGlassState(false); playAudioCue('menuClick');">Выкл</button>
+                <button class="btn-glass-auto glass-element btn-shine" onclick="autoGlass(); playAudioCue('menuClick');"><span class="emoji-fix">🤖</span> Авто</button>
+            </div>
+            <input type="range" id="glassIntensity" min="0" max="100" value="70" oninput="updateGlassIntensity()">
+        </div>
+
+        <div class="sidebar-section">
+            <h3 class="sidebar-title"><span class="emoji-fix">🎨</span> <span data-i18n="lblTheme">Оформление</span></h3>
+            <div class="setting-block">
+                <label id="lblThemeSelect" data-i18n="lblThemeSelect">Тема оформления:</label>
+                <select id="themeSelect" class="emoji-fix glass-element" onchange="changeTheme(this.value); playAudioCue('menuClick');"></select>
+            </div>
+            <div class="setting-block">
+                <label id="lblCustomBg" data-i18n="lblCustomBg">Свои обои:</label>
+                <div class="file-upload-wrapper glass-element">
+                    <input type="file" accept="image/*" id="bgUpload" class="file-upload-input" onchange="uploadBackground(event)">
+                    <div class="file-upload-btn" data-i18n="btnPickImg">📂 Выбрать картинку</div>
+                </div>
+                <button class="btn btn-reset glass-element interactive-hover" style="width: 100%; margin-top: 8px; padding: 10px;" onclick="clearBackground(); playAudioCue('menuClick');"><span class="emoji-fix">🗑</span> <span data-i18n="btnDelBg">Сбросить фон</span></button>
+            </div>
+            <div class="setting-block">
+                <label id="lblBgFilter" data-i18n="lblBgFilter">Фильтр фона:</label>
+                <select class="emoji-fix glass-element" id="bgFilter" onchange="changeFilter(this.value); playAudioCue('menuClick');"></select>
+            </div>
+        </div>
+        <div style="flex-grow: 1;"></div>
+        <div style="text-align: center; font-size: 12px; opacity: 0.7; font-weight: bold; color: var(--accent);">v21.0 Enterprise Nova</div>
+    </div>
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <div class="top-bar-wrapper" id="main-nav-bar">
+        <div class="top-bar glass-panel pop-animation">
+            <button class="menu-btn-special interactive-hover" onclick="toggleSidebar(); playAudioCue('glassBell');"><span class="emoji-fix">☰</span> <span class="hide-mobile" data-i18n="btnMenu">Меню</span></button>
+            <button class="btn-reload-styled interactive-hover" onclick="location.reload(); playAudioCue('glassBell');"><span class="emoji-fix">🔄</span> <span class="hide-mobile" data-i18n="btnReload">Обновить</span></button>
+
+            <div class="nav-logo interactive-hover" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); cursor: pointer;">
+                <div class="logo-super-shape small"><div class="logo-inner-content"><span class="emoji-fix" style="font-size:14px;">〽️</span></div></div>
+                <span class="hide-mobile gradient-text">HarmoniX</span>
+            </div>
+
+            <div style="position: relative;">
+                <button id="btnMainTestMode" class="btn-test-special interactive-hover" onclick="openTestMenu(); playAudioCue('glassBell');"><span class="emoji-fix">🎓</span> <span data-i18n="btnTest">Тесты</span></button>
+            </div>
+            <button class="btn-fullscreen-compact interactive-hover" onclick="toggleFullscreen(); playAudioCue('glassBell');" title="Full Screen"><span class="emoji-fix">🔲</span></button>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ И ГРАФИКИ -->
+    <div id="main-app">
+        <div class="grid-container">
+            <div class="panel glass-panel pop-animation" style="animation-delay: 0.05s;">
+                <div class="panel-header"><h3 style="margin:0; font-size:16px;" data-i18n="pnl1">1. Базовое колебание</h3><span id="lblLisMode" style="font-size:12px; font-weight:bold; color:var(--accent);"></span></div>
+                <div class="canvas-wrapper glass-element" ondblclick="resetCanvasSizes()">
+                    <canvas id="canvas-single"></canvas>
+                    <div class="chart-telemetry" id="telemSingle">
+                        <div class="telemetry-chip"><span data-i18n="telWave">Волна</span>: <span id="telWaveName" class="val-highlight">V1</span></div>
+                        <div class="telemetry-chip"><span data-i18n="telF">Частота</span>: <span id="telFreq" class="val-highlight">440</span> <span class="unit-freq" data-i18n="hz">Гц</span></div>
+                        <div class="telemetry-chip"><span data-i18n="telA">Амплитуда</span>: <span id="telAmp" class="val-highlight">80</span>%</div>
+                        <div class="telemetry-chip"><span data-i18n="lblPhaseShort">Фаза</span>: <span id="telPhase" class="val-highlight">0°</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel glass-panel pop-animation" style="animation-delay: 0.1s;">
+                <div class="panel-header">
+                    <h3 style="margin:0; font-size:16px;" data-i18n="pnl3">3. Теорема Фурье (Сумма)</h3>
+                    <div style="position: relative; z-index: 100;">
+                        <button id="btnMainSnap" class="btn-camera-snap" onclick="downloadGraph('canvas-sum'); playAudioCue('cameraSnap');">
+                            <span class="emoji-fix">📸</span> <span data-i18n="btnSaveCompact">Снимок</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="canvas-wrapper glass-element" ondblclick="resetCanvasSizes()">
+                    <canvas id="canvas-sum"></canvas>
+                    <div class="chart-telemetry" id="telemSum">
+                        <div class="telemetry-chip"><span data-i18n="telClip">Нелинейное</span>: <span id="telClipStatus" class="val-highlight">Выкл</span></div>
+                        <div class="telemetry-chip" id="telemTHD" style="display:none;"><span data-i18n="telTHD">THD (Искажения)</span>: <span id="telTHDVal" class="val-highlight">0%</span></div>
+                        <div class="telemetry-chip" id="telemLimit" style="display:none;"><span data-i18n="telLimit">Порог среза</span>: <span id="telLimitVal" class="val-highlight">±25%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel glass-panel pop-animation" style="animation-delay: 0.15s;">
+                <div class="panel-header">
+                    <h3 style="margin:0; font-size:16px;" data-i18n="pnl2">2. Панель Управления</h3>
+                    <div class="presets-row">
+                        <button class="glass-element btn-shine active interactive-hover" id="pr_sine" onclick="setPreset('sine')"><span class="emoji-fix">〰</span> <span data-i18n="btnSine">Синус</span></button>
+                        <button class="glass-element interactive-hover" id="pr_square" onclick="setPreset('square')"><span class="emoji-fix">🟦</span> <span data-i18n="btnSquare">Меандр</span></button>
+                        <button class="glass-element interactive-hover" id="pr_triangle" onclick="setPreset('triangle')"><span class="emoji-fix">📐</span> <span data-i18n="btnTriangle">Треуг.</span></button>
+                        <button class="glass-element interactive-hover" id="pr_sawtooth" onclick="setPreset('sawtooth')"><span class="emoji-fix">🔪</span> <span data-i18n="btnSaw">Пила</span></button>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab glass-element active interactive-hover" onclick="switchTab(0); playAudioCue('mainPulse');">V1</div>
+                    <div class="tab glass-element interactive-hover" onclick="switchTab(1); playAudioCue('mainPulse');">V2</div>
+                    <div class="tab glass-element interactive-hover" onclick="switchTab(2); playAudioCue('mainPulse');">V3</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label" data-i18n="lblStep">Шаг частоты:</div>
+                    <div class="control-body">
+                        <div class="step-toggle">
+                            <div class="step-btn interactive-hover" id="st10" onclick="updateStep(10); playAudioCue('mainPulse');">10 <span class="unit-freq" data-i18n="hz">Гц</span></div>
+                            <div class="step-btn active interactive-hover" id="st100" onclick="updateStep(100); playAudioCue('mainPulse');">100 <span class="unit-freq" data-i18n="hz">Гц</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label" data-i18n="lblFreq">Частота (Гц):</div>
+                    <div class="control-body">
+                        <input type="range" id="freq" min="0" max="20000" step="100" value="440" oninput="updateWaveFromSlider('freq')">
+                        <div class="input-wrapper"><input type="number" id="inputV" class="value-input glass-element" value="440" min="0" max="20000" oninput="updateWaveFromInput('freq')"></div>
+                    </div>
+                </div>
+
+                <div class="control-row">
+                    <div class="control-label" data-i18n="lblAmp">Амплитуда (%):</div>
+                    <div class="control-body">
+                        <input type="range" id="amp" min="0" max="100" value="80" oninput="updateWaveFromSlider('amp')">
+                        <div class="input-wrapper"><input type="number" id="inputA" class="value-input glass-element" value="80" min="0" max="100" oninput="updateWaveFromInput('amp')"></div>
+                    </div>
+                </div>
+
+                <div class="secondary-params glass-element">
+                    <div class="control-row" style="margin-bottom: 8px;">
+                        <div class="control-label"><span data-i18n="lblPhase">Сдвиг фазы (°)</span><span class="hint-icon" data-i18n-hint="hintPhase" data-hint="Сдвиг фазы смещает волну во времени. Сдвиг на 180° создает инвертированную волну (противофазу).">?</span></div>
+                        <div class="control-body">
+                            <input type="range" class="slider-alt" id="phase" min="0" max="360" step="1" value="0" oninput="updateWaveFromSlider('phase')">
+                            <div class="input-wrapper"><input type="number" id="inputP" class="value-input input-alt glass-element" value="0" min="0" max="360" oninput="updateWaveFromInput('phase')"></div>
+                        </div>
+                    </div>
+
+                    <div class="control-row" style="margin-bottom: 0;">
+                        <div class="control-label"><span data-i18n="lblSpeed">Скорость волны</span><span class="hint-icon" data-i18n-hint="hintSpeedGraph" data-hint="Управление скоростью анимации на графиках. Не меняет физическую частоту колебаний.">?</span></div>
+                        <div class="control-body">
+                            <input type="range" class="slider-alt" id="speed" min="0.1" max="3" step="0.1" value="1" oninput="updateSpeedValue(this.value);">
+                            <div class="input-wrapper"><div class="value-input input-alt glass-element" id="valSpeedDisp" style="line-height: 20px;">1.0x</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-audio interactive-hover" onclick="toggleAudio(); playAudioCue('mainPulse');" id="btnAudio"><span class="emoji-fix">🔊</span> <span data-i18n="btnAudio">Динамик</span></button>
+                    <button class="btn btn-pause interactive-hover" onclick="togglePause(); playAudioCue('mainPulse');" id="btnPause"><span class="emoji-fix">⏸</span> <span data-i18n="btnPause">Стоп-кадр</span></button>
+                    
+                    <button class="btn btn-dist interactive-hover" onclick="toggleClip(); playAudioCue('mainPulse');" id="btnClip" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span class="emoji-fix">⚡</span> 
+                        <span data-i18n="btnClip">Нелинейн. преобр.</span>
+                        <span class="hint-icon pulse-alert" style="background: #E91E63; border-color: #fff; box-shadow: 0 0 12px #E91E63; width: 18px; height: 18px; font-size: 11px;" data-i18n-hint="hintClip" data-hint="Имитирует перегрузку усилителя (клиппинг).">?</span>
+                    </button>
+                    
+                    <button class="btn btn-reset interactive-hover" onclick="resetAll(); playAudioCue('mainPulse');"><span class="emoji-fix">🔄</span> <span data-i18n="btnReset">Сброс</span></button>
+                </div>
+            </div>
+
+            <div class="panel glass-panel pop-animation" style="animation-delay: 0.2s;">
+                <h3 style="margin:0; margin-bottom: 8px; font-size:16px;" data-i18n="pnl4">4. Спектрограмма</h3>
+                <div class="canvas-wrapper glass-element" ondblclick="resetCanvasSizes()">
+                    <canvas id="canvas-spectrum"></canvas>
+                    <div class="chart-telemetry" id="telemSpec">
+                        <div class="telemetry-chip"><span data-i18n="telXAxis">Ось X</span>: <span class="val-highlight">0 — 20k <span class="unit-freq" data-i18n="hz">Гц</span></span></div>
+                        <div class="telemetry-chip"><span data-i18n="telPeaks">Пики</span>: <span id="telSpecPeaks" class="val-highlight">1</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel glass-panel pop-animation" style="grid-column: 1 / -1; border-color: var(--tzi-color); animation-delay: 0.25s;">
+                <div class="panel-header">
+                    <h3 style="color: var(--tzi-color); margin: 0;"><span class="emoji-fix">🛡️</span> <span data-i18n="tziTitle">ТЗИ: Виброакустическая защита</span></h3>
+                    <span class="hint-icon" style="background:var(--tzi-color); color:#000; margin: 0;" data-i18n-hint="hintTzi" data-hint="Симуляция технической защиты информации.">?</span>
+                </div>
+                <p style="font-size:15px; margin-bottom:15px; margin-top: 10px; font-weight: bold;" data-i18n="tziDesc">Активация генератора шума для маскировки речевой информации от средств перехвата:</p>
+                <div style="display:flex; justify-content:center; position: relative;">
+                    <button class="btn btn-tzi interactive-hover" id="btnTziMode" style="width:100%; max-width:400px; padding:14px; font-size:16px; font-weight:900; position:relative; z-index:100;" onclick="toggleTZI()"><span class="emoji-fix">🔒</span> <span data-i18n="btnTziStart">Активировать маскировку</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="site-content glass-panel pop-animation" style="animation-delay: 0.3s;">
+            <h2 class="content-header gradient-text" data-i18n="eduHeader">📚 Академия Волновой Механики</h2>
+
+            <div class="info-grid">
+                <div class="info-card glass-element interactive-hover">
+                    <h3 data-i18n="eduCard1Title"><span class="emoji-fix">〰️</span> Природа механических волн</h3>
+                    <p data-i18n="eduCard1Text">Механическая волна представляет собой процесс распространения колебательного возмущения в упругой среде. При этом частицы среды лишь совершают малые колебания возле равновесия, а переносится исключительно <b>ЭНЕРГИЯ И ИМПУЛЬС</b>.</p>
+                </div>
+
+                <div class="info-card glass-element interactive-hover">
+                    <h3 data-i18n="eduCard2Title"><span class="emoji-fix">📉</span> Теорема и спектральный анализ Фурье</h3>
+                    <p data-i18n="eduCard2Text1">В 1822 году Жан-Батист Фурье доказал: <b>ЛЮБОЙ ПЕРИОДИЧЕСКИЙ СИГНАЛ</b> сложной формы может быть разложен в ряд простых гармонических волн кратных частот.</p>
+                </div>
+            </div>
+
+            <div class="calc-grid">
+                <div class="wave-calculator">
+                    <h3 style="margin-top:0; color:#fff;" data-i18n="calcTitle"><span class="emoji-fix">🧮</span> Калькулятор длины волны</h3>
+                    <div class="calc-screen">
+                        <div class="calc-formula">λ = v / ν</div>
+                        <div style="font-size: 13px; color: #81c784; margin-bottom: 5px;" id="lblCalcAirDesc" data-i18n="calcAirDesc">В воздухе (343 м/с):</div>
+                        <div class="calc-result"><span id="calcResAir">0.77</span> <span class="calc-m" data-i18n="meters">м</span></div>
+                    </div>
+                    <div class="calc-controls">
+                        <span style="font-weight: bold; font-size: 14px;"><span data-i18n="lblFreqShort">ν (Гц)</span>:</span>
+                        <input type="number" id="calcFreq1" class="calc-input" value="440" min="1" oninput="calculateWaveLength(); playAudioCue('calcKey');">
+                    </div>
+                    
+                    <div style="display:flex; justify-content:center; gap:8px; align-items: center; border-top: 1px dashed #444; padding-top: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <span style="font-weight: bold; font-size:13px; color:#aaa;" data-i18n="calcSpeedLabel">Скорость (м/с):</span>
+                        <input type="number" id="calcSpeedCustom" class="calc-input" style="width: 70px; padding: 6px; font-size: 14px;" value="343" step="10" oninput="onManualSpeedInput(); calculateWaveLength(); playAudioCue('calcKey');">
+                        <select id="mediumSelect" class="calc-select" onchange="onSelectMedium(); calculateWaveLength(); playAudioCue('calcKey');"></select>
+                        <span class="hint-icon" style="background:#888;" data-i18n-hint="hintSpeed" data-hint="Выберите среду из списка">?</span>
+                    </div>
+                </div>
+
+                <div class="wave-calculator">
+                    <h3 style="margin-top:0; color:#fff;" data-i18n="calc2Title"><span class="emoji-fix">⏱</span> Калькулятор Периода</h3>
+                    <div class="calc-screen">
+                        <div class="calc-formula">T = 1 / ν  |  ω = 2πν</div>
+                        <div style="font-size: 13px; color: #81c784; margin-bottom: 5px;" data-i18n="calcCycle">Длительность 1 цикла (Период):</div>
+                        <div class="calc-result"><span id="calcResPeriod">0.00227</span> <span class="calc-s" data-i18n="sec">с</span></div>
+                    </div>
+                    <div class="calc-controls">
+                        <span style="font-weight: bold; font-size: 14px;"><span data-i18n="lblFreqShort">ν (Гц)</span>:</span>
+                        <input type="number" id="calcFreq2" class="calc-input" value="440" min="1" oninput="document.getElementById('calcFreq1').value = this.value; calculateWaveLength(); playAudioCue('calcKey');">
+                    </div>
+                    <div style="display:flex; justify-content: space-around; margin-top: 15px; font-family: monospace; color: #81c784; font-size: 13px; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px;">
+                        <div id="calcResOmega" data-i18n="omegaLabel">Цикл. частота (ω): ~2764.6 рад/с</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="content-header gradient-text" style="margin-top:35px;" data-i18n="faqTitle">💬 Динамические вопросы и ответы (FAQ)</h2>
+            <div id="dynamic-faq-container"></div>
+
+            <h3 data-i18n="resTitleRU" style="text-align: center; font-size: 20px; margin-top: 45px; color: var(--accent);">🇷🇺 Российские образовательные платформы</h3>
+            <div class="resource-grid">
+                <a href="https://foxford.ru/wiki/fizika" target="_blank" class="premium-link-btn foxford-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">🦊</span>
+                    <span data-i18n="resFoxford">Фоксфорд.Учебник</span>
+                </a>
+                <a href="https://interneturok.ru/subject/physics" target="_blank" class="premium-link-btn ru-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">📚</span>
+                    <span data-i18n="resInterneturok">InternetUrok: Физика</span>
+                </a>
+                <a href="http://www.virtulab.net/" target="_blank" class="premium-link-btn ru-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">🏫</span>
+                    <span data-i18n="resVirtulab">VirtuLab: Лаборатории</span>
+                </a>
+                <a href="https://rutube.ru/search/?q=%D0%9F%D0%B0%D0%B2%D0%B5%D0%BB+%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80+%D0%BC%D0%B5%D1%85%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5+%D0%B2%D0%BE%D0%BB%D0%BD%D1%8B" target="_blank" class="premium-link-btn rutube-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">⬛</span>
+                    <span data-i18n="linkRutube">Rutube: Лекции по физике</span>
+                </a>
+                <a href="https://vk.com/video/search?q=%D0%9F%D0%B0%D0%B2%D0%B5%D0%BB+%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80+%D0%BC%D0%B5%D1%85%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5+%D0%B2%D0%BE%D0%BB%D0%BD%D1%8B" target="_blank" class="premium-link-btn ru-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">🟦</span>
+                    <span data-i18n="linkVK">VK Видео: Волны и колебания</span>
+                </a>
+            </div>
+
+            <h3 data-i18n="resTitleINT" style="text-align: center; font-size: 20px; margin-top: 35px; color: var(--accent);">🌍 Международные симуляторы и материалы</h3>
+            <div class="resource-grid">
+                <a href="https://www.youtube.com/results?search_query=%D0%9F%D0%B0%D0%B2%D0%B5%D0%BB+%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80+%D0%BC%D0%B5%D1%85%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B5+%D0%B2%D0%BE%D0%BB%D0%BD%D1%8B" target="_blank" class="premium-link-btn youtube-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">🟥</span>
+                    <span data-i18n="linkYT">YouTube: Урок Павла Виктора</span>
+                </a>
+                <a href="https://phet.colorado.edu/sims/html/wave-on-a-string/latest/wave-on-a-string_all.html" target="_blank" class="premium-link-btn sim-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">🧪</span>
+                    <span data-i18n="resPhet">PhET: Волна на струне</span>
+                </a>
+                <a href="https://academo.org/demos/wave-interference-beat-frequency/" target="_blank" class="premium-link-btn sim-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">📡</span>
+                    <span data-i18n="resAcademo">Academo: Интерференция</span>
+                </a>
+                <a href="https://www.falstad.com/fourier/" target="_blank" class="premium-link-btn sim-btn interactive-hover" onclick="playAudioCue('glassBell');">
+                    <span class="emoji-fix" style="font-size:18px;">📈</span>
+                    <span data-i18n="resFalstad">Falstad: Синтезатор</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="app-footer">
+            HarmoniX v21.0 Enterprise Nova | Лаборатория Волновой Физики © 2026<br>
+            Интерактивный анализ механических волн, Теория Фурье и Фигуры Лиссажу
+        </div>
+    </div>
+
+    <!-- ТЕСТИРОВАНИЕ: СЛАЙДЕР И УМНЫЙ ТАЙМЕР -->
+    <div id="test-overlay" class="modal-overlay">
+        <div class="modal-content glass-panel" style="z-index: 99999;">
+            <span class="close-btn" onclick="closeTest(); playAudioCue('mainPulse');">&times;</span>
+            <h2 class="gradient-text" style="text-align: center; margin-top: 0; font-size: 24px;"><span class="emoji-fix">📝</span> <span data-i18n="testHeader">Тестирование знаний</span></h2>
+
+            <div id="test-start-menu">
+                <p style="text-align:center; font-size: 15px; margin-bottom:15px; font-weight: bold;" data-i18n="testSelectSub">Выберите режим тестирования:</p>
+                <div class="test-modes" id="testModesContainer">
+                    <button class="btn btn-easy interactive-hover" onclick="startQuiz(5)"><span class="emoji-fix">🟢</span> <span data-i18n="modeExp">Экспресс</span><br><small data-i18n="time5">5 (Без таймера)</small></button>
+                    <button class="btn btn-medium interactive-hover" onclick="startQuiz(15)"><span class="emoji-fix">⚡</span> <span data-i18n="modeStd">Стандарт</span><br><small data-i18n="time15">15 (5 мин)</small></button>
+                    <button class="btn btn-hard interactive-hover" onclick="startQuiz(30)"><span class="emoji-fix">🔥</span> <span data-i18n="modeFull">Полный курс</span><br><small data-i18n="time30">30 (10 мин)</small></button>
+                    <button class="btn btn-ultra interactive-hover" onclick="startQuiz(50)"><span class="emoji-fix">👑</span> <span data-i18n="modeUltra">Ультра Профи</span><br><small data-i18n="time50">50 (15 мин)</small></button>
+                </div>
+            </div>
+
+            <div id="quiz-process" style="display: none;">
+                <div class="quiz-timer-pill glass-panel btn-shine" id="quizTimerBar" style="display:none;">
+                    <div class="timer-progress-bg">
+                        <div id="quizTimerProgress" class="timer-progress-fill"></div>
+                    </div>
+                    <div class="timer-content">
+                        <div style="display:flex; gap: 8px; align-items:center;">
+                            <span class="timer-display" id="quizTimerVal">00:00</span>
+                        </div>
+                        <div style="display:flex; gap: 6px;">
+                            <button class="btn-submit-main interactive-hover" onclick="checkTest(); playAudioCue('glassBell');" style="padding: 6px 14px; font-size:13px;"><span class="emoji-fix">✅</span> <span class="hide-mobile" data-i18n="btnCheck">Сдать</span></button>
+                            <button class="btn btn-reset interactive-hover" onclick="closeTest(); playAudioCue('mainPulse');" style="padding: 6px 14px; font-size:13px; border:1px solid #fff;"><span class="emoji-fix">🚪</span> <span class="hide-mobile" data-i18n="btnExit">Выйти</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-card-wrapper" id="quiz-card-wrapper">
+                    <div id="quiz-container"></div>
+                </div>
+
+                <div class="quiz-nav-row" id="quiz-nav-controls">
+                    <button class="quiz-nav-btn interactive-hover" id="btnPrevQ" onclick="prevQuestion(); playAudioCue('mainPulse');" disabled>
+                        ◀ <span data-i18n="btnPrev">Назад</span>
+                    </button>
+                    <span id="quiz-step-indicator" style="font-weight: 800; font-size: 15px; color: var(--accent);">1 / 5</span>
+                    <button class="quiz-nav-btn interactive-hover" id="btnNextQ" onclick="nextQuestion(); playAudioCue('mainPulse');">
+                        <span data-i18n="btnNext">Вперед</span> ▶
+                    </button>
+                </div>
+
+                <div id="test-result-screen">
+                    <div class="score-circle-wrapper">
+                        <svg width="140" height="140" viewBox="0 0 120 120" class="circular-progress">
+                            <circle class="bg" cx="60" cy="60" r="54"></circle>
+                            <circle class="progress" id="scoreProgress" cx="60" cy="60" r="54"></circle>
+                        </svg>
+                        <div class="score-text" id="scoreCircleText">0%</div>
+                    </div>
+
+                    <div id="test-result-text" style="font-size: 20px; font-weight: 900; margin-bottom: 15px;"></div>
+                    <div class="review-box" id="quiz-explanation"></div>
+                    
+                    <div class="test-controls" style="margin-top: 25px;">
+                        <button class="btn btn-test-special interactive-hover" onclick="openTestMenu(); playAudioCue('glassBell');" style="font-size: 15px; padding: 12px 24px;">
+                            <span class="emoji-fix">🔄</span> <span data-i18n="btnTryAgain">Пройти снова</span>
+                        </button>
+                        <button class="btn btn-reset interactive-hover" onclick="closeTest(); playAudioCue('mainPulse');" style="font-size: 15px; padding: 12px 24px;">
+                            <span class="emoji-fix">🚪</span> <span data-i18n="btnExit">Выйти</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИНФО ОВЕРЛЕИ -->
+    <div id="info-overlay" class="modal-overlay">
+        <div class="modal-content glass-panel" style="z-index: 99999;">
+            <span class="close-btn" onclick="closeInfoModal(); playAudioCue('mainPulse');">&times;</span>
+
+            <div id="modal-formulas" class="info-content" style="display:none;">
+                <h2 class="gradient-text" style="text-align:center;"><span class="emoji-fix">📚</span> <span data-i18n="modalFormulasTitle">Справочник формул</span></h2>
+                <div class="formula-grid">
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form1"><b>Уравнение бегущей волны:</b><br> y(x,t) = A · cos(w·t - k·x + θ)</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form2"><b>Гармоническое колебание:</b><br> y(t) = A · cos(w·t + θ)</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form3"><b>Период и частота:</b><br> T = 1 / V</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form4"><b>Циклическая частота:</b><br> w = 2 · π · V</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form5"><b>Длина волны:</b><br> λ = v / V = v · T</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form6"><b>Волновое число:</b><br> k = 2 · π / λ</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form7"><b>Эффект Доплера:</b><br> f' = f · (v ± v₀) / (v ∓ vₛ)</div>
+                    <div class="formula-card pop-animation interactive-hover" data-i18n="form8"><b>Акустический импеданс:</b><br> Z = ρ · v</div>
+                </div>
+                
+                <h3 style="text-align:center; color:var(--accent); margin-top:25px;" data-i18n="fConst">⚛️ Фундаментальные константы</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-top:10px;">
+                    <div class="formula-card pop-animation interactive-hover" style="text-align:center; padding: 14px;" onclick="playAudioCue('calcKey')">
+                        <b data-i18n="c1">Скорость света (c)</b>
+                        <span style="color:#00E676; font-size:18px;">3·10⁸ м/с</span>
+                    </div>
+                    <div class="formula-card pop-animation interactive-hover" style="text-align:center; padding: 14px;" onclick="playAudioCue('calcKey')">
+                        <b data-i18n="c2">Скорость звука (v)</b>
+                        <span style="color:#00E676; font-size:18px;">~343 м/с</span>
+                    </div>
+                    <div class="formula-card pop-animation interactive-hover" style="text-align:center; padding: 14px;" onclick="playAudioCue('calcKey')">
+                        <b data-i18n="c3">Число Пи (π)</b>
+                        <span style="color:#00E676; font-size:18px;">3.14159...</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top:20px; text-align:center;">
+                    <a href="http://hyperphysics.phy-astr.gsu.edu/hbase/hph.html" target="_blank" style="color:var(--base-wave); font-weight:bold; text-decoration:none;" data-i18n="hyperPhysics">🔗 База знаний HyperPhysics (GSU)</a>
+                </div>
+            </div>
+
+            <!-- ОБНОВЛЕННЫЙ ЖУРНАЛ ИЗМЕНЕНИЙ И ЗВЕЗДЫ -->
+            <div id="modal-about" class="info-content" style="display:none;">
+                <h2 class="gradient-text" style="text-align:center;"><span class="emoji-fix">🚀</span> <span data-i18n="modalAboutTitle">О платформе HarmoniX</span></h2>
+                
+                <!-- РЕЙТИНГ ОБНОВЛЕНИЯ -->
+                <div class="about-section pop-animation" style="text-align: center; border-color: var(--accent); background: rgba(var(--panel-rgb), 0.95); box-shadow: 0 4px 20px var(--btn-glow);">
+                    <h3 style="justify-content: center;"><span class="emoji-fix">🌟</span> Оцените обновление HarmoniX</h3>
+                    <p style="font-size: 13px; opacity: 0.8; margin-bottom: 5px;">Ваша оценка поможет сделать приложение еще лучше!</p>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" onclick="rateApp(5)"><label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" onclick="rateApp(4)"><label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" onclick="rateApp(3)"><label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" onclick="rateApp(2)"><label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" onclick="rateApp(1)"><label for="star1">★</label>
+                    </div>
+                </div>
+
+                <div class="about-section pop-animation interactive-hover">
+                    <h3 data-i18n="aboutDescTitle"><span class="emoji-fix">ℹ️</span> Философия проекта</h3>
+                    <p data-i18n="aboutDescText">HarmoniX — это высокотехнологичная PWA-среда для визуального моделирования волновых процессов, гармонического сложения и анализа спектра Фурье.</p>
+                </div>
+                
+                <h3 data-i18n="aboutHistoryTitle" style="color: var(--accent); margin-top:20px;">📜 Журнал изменений (Changelog)</h3>
+                <div class="timeline">
+                    <div class="timeline-item pop-animation interactive-hover">
+                        <h4>🌟 v21.0 Nova Update (Текущая):</h4>
+                        <ul>
+                            <li>Добавлены смарт-уведомления (Toasts) при входе.</li>
+                            <li>Внедрена система онбординга (анимированные стрелки-подсказки).</li>
+                            <li>Реализована система оценки проекта по звездам (Rating System).</li>
+                            <li>Полностью переработан и расширен Журнал изменений.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item pop-animation interactive-hover">
+                        <h4>🔥 v20.0 Enterprise Ultimate:</h4>
+                        <ul>
+                            <li>Максимальная интерактивность (Глобальные Ripple-эффекты).</li>
+                            <li>Аппаратный аудио-клиппинг через <code>WaveShaperNode</code>.</li>
+                            <li>Анимация вспышки фото-затвора при сохранении графика.</li>
+                            <li>Умное сглаживание графиков через `requestAnimationFrame`.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item pop-animation interactive-hover">
+                        <h4>👑 v19.0 Enterprise Grand Master:</h4>
+                        <ul>
+                            <li>Интерактивный SVG-круг прогресса тестирования с анимацией Count-up.</li>
+                            <li>"Живые" ссылки на Wikipedia в ответах.</li>
+                            <li>Интерактивный круглый логотип. Новые формулы Доплера.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item pop-animation interactive-hover">
+                        <h4>🔒 v18.0 Security Addition:</h4>
+                        <ul>
+                            <li>Интеграция модуля ТЗИ (Акустическая маскировка), генератор белого шума.</li>
+                            <li>100% перевод интерфейса (i18n). Умный селектор на 30 сред.</li>
+                            <li>Волновая форма кнопок (18px 6px).</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item pop-animation interactive-hover">
+                        <h4>🚀 v1.0 - 16.0 Эволюция:</h4>
+                        <ul>
+                            <li>Двуязычная адаптация, раздельный WebAudio.</li>
+                            <li>Генератор вопросов, Фигуры Лиссажу, базовый синтезатор Фурье.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'ru';
+        let currentPreset = 'sine';
+        let waves = [{ f: 440, a: 80, p: 0, type: 'sine' }, { f: 880, a: 0, p: 0, type: 'sine' }, { f: 1320, a: 0, p: 0, type: 'sine' }];
+        let currentWave = 0, freqStep = 100, time = 0, animSpeedMultiplier = 1.0;
+        let isClipped = false, isAudioOn = false, isPaused = false;
+        let isGlassOn = true, isGlowOn = false, isGridOn = true, isLissajous = false, showLabels = true;
+        let waveCtx = null, uiCtx = null, oscillators = [];
+        let animationFrameId = null, cachedBaseColor = '#2196F3';
+        const BASE_ANIM_SPEED = 0.08;
+        let isMaskingTZI = false, noiseSource = null;
+        let masterGainNode = null, masterWaveShaper = null;
+
+        // --- УВЕДОМЛЕНИЯ (TOASTS) ---
+        function showToast(title, text, icon, duration = 6000) {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<div class="toast-icon emoji-fix">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-text">${text}</div></div>`;
+            container.appendChild(toast);
+            
+            void toast.offsetWidth; // Reflow
+            toast.classList.add('show');
+            playAudioCue('tick');
+
+            toast.onclick = () => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); playAudioCue('click'); };
+            if(duration > 0) {
+                setTimeout(() => {
+                    if(toast.parentElement) { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }
+                }, duration);
+            }
+        }
+
+        // --- СТРЕЛОЧКИ ПОДСКАЗОК (ОНБОРДИНГ) ---
+        function showOnboardingPointers() {
+            function attach(targetId, text) {
+                let target = document.getElementById(targetId);
+                if(target && target.style.display !== 'none') {
+                    let hint = document.createElement('div');
+                    hint.className = `onboarding-hint`;
+                    hint.innerHTML = `<div class="onboarding-text">${text}</div><span class="emoji-fix" style="font-size:28px;">⬇️</span>`;
+                    hint.style.top = '-48px'; hint.style.left = '50%'; hint.style.transform = 'translateX(-50%)';
+                    target.appendChild(hint);
+                    target.addEventListener('click', () => { if(hint.parentElement) hint.remove(); }, {once:true});
+                    setTimeout(() => { if(hint.parentElement) hint.remove(); }, 20000); // Автоудаление
+                }
+            }
+            setTimeout(() => attach('btnMainSnap', 'Новая анимация!'), 2000);
+            setTimeout(() => attach('btnTziMode', 'Генератор шума'), 4000);
+            setTimeout(() => attach('btnMainTestMode', 'Геймификация!'), 6000);
+        }
+
+        // --- РЕЙТИНГ ---
+        function rateApp(stars) {
+            let msg = currentLang === 'ru' ? `Спасибо за оценку! Вы поставили ${stars} звезд.` : `Thanks for rating! You gave ${stars} stars.`;
+            showToast("⭐⭐⭐⭐⭐", msg, "🎉", 4000);
+            playAudioCue('glassBell');
+        }
+
+        // --- ГЛОБАЛЬНЫЙ RIPPLE ЭФФЕКТ ДЛЯ МАКСИМАЛЬНОГО ИНТЕРАКТИВА ---
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.classList.contains('toast')) return;
+            const ripple = document.createElement('div');
+            ripple.className = 'global-ripple';
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        const i18n = {
+            ru: {
+                appTitle: "HarmoniX", appSubtitle: "Интерактивная Лаборатория Волновой Физики", btnStart: "Начать работу",
+                menuSettings: "Настройки", lblGraphTools: "Инструменты графиков", lblLabels: "Подписи",
+                lblNeon: "Неон", lblGrid: "Сетка", lblLissajous: "Лиссажу", lblGlass: "Жидкое стекло",
+                lblPresets: "Пресеты", btnExport: "Экспорт", btnImport: "Импорт", lblTheme: "Оформление",
+                lblThemeSelect: "10 ТЕМ ОФОРМЛЕНИЯ:", lblCustomBg: "Свои обои:", lblBgFilter: "Фильтр фона:",
+                btnDelBg: "Сбросить фон", btnMenu: "Меню", btnReload: "Обновить", btnTest: "Тесты", btnFull: "На весь экран", btnExitFull: "Выйти",
+                pnl1: "1. Базовое колебание", pnl2: "2. Панель Управления", pnl3: "3. Теорема Фурье (Сумма)", pnl4: "4. Спектрограмма",
+                lblStep: "Шаг частоты:", lblFreq: "Частота (Гц):", lblAmp: "Амплитуда (%):", lblPhase: "Сдвиг фазы (°):", lblSpeed: "Скорость волны:",
+                btnAudio: "Динамик", btnMute: "Выкл. Звук", btnPause: "Стоп-кадр", btnPlay: "Запуск", btnClip: "Нелинейн. преобр.", btnUnclip: "Выкл. преобр.", btnReset: "Сброс",
+                btnSine: "Синус", btnSquare: "Меандр", btnTriangle: "Треуг.", btnSaw: "Пила", btnSave: "Сохранить", btnSaveCompact: "Снимок",
+                eduHeader: "📚 Академия Волновой Механики", eduCard1Title: "〰️ Природа механических волн",
+                eduCard1Text: "Механическая волна представляет собой процесс распространения колебательного возмущения в упругой среде. При этом частицы среды лишь совершают малые колебания возле равновесия, а переносится исключительно <b>ЭНЕРГИЯ И ИМПУЛЬС</b>.",
+                eduCard1Params: "Ключевые физические параметры:", eduParam1: "• <b>Период (T):</b> длительность одного полного колебания.", eduParam2: "• <b>Частота (V):</b> число полных циклов за 1 секунду.", eduParam3: "• <b>Циклическая частота (w):</b> угловая скорость изменения фазы.", eduParam4: "• <b>Сдвиг фазы (θ):</b> начальное положение фазового угла.",
+                eduCard2Title: "📉 Теорема и спектральный анализ Фурье", eduCard2Text1: "В 1822 году Жан-Батист Фурье доказал: <b>ЛЮБОЙ ПЕРИОДИЧЕСКИЙ СИГНАЛ</b> сложной формы может быть разложен в ряд простых гармонических волн кратных частот.",
+                eduCard2Text2: "Это фундаментальная база цифровой обработки сигналов: от синтезаторов звука и сжатия MP3 до радиопередачи Wi-Fi и сетей 5G.",
+                calcTitle: "🧮 Калькулятор длины волны", calc2Title: "⏱ Калькулятор Периода", calcCustomMedium: "Свой вариант...",
+                faqTitle: "💬 Динамические вопросы и ответы (FAQ)",
+                resTitleRU: "🇷🇺 Российские образовательные платформы",
+                resTitleINT: "🌍 Международные симуляторы и материалы",
+                resPhet: "PhET: Волна на струне", resAcademo: "Academo: Интерференция", resFalstad: "Falstad: Синтезатор",
+                resVirtulab: "VirtuLab: Лаборатории", resInterneturok: "InternetUrok: Физика", resFoxford: "Фоксфорд.Учебник",
+                testHeader: "Тестирование знаний", testSelectSub: "Выберите режим тестирования:", btnCheck: "Сдать",
+                modeExp: "Экспресс", time5: "5 (Без таймера)", modeStd: "Стандарт", time15: "15 (5 мин)", modeFull: "Полный курс", time30: "30 (10 мин)", modeUltra: "Ультра Профи", time50: "50 (15 мин)", btnExit: "Выйти", btnTryAgain: "Пройти снова",
+                telWave: "Волна", telF: "Частота", telA: "Амплитуда", telClip: "Нелинейное", telXAxis: "Ось X", clipOn: "Вкл", clipOff: "Выкл",
+                lblTelPhase: "Фаза", telY: "Смещение", telSumY: "Σy", telPeaks: "Пики", lblTimeLeft: "Осталось",
+                navHeader: "Разделы и Инфо", navMain: "Главная панель", navTest: "Итоговое Тестирование", navFormulas: "Справочник формул", navAbout: "О проекте HarmoniX",
+                lblHeightResize: "Высота холстов графиков:", modalFormulasTitle: "Справочник формул", modalAboutTitle: "О платформе HarmoniX",
+                modalExtLinks: "🎥 Рекомендованные видеоматериалы:", linkRutube: "Rutube: Лекции по физике", linkVK: "VK Видео: Волны и колебания", linkYT: "YouTube: Лекция Павла Виктора", linkWiki1: "Ряд Фурье (Википедия)",
+                aboutDescTitle: "ℹ️ Философия проекта", aboutDescText: "HarmoniX — интерактивная вычислительная лаборатория для визуального моделирования волновых процессов, гармонического сложения и анализа спектра Фурье.",
+                aboutHistoryTitle: "📜 Журнал изменений (Changelog)",
+                form1: "<b>Уравнение бегущей волны:</b><br> y(x,t) = A · cos(w·t - k·x + θ)", form2: "<b>Гармоническое колебание:</b><br> y(t) = A · cos(w·t + θ)",
+                form3: "<b>Период и частота:</b><br> T = 1 / V", form4: "<b>Циклическая частота:</b><br> w = 2 · π · V", form5: "<b>Длина волны:</b><br> λ = v / V = v · T",
+                form6: "<b>Волновое число:</b><br> k = 2 · π / λ", form7: "<b>Эффект Доплера:</b><br> f' = f · (v ± v₀) / (v ∓ vₛ)", form8: "<b>Акустический импеданс:</b><br> Z = ρ · v",
+                themes: { default: "⚪ Светлая (Базовая)", dark: "⚫ Темная (Ночная)", neon: "🟣 Неон (Киберпанк)", ocean: "🌊 Океан (Глубокая)", forest: "🌲 Лес (Природная)", sunset: "🌅 Закат (Теплая)", cyber: "🟡 Кибер (Желтая)", coffee: "☕ Латте (Кофе)", space: "🌌 Глубокий Космос", sakura: "🌸 Сакура (Розовая)" },
+                filters: { none: "🚫 Без фильтра", "blur(14px) saturate(140%)": "🌫 Глубокое размытие", "invert(100%)": "💡 Негатив / Инверсия", "contrast(150%) brightness(85%)": "🎬 Кинематограф", "sepia(100%)": "📜 Сепия (Винтаж)" },
+                hz: "Гц", meters: "м", sec: "с",
+                tziTitle: "ТЗИ: Виброакустическая защита",
+                tziDesc: "Активация генератора шума для маскировки речевой информации от средств перехвата:",
+                btnTziStart: "Активировать маскировку", btnTziStop: "Отключить маскировку",
+                calcAirDesc: "Среда: Воздух (20°C)", calcSpeedLabel: "Скорость (м/с):", calcCycle: "Длительность 1 цикла (Период):",
+                hintYellow: "Ищите кружки [?] для подсказок!", btnPickImg: "📂 Выбрать картинку", btnDelBg: "Сбросить фон",
+                testTimeUp: "⏰ Время вышло! Ответы проверены автоматически.",
+                testReviewTitle: "Детальный разбор вопросов:", testSkipped: "Пропущен",
+                testResTitle: "Итоговый результат:", testResOf: "из",
+                testRes90: "🎉 Превосходно! Уровень эксперта.", testRes60: "👍 Хорошо, курс освоен.", testResLow: "😅 Рекомендуем повторить теорию на сайте.",
+                omegaLabel: "Цикл. частота (ω):", radS: "рад/с", lblFreqShort: "ν (Гц)", lblPhaseShort: "Фаза",
+                btnPrev: "Назад", btnNext: "Вперед", qOf: "из", qWord: "Вопрос", wikiLink: "Читать подробнее в Wikipedia", hyperPhysics: "🔗 База знаний HyperPhysics (GSU)",
+                fConst: "⚛️ Фундаментальные константы", c1: "Скорость света (c)", c2: "Скорость звука (v)", c3: "Число Пи (π)",
+                telTHD: "THD (Искажения)", telLimit: "Порог среза", toastWelcome: "👋 Добро пожаловать!", toastWelcomeTxt: "HarmoniX v21.0 успешно запущен. Закройте меня кликом.", toastUpdate: "🚀 Что нового?", toastUpdateTxt: "Добавлены смарт-подсказки, система рейтингов и Ripple-анимации.", toastSec: "🛡️ Модуль ТЗИ", toastSecTxt: "Обязательно попробуйте генератор шума внизу страницы!"
+            },
+            en: {
+                appTitle: "HarmoniX", appSubtitle: "Interactive Wave Physics Laboratory", btnStart: "Start Analysis",
+                menuSettings: "Settings", lblGraphTools: "Graph Tools", lblLabels: "Labels",
+                lblNeon: "Neon Glow", lblGrid: "Grid", lblLissajous: "Lissajous", lblGlass: "Liquid Glass",
+                lblPresets: "Presets", btnExport: "Export", btnImport: "Import", lblTheme: "Themes",
+                lblThemeSelect: "10 COLOR THEMES:", lblCustomBg: "Custom Wallpaper:", lblBgFilter: "Background Filter:",
+                btnDelBg: "Reset Wallpaper", btnMenu: "Menu", btnReload: "Reload", btnTest: "Quizzes", btnFull: "Fullscreen", btnExitFull: "Exit",
+                pnl1: "1. Basic Oscillation", pnl2: "2. Control Panel", pnl3: "3. Fourier Theorem (Sum)", pnl4: "4. Spectrogram",
+                lblStep: "Frequency Step:", lblFreq: "Frequency (Hz):", lblAmp: "Amplitude (%):", lblPhase: "Phase Shift (°):", lblSpeed: "Wave Speed:",
+                btnAudio: "Audio", btnMute: "Mute", btnPause: "Pause", btnPlay: "Play", btnClip: "Non-linear Dist.", btnUnclip: "Disable", btnReset: "Reset",
+                btnSine: "Sine", btnSquare: "Square", btnTriangle: "Triangle", btnSaw: "Sawtooth", btnSave: "Save", btnSaveCompact: "Snap",
+                eduHeader: "📚 Wave Mechanics Academy", eduCard1Title: "〰 Nature of Mechanical Waves",
+                eduCard1Text: "A mechanical wave propagates oscillatory disturbances in an elastic medium, transferring energy without mass transfer.",
+                eduCard1Params: "Key physical parameters:", eduParam1: "• <b>Period (T):</b> time of one full oscillation.", eduParam2: "• <b>Frequency (V):</b> number of full cycles per 1 second.", eduParam3: "• <b>Angular frequency (w):</b> angular rate of phase change.", eduParam4: "• <b>Phase shift (θ):</b> initial displacement of the phase angle.",
+                eduCard2Title: "📉 Fourier Theorem & Analysis", eduCard2Text1: "Any complex periodic signal can be represented as an exact sum of harmonic sine waves.",
+                eduCard2Text2: "This is the basis of all digital signal processing: from audio equalization to data packet transmission over Wi-Fi and 5G cellular networks.",
+                calcTitle: "🧮 Wavelength Calculator", calc2Title: "⏱ Period Calculator", calcCustomMedium: "Custom...",
+                faqTitle: "💬 Dynamic Questions and Answers (FAQ)",
+                resTitleRU: "🇷🇺 Russian Educational Platforms",
+                resTitleINT: "🌍 International Simulators",
+                resPhet: "PhET: Wave on a String", resAcademo: "Academo: Wave Interference", resFalstad: "Falstad: Synth",
+                resVirtulab: "VirtuLab: Science Labs", resInterneturok: "InternetUrok: Physics", resFoxford: "Foxford Tutorials",
+                testHeader: "Knowledge Testing", testSelectSub: "Select test mode:", btnCheck: "Submit",
+                modeExp: "Express", time5: "5 (No timer)", modeStd: "Standard", time15: "15 (5 min)", modeFull: "Full Course", time30: "30 (10 min)", modeUltra: "Ultra Pro", time50: "50 (15 min)", btnExit: "Exit", btnTryAgain: "Try Again",
+                telWave: "Wave", telF: "Frequency", telA: "Amplitude", telClip: "Non-linear", telXAxis: "X Axis", clipOn: "ON", clipOff: "OFF",
+                lblTelPhase: "Phase", telY: "Displacement", telSumY: "Σy", telPeaks: "Peaks", lblTimeLeft: "Time left",
+                navHeader: "Sections & Info", navMain: "Dashboard", navTest: "Testing Quiz", navFormulas: "Formulas Reference", navAbout: "About HarmoniX",
+                lblHeightResize: "Canvas Height:", modalFormulasTitle: "Formulas Reference", modalAboutTitle: "About HarmoniX Platform",
+                modalExtLinks: "🎥 Recommended Videos:", linkRutube: "Rutube: Wave Physics Lectures", linkVK: "VK Video: Waves & Oscillations", linkYT: "YouTube: Pavel Victor Lesson", linkWiki1: "Fourier Series (Wikipedia)",
+                aboutDescTitle: "ℹ️ Philosophy of the Project", aboutDescText: "HarmoniX is an interactive simulation suite for visual wave physics, superposition, and Fourier analysis.",
+                aboutHistoryTitle: "📜 Changelog",
+                form1: "<b>Traveling Wave Eq:</b><br> y(x,t) = A · cos(w·t - k·x + θ)", form2: "<b>Harmonic Oscillation:</b><br> y(t) = A · cos(w·t + θ)",
+                form3: "<b>Period & Frequency:</b><br> T = 1 / V", form4: "<b>Angular Frequency:</b><br> w = 2 · π · V", form5: "<b>Wavelength:</b><br> λ = v / V = v · T",
+                form6: "<b>Wave Number:</b><br> k = 2 · π / λ", form7: "<b>Doppler Effect:</b><br> f' = f · (v ± v₀) / (v ∓ vₛ)", form8: "<b>Acoustic Impedance:</b><br> Z = ρ · v",
+                themes: { default: "⚪ Light (Default)", dark: "⚫ Dark (Night)", neon: "🟣 Neon (Cyberpunk)", ocean: "🌊 Ocean (Deep)", forest: "🌲 Forest (Natural)", sunset: "🌅 Sunset (Warm)", cyber: "🟡 Cyber (Yellow)", coffee: "☕ Latte (Coffee)", space: "🌌 Deep Space", sakura: "🌸 Sakura (Pink)" },
+                filters: { none: "🚫 No Filter", "blur(14px) saturate(140%)": "🌫 Deep Blur", "invert(100%)": "💡 Invert / Negative", "contrast(150%) brightness(85%)": "🎬 Cinematic", "sepia(100%)": "📜 Vintage Sepia" },
+                hz: "Hz", meters: "m", sec: "s",
+                tziTitle: "InfoSec: Acoustic Protection",
+                tziDesc: "Activation of white noise generator for speech masking against interception:",
+                btnTziStart: "Activate Masking", btnTziStop: "Disable Masking",
+                calcAirDesc: "Medium: Air (20°C)", calcSpeedLabel: "Speed (m/s):", calcCycle: "1-Cycle Duration (Period):",
+                hintYellow: "Look for yellow [?] circles for hints!", btnPickImg: "📂 Choose Picture", btnDelBg: "Reset Wallpaper",
+                testTimeUp: "⏰ Time is up! Answers were checked automatically.",
+                testReviewTitle: "Detailed Questions Review:", testSkipped: "Skipped",
+                testResTitle: "Final Result:", testResOf: "out of",
+                testRes90: "🎉 Excellent! Expert level.", testRes60: "👍 Good, solid knowledge.", testResLow: "😅 We recommend reviewing the theory on the site.",
+                omegaLabel: "Angular Freq (ω):", radS: "rad/s", lblFreqShort: "ν (Hz)", lblPhaseShort: "Phase",
+                btnPrev: "Back", btnNext: "Next", qOf: "of", qWord: "Question", wikiLink: "Read more on Wikipedia", hyperPhysics: "🔗 HyperPhysics Database (GSU)",
+                fConst: "⚛️ Fundamental constants", c1: "Speed of light (c)", c2: "Speed of sound (v)", c3: "Pi Number (π)",
+                telTHD: "THD (Distortion)", telLimit: "Clip Limit", toastWelcome: "👋 Welcome!", toastWelcomeTxt: "HarmoniX v21.0 is online.", toastUpdate: "🚀 What's New?", toastUpdateTxt: "Added smart toasts, star rating and new pointer animations.", toastSec: "🛡️ InfoSec Module", toastSecTxt: "Try the acoustic noise generator below!"
+            }
+        };
+
+        const globalFaqData = {
+            ru: [
+                { q: "Что такое Фигуры Лиссажу (Осциллограф X-Y)?", a: "Это <b>замкнутые траектории</b>, прочерчиваемые точкой, совершающей одновременно два гармонических колебания во <b>взаимно перпендикулярных направлениях</b>. Включите этот режим кнопкой «Лиссажу» в меню! <br><br><a href='https://ru.wikipedia.org/wiki/%D0%A4%D0%B8%D0%B3%D1%83%D1%80%D1%8B_%D0%9B%D0%B8%D1%81%D1%81%D0%B0%D0%B6%D1%83' target='_blank' class='faq-link'>Узнать подробнее (Википедия)</a>" },
+                { q: "Как фазовый сдвиг влияет на интерференцию?", a: "При сдвиге 0° волны <b>синфазны</b> и возникает <span class='key-term'>конструктивная интерференция</span> (усиление). Если сдвиг 180° (противофаза) — волны взаимно гасятся. Этот эффект используется в системах активного шумоподавления (ANC)." },
+                { q: "Что происходит со спектром при нелинейном ограничении (клиппинге)?", a: "При клиппинге верхушки синусоиды срезаются, приближая сигнал к прямоугольной форме (меандру). Это рождает <span class='key-term'>бесконечное число нечетных паразитных гармоник</span>, которые ярко видны в спектрограмме." },
+                { q: "Что показывает теорема Фурье?", a: "Она доказывает, что любой сложный, но периодический сигнал можно точно собрать (синтезировать) из набора <b>простых бесконечных синусоид</b> разных частот и амплитуд." },
+                { q: "От чего зависит скорость волны?", a: "Скорость механической волны зависит исключительно от свойств среды (ее плотности, упругости, температуры). В воздухе это ~340 м/с, в воде ~1480 м/с, в стали почти <b>6000 м/с</b>!" },
+                { q: "Что такое Акустическая маскировка (ТЗИ)?", a: "<b>Техническая защита информации (ТЗИ)</b> в акустике включает генерацию виброакустического белого шума, маскирующего речевую информацию от подслушивания через окна, стены и вентиляцию." },
+                { q: "Почему звуковая волна не переносит вещество?", a: "Потому что частицы среды совершают лишь малые колебательные движения возле своего положения равновесия, сталкиваясь с соседями и передавая им только энергию (импульс)." },
+                { q: "В чем разница между продольной и поперечной волной?", a: "В поперечной волне частицы колеблются <b>перпендикулярно</b> направлению движения волны (волна на струне). В продольной — <b>вдоль</b> направления волны (звук в воздухе)." }
+            ],
+            en: [
+                { q: "What are Lissajous Figures (X-Y Oscilloscope)?", a: "These are <b>closed trajectories</b> drawn by a point undergoing two harmonic oscillations in mutually perpendicular directions. Toggle it via the «Lissajous» menu button! <br><br><a href='https://en.wikipedia.org/wiki/Lissajous_curve' target='_blank' class='faq-link'>Read more (Wikipedia)</a>" },
+                { q: "How does phase shift affect interference?", a: "At 0° shift waves are <b>in-phase</b> creating <span class='key-term'>constructive interference</span> (amplification). 180° causes complete destructive interference (cancellation, ANC technology)." },
+                { q: "What happens to the spectrum during non-linear clipping?", a: "Clipping shears sine peaks into a square profile, yielding an <span class='key-term'>infinite train of odd harmonic spikes</span>." },
+                { q: "What does Fourier's theorem prove?", a: "It proves any periodic wave can be synthesized from a discrete harmonic series of <b>pure sine waves</b>." },
+                { q: "What determines wave propagation speed?", a: "Medium elasticity and density exclusively: ~340 m/s in air, ~1480 m/s in water, <b>~5900 m/s</b> in steel." },
+                { q: "What is Acoustic Masking (InfoSec)?", a: "<b>Information Security</b> in acoustics uses active vibroacoustic white noise generators to mask human speech from optical, laser, and vibration bugs." },
+                { q: "Why don't sound waves transport mass?", a: "Particles oscillate purely locally around equilibrium points, transferring momentum elastically." },
+                { q: "Transverse vs. Longitudinal waves?", a: "In transverse waves, particle displacement is perpendicular to wave propagation. In longitudinal waves, it's parallel." }
+            ]
+        };
+
+        const mediaList = [
+            { ru: "Воздух (20°C)", en: "Air (20°C)", v: 343 }, { ru: "Воздух (0°C)", en: "Air (0°C)", v: 331 },
+            { ru: "Гелий", en: "Helium", v: 965 }, { ru: "Водород", en: "Hydrogen", v: 1284 },
+            { ru: "Углекислый газ", en: "Carbon Dioxide", v: 259 }, { ru: "Вода (Пресная)", en: "Fresh Water", v: 1480 },
+            { ru: "Морская вода", en: "Sea Water", v: 1530 }, { ru: "Керосин", en: "Kerosene", v: 1324 },
+            { ru: "Ртуть", en: "Mercury", v: 1450 }, { ru: "Глицерин", en: "Glycerol", v: 1904 },
+            { ru: "Свинец", en: "Lead", v: 2160 }, { ru: "Золото", en: "Gold", v: 3240 },
+            { ru: "Серебро", en: "Silver", v: 2680 }, { ru: "Лед", en: "Ice", v: 3980 },
+            { ru: "Дерево (Сосна)", en: "Pine Wood", v: 3320 }, { ru: "Дерево (Дуб)", en: "Oak Wood", v: 4000 },
+            { ru: "Кирпич", en: "Brick", v: 4180 }, { ru: "Бетон", en: "Concrete", v: 4250 },
+            { ru: "Медь", en: "Copper", v: 4700 }, { ru: "Стекло (Оконное)", en: "Window Glass", v: 5640 },
+            { ru: "Стекло (Кварцевое)", en: "Quartz Glass", v: 5370 }, { ru: "Сталь", en: "Steel", v: 5900 },
+            { ru: "Чугун", en: "Cast Iron", v: 4480 }, { ru: "Железо", en: "Iron", v: 5950 },
+            { ru: "Алюминий", en: "Aluminum", v: 6420 }, { ru: "Титановый сплав", en: "Titanium Alloy", v: 6070 },
+            { ru: "Бериллий", en: "Beryllium", v: 12890 }, { ru: "Резина", en: "Rubber", v: 150 },
+            { ru: "Пробка", en: "Cork", v: 500 }, { ru: "Алмаз", en: "Diamond", v: 12000 }
+        ];
+
+        function toggleTZI() {
+            isMaskingTZI = !isMaskingTZI;
+            let btn = document.getElementById('btnTziMode');
+            if (btn) {
+                if (isMaskingTZI) {
+                    btn.innerHTML = `<span class="emoji-fix">🔓</span> <span data-i18n="btnTziStop">${i18n[currentLang].btnTziStop}</span>`;
+                    btn.style.background = '#F44336'; btn.style.boxShadow = '0 0 15px rgba(244,67,54,0.5)';
+                    startNoise(); playAudioCue('warn');
+                } else {
+                    btn.innerHTML = `<span class="emoji-fix">🔒</span> <span data-i18n="btnTziStart">${i18n[currentLang].btnTziStart}</span>`;
+                    btn.style.background = 'var(--tzi-color)'; btn.style.boxShadow = '0 0 15px var(--tzi-glow)';
+                    stopNoise(); playAudioCue('mainPulse');
+                }
+            }
+        }
+
+        function startNoise() {
+            if (!waveCtx) initAudio(); if (!waveCtx) return;
+            const bufferSize = waveCtx.sampleRate * 2; const buffer = waveCtx.createBuffer(1, bufferSize, waveCtx.sampleRate); const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+            noiseSource = waveCtx.createBufferSource(); noiseSource.buffer = buffer; noiseSource.loop = true;
+            let noiseGain = waveCtx.createGain(); noiseGain.gain.value = 0.08; 
+            noiseSource.connect(noiseGain); noiseGain.connect(waveCtx.destination); noiseSource.start();
+        }
+
+        function stopNoise() { if (noiseSource) { try { noiseSource.stop(); noiseSource.disconnect(); } catch(e){} noiseSource = null; } }
+
+        function makeDistortionCurve(amount) {
+            let n_samples = 44100;
+            let curve = new Float32Array(n_samples);
+            for (let i = 0; i < n_samples; ++i) {
+                let x = i * 2 / n_samples - 1;
+                curve[i] = x < -0.5 ? -0.5 : (x > 0.5 ? 0.5 : x);
+            }
+            return curve;
+        }
+
+        function initAudio() {
+            if (!uiCtx) uiCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (uiCtx.state === 'suspended') uiCtx.resume();
+            if (!waveCtx) {
+                waveCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                masterGainNode = waveCtx.createGain();
+                masterWaveShaper = waveCtx.createWaveShaper();
+                masterWaveShaper.curve = null;
+                masterWaveShaper.oversample = '4x';
+                
+                masterGainNode.connect(masterWaveShaper);
+                masterWaveShaper.connect(waveCtx.destination);
+
+                for (let i = 0; i < 3; i++) {
+                    let osc = waveCtx.createOscillator(); let gain = waveCtx.createGain();
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(waves[i].f, waveCtx.currentTime);
+                    gain.gain.setValueAtTime(0, waveCtx.currentTime); osc.connect(gain);
+                    gain.connect(masterGainNode); osc.start(); oscillators.push({ osc: osc, gain: gain });
+                }
+            }
+            if (waveCtx.state === 'suspended') waveCtx.resume();
+        }
+
+        function startApp() {
+            try { initAudio(); } catch(e){}
+            let ws = document.getElementById('welcome-screen');
+            let mainNav = document.getElementById('main-nav-bar');
+            let mainApp = document.getElementById('main-app');
+
+            if(ws) { ws.style.opacity = '0'; ws.style.pointerEvents = 'none'; }
+            setTimeout(() => {
+                if(ws) ws.style.display = 'none';
+                if(mainNav) mainNav.style.display = 'flex';
+                if(mainApp) mainApp.style.display = 'flex';
+
+                try { buildSelectOptions(); } catch(e){}
+                try { setLang('ru'); } catch(e){}
+                try { setPreset('sine'); } catch(e){}
+
+                setTimeout(() => {
+                    try { resizeAllCanvases(); } catch(e){}
+                    if (!animationFrameId) { draw(); }
+                    try { populateMediumSelect(currentLang); } catch(e){}
+                    try { calculateWaveLength(); } catch(e){}
+                    try { playAudioCue('glassBell'); } catch(e){}
+                    
+                    // ЗАПУСК СИСТЕМЫ УВЕДОМЛЕНИЙ ПРИ СТАРТЕ
+                    setTimeout(() => showToast(i18n[currentLang].toastWelcome, i18n[currentLang].toastWelcomeTxt, "✨"), 1000);
+                    setTimeout(() => showToast(i18n[currentLang].toastUpdate, i18n[currentLang].toastUpdateTxt, "🔥"), 4500);
+                    setTimeout(() => showToast(i18n[currentLang].toastSec, i18n[currentLang].toastSecTxt, "💡"), 9000);
+                    showOnboardingPointers();
+                }, 50);
+            }, 300);
+        }
+
+        function playAudioCue(type, param = 0) {
+            try {
+                if (!uiCtx) return;
+                const now = uiCtx.currentTime; const osc = uiCtx.createOscillator(); const gain = uiCtx.createGain();
+                osc.connect(gain); gain.connect(uiCtx.destination);
+
+                if (type === 'glassBell') { osc.type = 'sine'; osc.frequency.setValueAtTime(1400, now); osc.frequency.exponentialRampToValueAtTime(1900, now + 0.12); gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18); osc.start(now); osc.stop(now + 0.18); }
+                else if (type === 'mainPulse') { osc.type = 'triangle'; osc.frequency.setValueAtTime(260, now); osc.frequency.exponentialRampToValueAtTime(480, now + 0.09); gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12); osc.start(now); osc.stop(now + 0.12); }
+                else if (type === 'sliderTone') { osc.type = 'sine'; let f = 300 + (param * 10); osc.frequency.setValueAtTime(Math.min(2500, f), now); gain.gain.setValueAtTime(0.04, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05); osc.start(now); osc.stop(now + 0.05); }
+                else if (type === 'phaseTone') { osc.type = 'triangle'; let f = 180 + (param * 1.5); osc.frequency.setValueAtTime(f, now); gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06); osc.start(now); osc.stop(now + 0.06); }
+                else if (type === 'calcKey') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(950, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.04); gain.gain.setValueAtTime(0.04, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04); osc.start(now); osc.stop(now + 0.04); }
+                else if (type === 'menuClick') { osc.type = 'sine'; osc.frequency.setValueAtTime(750, now); gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08); osc.start(now); osc.stop(now + 0.08); }
+                else if (type === 'cameraSnap') { osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1); gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1); osc.start(now); osc.stop(now + 0.1); }
+                else if (type === 'tick') { osc.type = 'sine'; osc.frequency.setValueAtTime(1000, now); gain.gain.setValueAtTime(0.03, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05); osc.start(now); osc.stop(now + 0.05); }
+                else if (type === 'warn') { osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(300, now + 0.1); gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
+            } catch(e) {}
+        }
+
+        window.playSfx = playAudioCue;
+
+        document.addEventListener('mouseover', e => {
+            if (e.target.classList && e.target.classList.contains('hint-icon')) {
+                const tt = document.getElementById('global-tooltip'); if(!tt) return;
+                let hintKey = e.target.getAttribute('data-i18n-hint');
+                if(hintKey && i18n[currentLang][hintKey]) { tt.innerHTML = i18n[currentLang][hintKey]; } 
+                else { tt.innerHTML = e.target.getAttribute('data-hint'); }
+                tt.style.opacity = 1; const rect = e.target.getBoundingClientRect();
+                let x = rect.left + rect.width / 2 - tt.offsetWidth / 2; let y = rect.top - tt.offsetHeight - 12;
+                if (x < 10) x = 10; if (x + tt.offsetWidth > window.innerWidth - 10) x = window.innerWidth - tt.offsetWidth - 10;
+                if (y < 10) y = rect.bottom + 12; tt.style.transform = `translate(${x}px, ${y}px)`; playAudioCue('hover');
+            }
+        }, true);
+
+        document.addEventListener('mouseout', e => {
+            if (e.target.classList && e.target.classList.contains('hint-icon')) { const tt = document.getElementById('global-tooltip'); if(tt) tt.style.opacity = 0; }
+        }, true);
+
+        function buildSelectOptions() {
+            const curTheme = document.documentElement.getAttribute('data-theme') || 'default';
+            const themeSel = document.getElementById('themeSelect');
+            if (themeSel) { themeSel.innerHTML = ''; for (let k in i18n[currentLang].themes) { let opt = document.createElement('option'); opt.value = k; opt.innerHTML = i18n[currentLang].themes[k]; if (k === curTheme) opt.selected = true; themeSel.appendChild(opt); } }
+            const filterSel = document.getElementById('bgFilter');
+            if (filterSel) { const curFilter = document.getElementById('bg-layer').style.filter || 'none'; filterSel.innerHTML = ''; for (let f in i18n[currentLang].filters) { let opt = document.createElement('option'); opt.value = f; opt.innerHTML = i18n[currentLang].filters[f]; if (f === curFilter) opt.selected = true; filterSel.appendChild(opt); } }
+        }
+
+        function safeSetText(id, text) { let el = document.getElementById(id); if (el) el.innerText = text; }
+
+        function renderDynamicFAQ(lang) {
+            const container = document.getElementById('dynamic-faq-container'); if(!container) return; container.innerHTML = '';
+            let pool = globalFaqData[lang] || globalFaqData['ru']; let shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, 4);
+            shuffled.forEach(item => {
+                let btn = document.createElement('button'); btn.className = 'accordion-btn glass-element interactive-hover btn-shine'; btn.onclick = function() { toggleAccordion(this); playAudioCue('menuClick'); };
+                btn.innerHTML = `<span>${item.q}</span> <span>▼</span>`;
+                let content = document.createElement('div'); content.className = 'accordion-content'; content.innerHTML = `<p>${item.a}</p>`;
+                container.appendChild(btn); container.appendChild(content);
+            });
+        }
+
+        function populateMediumSelect(lang) {
+            const sel = document.getElementById('mediumSelect'); if(!sel) return;
+            sel.innerHTML = `<option value="custom" data-i18n="calcCustomMedium">${i18n[lang].calcCustomMedium}</option>`;
+            mediaList.forEach(m => { let opt = document.createElement('option'); opt.value = m.v; opt.innerText = `${m[lang] || m.ru} (${m.v})`; sel.appendChild(opt); });
+            let inpVal = document.getElementById('calcSpeedCustom').value; let found = Array.from(sel.options).find(o => o.value == inpVal);
+            sel.value = found ? found.value : 'custom';
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            let activeLangBtn = document.querySelector('.lang-' + lang); if(activeLangBtn) activeLangBtn.classList.add('active');
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (i18n[lang][key]) el.innerHTML = i18n[lang][key]; });
+            document.querySelectorAll('.unit-freq').forEach(el => { el.innerText = i18n[lang].hz; });
+            document.querySelectorAll('.calc-m').forEach(el => { el.innerText = i18n[lang].meters || 'м'; });
+            document.querySelectorAll('.calc-s').forEach(el => { el.innerText = i18n[lang].sec || 'с'; });
+            
+            let btnTZI = document.getElementById('btnTziMode');
+            if(btnTZI) { btnTZI.innerHTML = `<span class="emoji-fix">🔒</span> ${isMaskingTZI ? i18n[lang].btnTziStop : i18n[lang].btnTziStart}`; }
+
+            buildSelectOptions(); updateDynamicButtons(); updateTelemetryUI(); populateMediumSelect(lang); calculateWaveLength(); renderDynamicFAQ(lang);
+            if (typeof updateQuizStepIndicator === 'function') { updateQuizStepIndicator(); }
+        }
+
+        function updateDynamicButtons() {
+            const btnTop = document.getElementById('btnTopLabels'); const btnSide = document.getElementById('btnLabelsToggle');
+            const txtLab = currentLang === 'ru' ? (showLabels ? 'Подписи: Вкл' : 'Подписи: Выкл') : (showLabels ? 'Labels: On' : 'Labels: Off');
+            if (btnTop) btnTop.innerHTML = `<span class="emoji-fix">📊</span> ${showLabels ? (currentLang==='ru'?'Подписи':'Labels') : (currentLang==='ru'?'Без подписей':'No Labels')}`;
+            if (btnSide) { btnSide.innerHTML = txtLab; btnSide.classList.toggle('active', showLabels); }
+
+            const btnGlow = document.getElementById('btnGlowToggle');
+            if (btnGlow) { btnGlow.innerHTML = currentLang === 'ru' ? (isGlowOn ? 'Неон: Вкл' : 'Неон: Выкл') : (isGlowOn ? 'Neon: On' : 'Neon: Off'); btnGlow.classList.toggle('active', isGlowOn); }
+
+            const btnGrid = document.getElementById('btnGridToggle');
+            if (btnGrid) { btnGrid.innerHTML = currentLang === 'ru' ? (isGridOn ? '<span class="emoji-fix">🕸</span> Сетка: Вкл' : '<span class="emoji-fix">🕸</span> Сетка: Выкл') : (isGridOn ? '<span class="emoji-fix">🕸</span> Grid: On' : '<span class="emoji-fix">🕸</span> Grid: Off'); btnGrid.classList.toggle('active', isGridOn); }
+
+            const btnLis = document.getElementById('btnLissajous');
+            if (btnLis) { btnLis.innerHTML = currentLang === 'ru' ? (isLissajous ? '<span class="emoji-fix">🌀</span> Лиссажу: Вкл' : '<span class="emoji-fix">🌀</span> Лиссажу: Выкл') : (isLissajous ? '<span class="emoji-fix">🌀</span> Lissajous: On' : '<span class="emoji-fix">🌀</span> Lissajous: Off'); btnLis.classList.toggle('active', isLissajous); }
+
+            let btnAudio = document.getElementById('btnAudio');
+            if (btnAudio) { btnAudio.classList.toggle('active', isAudioOn); btnAudio.innerHTML = isAudioOn ? `<span class="emoji-fix">🔇</span> ${i18n[currentLang].btnMute}` : `<span class="emoji-fix">🔊</span> ${i18n[currentLang].btnAudio}`; }
+
+            let btnPause = document.getElementById('btnPause');
+            if (btnPause) { btnPause.classList.toggle('active', isPaused); btnPause.innerHTML = isPaused ? `<span class="emoji-fix">▶</span> ${i18n[currentLang].btnPlay}` : `<span class="emoji-fix">⏸</span> ${i18n[currentLang].btnPause}`; }
+
+            let btnClip = document.getElementById('btnClip');
+            if (btnClip) { btnClip.classList.toggle('active', isClipped); btnClip.querySelector('span:last-child').previousElementSibling.innerHTML = isClipped ? i18n[currentLang].btnUnclip : i18n[currentLang].btnClip; }
+        }
+
+        function updateSpeedValue(val) { animSpeedMultiplier = parseFloat(val) || 1.0; let el = document.getElementById('valSpeedDisp'); if(el) el.innerText = animSpeedMultiplier.toFixed(1) + "x"; playAudioCue('phaseTone', animSpeedMultiplier * 100); }
+        function setCanvasHeight(val) { document.querySelectorAll('.canvas-wrapper').forEach(w => { w.style.height = val + 'px'; }); resizeAllCanvases(); }
+        function toggleLabels() { showLabels = !showLabels; document.querySelectorAll('.chart-telemetry').forEach(el => { if(el) el.classList.toggle('hidden', !showLabels); }); const btnSide = document.getElementById('btnLabelsToggle'); if (btnSide) { btnSide.classList.toggle('active', showLabels); } updateDynamicButtons(); playAudioCue('click'); }
+        function toggleGlow() { isGlowOn = !isGlowOn; updateDynamicButtons(); playAudioCue('click'); }
+        function toggleGrid() { isGridOn = !isGridOn; updateDynamicButtons(); playAudioCue('click'); }
+        function toggleLissajous() { isLissajous = !isLissajous; let lm = document.getElementById('lblLisMode'); if (lm) lm.innerText = isLissajous ? "(Lissajous 2D)" : ""; updateDynamicButtons(); playAudioCue('mainPulse'); }
+        function setGlassState(state) { isGlassOn = state; let onBtn = document.getElementById('btnGOn'); let offBtn = document.getElementById('btnGOff'); if(onBtn && offBtn) { onBtn.classList.toggle('active', state); offBtn.classList.toggle('active', !state); } updateGlassIntensity(); playAudioCue('click'); }
+        
+        function updateGlassIntensity() {
+            if (!isGlassOn) {
+                document.documentElement.style.setProperty('--glass-alpha', '0.98'); document.documentElement.style.setProperty('--glass-blur', '0px');
+                document.documentElement.style.setProperty('--glass-saturate', '100%'); document.documentElement.style.setProperty('--glass-border', 'rgba(204, 204, 204, 0.6)'); return;
+            }
+            let el = document.getElementById('glassIntensity'); if(!el) return;
+            let val = parseInt(el.value); let alpha = 0.95 - (val / 100) * 0.75; let blur = (val / 100) * 30; let saturate = 100 + (val / 100) * 100;
+            document.documentElement.style.setProperty('--glass-alpha', alpha.toFixed(2)); document.documentElement.style.setProperty('--glass-blur', blur + 'px');
+            document.documentElement.style.setProperty('--glass-saturate', saturate + '%'); document.documentElement.style.setProperty('--glass-border', 'rgba(255, 255, 255, ' + (0.15 + (val/100)*0.35) + ')');
+        }
+
+        function autoGlass() {
+            const bgLayer = document.getElementById('bg-layer'); if(!bgLayer) return;
+            const bgImage = bgLayer.style.backgroundImage; const filterEl = document.getElementById('bgFilter'); const filter = filterEl ? filterEl.value : 'none';
+            let idealValue = 30; if (bgImage && bgImage !== 'none') { idealValue = 85; if (filter.includes('blur')) idealValue = 50; }
+            let glassEl = document.getElementById('glassIntensity'); if(glassEl) glassEl.value = idealValue;
+            setGlassState(true); playAudioCue('mainPulse');
+        }
+
+        const canvasResizeObserver = new ResizeObserver(entries => {
+            requestAnimationFrame(() => {
+                for (let entry of entries) {
+                    const wrapper = entry.target;
+                    const canvas = wrapper.querySelector('canvas');
+                    if (canvas) {
+                        const w = Math.floor(wrapper.clientWidth);
+                        const h = Math.floor(wrapper.clientHeight);
+                        if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+                            canvas.width = w;
+                            canvas.height = h;
+                        }
+                    }
+                }
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.canvas-wrapper').forEach(wrapper => {
+                canvasResizeObserver.observe(wrapper);
+            });
+        });
+
+        function resizeCanvasElement(canvas) {
+            if(!canvas || !canvas.parentElement) return;
+            const w = Math.floor(canvas.parentElement.clientWidth); const h = Math.floor(canvas.parentElement.clientHeight);
+            if (w === 0 || h === 0) return;
+            if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        }
+
+        function resizeAllCanvases() { resizeCanvasElement(document.getElementById('canvas-single')); resizeCanvasElement(document.getElementById('canvas-sum')); resizeCanvasElement(document.getElementById('canvas-spectrum')); }
+        window.addEventListener('resize', resizeAllCanvases, { passive: true });
+        
+        function resetCanvasSizes() {
+            document.querySelectorAll('.canvas-wrapper').forEach(w => { w.style.height = '260px'; });
+            let el = document.getElementById('canvasHeightSlider'); if(el) el.value = 260;
+            resizeAllCanvases(); playAudioCue('mainPulse');
+        }
+
+        function updateColorsCache() { cachedBaseColor = getComputedStyle(document.documentElement).getPropertyValue('--base-wave').trim() || '#2196F3'; }
+        function toggleFullscreen() { if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err=>{}); } else { if (document.exitFullscreen) document.exitFullscreen(); } }
+        document.addEventListener('fullscreenchange', () => { updateDynamicButtons(); });
+        function toggleSidebar() { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebar-overlay'); if(!sidebar || !overlay) return; if (sidebar.classList.contains('open')) { sidebar.classList.remove('open'); overlay.style.display = 'none'; } else { sidebar.classList.add('open'); overlay.style.display = 'block'; } }
+        function showInfoModal(id) { let ov = document.getElementById('info-overlay'); if(!ov) return; ov.style.display = 'flex'; setTimeout(()=> ov.classList.add('show'), 10); document.querySelectorAll('.info-content').forEach(el => el.style.display = 'none'); let target = document.getElementById('modal-' + id); if(target) { target.style.display = 'block'; let delays = 0.05; target.querySelectorAll('.pop-animation').forEach(el => { el.style.animationDelay = delays + 's'; delays += 0.05; el.classList.remove('pop-animation'); void el.offsetWidth; el.classList.add('pop-animation'); }); } playAudioCue('action'); }
+        function closeInfoModal() { let ov = document.getElementById('info-overlay'); if(!ov) return; ov.classList.remove('show'); setTimeout(()=> { ov.style.display = 'none'; }, 300); playAudioCue('click'); }
+        function toggleAccordion(btn) { btn.classList.toggle("active"); var content = btn.nextElementSibling; if(!content) return; if (content.style.maxHeight) { content.style.maxHeight = null; } else { content.style.maxHeight = content.scrollHeight + "px"; } playAudioCue('click'); }
+
+        function onSelectMedium() { const sel = document.getElementById('mediumSelect'); const inp = document.getElementById('calcSpeedCustom'); if (sel.value !== 'custom') { inp.value = sel.value; } }
+        function onManualSpeedInput() { const sel = document.getElementById('mediumSelect'); const inp = document.getElementById('calcSpeedCustom'); let found = Array.from(sel.options).find(o => o.value == inp.value && o.value !== 'custom'); if (found) { sel.value = found.value; } else { sel.value = 'custom'; } }
+
+        function calculateWaveLength() {
+            let freqEl1 = document.getElementById('calcFreq1'); if(!freqEl1) return;
+            let freq = parseFloat(freqEl1.value); if (isNaN(freq) || freq <= 0) freq = 1;
+            let speedEl = document.getElementById('calcSpeedCustom'); let speedCustom = speedEl ? parseFloat(speedEl.value) || 343 : 343;
+
+            safeSetText('calcResAir', `${(speedCustom / freq).toFixed(2)}`);
+            let T = (1 / freq).toFixed(5); safeSetText('calcResPeriod', T);
+            let omega = (2 * Math.PI * freq).toFixed(1); safeSetText('calcResOmega', `${i18n[currentLang].omegaLabel} ~${omega} ${i18n[currentLang].radS}`);
+
+            const sel = document.getElementById('mediumSelect'); let descLabel = document.getElementById('lblCalcAirDesc');
+            if (descLabel) {
+                if (sel && sel.value !== 'custom' && sel.options[sel.selectedIndex]) {
+                    let text = sel.options[sel.selectedIndex].innerText; descLabel.innerText = currentLang === 'ru' ? `Среда: ${text}` : `Medium: ${text}`;
+                } else {
+                    descLabel.innerText = currentLang === 'ru' ? `Скорость ${speedCustom} м/с:` : `Speed ${speedCustom} m/s:`;
+                }
+            }
+        }
+
+        function updateStep(val) { freqStep = val; let elF = document.getElementById('freq'); if(elF) elF.step = val; let st10 = document.getElementById('st10'); let st100 = document.getElementById('st100'); if(st10) st10.classList.remove('active'); if(st100) st100.classList.remove('active'); let cur = document.getElementById('st' + val); if(cur) cur.classList.add('active'); }
+        function updateTelemetryUI() { const w = waves[currentWave]; const waveNames = ['V1', 'V2', 'V3']; const L = i18n[currentLang]; safeSetText('lblTelWave', L.telWave); safeSetText('lblTelF', L.telF); safeSetText('lblTelA', L.telA); safeSetText('lblTelClip', L.telClip); safeSetText('lblTelXAxis', L.telXAxis); safeSetText('lblTelPhase', L.lblPhaseShort); let ty = document.getElementById('telY'); if(ty && ty.previousElementSibling) ty.previousElementSibling.innerText = L.telY + ":"; let ts = document.getElementById('telSumY'); if(ts && ts.previousElementSibling) ts.previousElementSibling.innerText = L.telSumY + ":"; let tp = document.getElementById('telSpecPeaks'); if(tp && tp.previousElementSibling) tp.previousElementSibling.innerText = L.telPeaks + ":"; safeSetText('telWaveName', waveNames[currentWave]); safeSetText('telFreq', w.f); safeSetText('telAmp', w.a); safeSetText('telPhase', `${w.p}°`); safeSetText('telClipStatus', isClipped ? L.clipOn : L.clipOff); }
+        function updateLabels() { let w = waves[currentWave]; let fEl = document.getElementById('freq'); if(fEl) fEl.value = w.f; let fInp = document.getElementById('inputV'); if(fInp) fInp.value = w.f; let aEl = document.getElementById('amp'); if(aEl) aEl.value = w.a; let aInp = document.getElementById('inputA'); if(aInp) aInp.value = w.a; let pEl = document.getElementById('phase'); if(pEl) pEl.value = w.p; let pInp = document.getElementById('inputP'); if(pInp) pInp.value = w.p; updateTelemetryUI(); calculateWaveLength(); }
+        
+        function updateWaveFromSlider(type) {
+            if (type === 'freq') { let el = document.getElementById('freq'); if(el) { let val = parseInt(el.value); let inEl = document.getElementById('inputV'); if(inEl) inEl.value = val; waves[currentWave].f = val; playAudioCue('sliderTone', val / 100); } }
+            else if (type === 'amp') { let el = document.getElementById('amp'); if(el) { let val = parseInt(el.value); let inEl = document.getElementById('inputA'); if(inEl) inEl.value = val; waves[currentWave].a = val; playAudioCue('sliderTone', val); } }
+            else if (type === 'phase') { let el = document.getElementById('phase'); if(el) { let val = parseInt(el.value); let inEl = document.getElementById('inputP'); if(inEl) inEl.value = val; waves[currentWave].p = val; playAudioCue('phaseTone', val); } }
+            updateTelemetryUI(); updateWaveAudio();
+        }
+
+        function updateWaveFromInput(type) {
+            if (type === 'freq') { let el = document.getElementById('inputV'); if(el) { let val = parseInt(el.value); if(!isNaN(val) && val >= 0 && val <= 20000) { let sEl=document.getElementById('freq'); if(sEl) sEl.value = val; waves[currentWave].f = val; } } }
+            else if (type === 'amp') { let el = document.getElementById('inputA'); if(el) { let val = parseInt(el.value); if(!isNaN(val) && val >= 0 && val <= 100) { let sEl=document.getElementById('amp'); if(sEl) sEl.value = val; waves[currentWave].a = val; } } }
+            else if (type === 'phase') { let el = document.getElementById('inputP'); if(el) { let val = parseInt(el.value); if(!isNaN(val) && val >= 0 && val <= 360) { let sEl=document.getElementById('phase'); if(sEl) sEl.value = val; waves[currentWave].p = val; } } }
+            playAudioCue('calcKey'); updateTelemetryUI(); updateWaveAudio();
+        }
+
+        function switchTab(index) { currentWave = index; document.querySelectorAll('.tabs .tab').forEach((el, i) => { if (i===index) el.classList.add('active'); else el.classList.remove('active'); }); updateLabels(); playAudioCue('click'); }
+        function togglePause() { isPaused = !isPaused; updateDynamicButtons(); playAudioCue('click'); }
+        
+        function setPreset(type) {
+            currentPreset = type; document.querySelectorAll('.presets-row button').forEach(b => b.classList.remove('active')); let activeBtn = document.getElementById('pr_' + type); if(activeBtn) activeBtn.classList.add('active');
+            if (type === 'sine') { waves[0] = { f: 440, a: 80, p: 0, type: 'sine' }; waves[1] = { f: 880, a: 0, p: 0, type: 'sine' }; waves[2] = { f: 1320, a: 0, p: 0, type: 'sine' }; isClipped = false; }
+            else if (type === 'square') { waves[0] = { f: 400, a: 100, p: 0, type: 'square' }; waves[1] = { f: 1200, a: 33, p: 0, type: 'square' }; waves[2] = { f: 2000, a: 20, p: 0, type: 'square' }; }
+            else if (type === 'triangle') { waves[0] = { f: 400, a: 100, p: 0, type: 'triangle' }; waves[1] = { f: 1200, a: 11, p: 180, type: 'triangle' }; waves[2] = { f: 2000, a: 4, p: 0, type: 'triangle' }; }
+            else if (type === 'sawtooth') { waves[0] = { f: 400, a: 100, p: 0, type: 'sawtooth' }; waves[1] = { f: 800, a: 50, p: 180, type: 'sawtooth' }; waves[2] = { f: 1200, a: 33, p: 0, type: 'sawtooth' }; }
+            updateLabels(); updateDynamicButtons(); updateWaveAudio(); playAudioCue('mainPulse');
+        }
+
+        document.querySelectorAll('.presets-row button').forEach(btn => {
+            btn.addEventListener('click', () => { let id = btn.id.replace('pr_', ''); waves[currentWave].type = id; });
+        });
+
+        function toggleClip() { isClipped = !isClipped; updateLabels(); updateDynamicButtons(); updateWaveAudio(); playAudioCue('mainPulse'); }
+        
+        function resetAll() {
+            waves = [{ f: 440, a: 80, p: 0, type: 'sine' }, { f: 880, a: 0, p: 0, type: 'sine' }, { f: 1320, a: 0, p: 0, type: 'sine' }]; isClipped = false; isLissajous = false; clearBackground();
+            let lisBtn = document.getElementById('btnLissajous'); if(lisBtn) { lisBtn.classList.remove('active'); }
+            safeSetText('lblLisMode', ""); animSpeedMultiplier = 1.0;
+            let elSpeed = document.getElementById('speed'); if(elSpeed) elSpeed.value = 1.0; updateSpeedValue(1.0);
+            setPreset('sine'); if (isPaused) togglePause(); resetCanvasSizes(); switchTab(0); updateWaveAudio(); updateDynamicButtons(); playAudioCue('error');
+        }
+
+        function updateWaveAudio() {
+            if (!waveCtx || oscillators.length === 0 || !masterWaveShaper) return; 
+            const now = waveCtx.currentTime;
+
+            if (isClipped) { masterWaveShaper.curve = makeDistortionCurve(400); } 
+            else { masterWaveShaper.curve = null; }
+
+            for (let i = 0; i < 3; i++) {
+                oscillators[i].osc.frequency.setTargetAtTime(waves[i].f, now, 0.03); 
+                oscillators[i].osc.type = waves[i].type || 'sine';
+                let targetVol = 0; if (isAudioOn && waves[i].a > 0) { targetVol = (waves[i].a / 100) * 0.12; }
+                oscillators[i].gain.gain.setTargetAtTime(targetVol, now, 0.05);
+            }
+        }
+
+        function toggleAudio() { try { if (waveCtx && waveCtx.state === 'suspended') waveCtx.resume(); } catch(e){} isAudioOn = !isAudioOn; updateDynamicButtons(); updateWaveAudio(); playAudioCue('action'); }
+        function updateColorsCache() { cachedBaseColor = getComputedStyle(document.documentElement).getPropertyValue('--base-wave').trim() || '#2196F3'; }
+        function changeTheme(t) { document.documentElement.setAttribute('data-theme', t); buildSelectOptions(); updateColorsCache(); playAudioCue('action'); }
+        function changeFilter(f) { let bl = document.getElementById('bg-layer'); if(bl) bl.style.filter = f; buildSelectOptions(); playAudioCue('click'); }
+        function clearBackground() { let bl = document.getElementById('bg-layer'); if(bl) bl.style.backgroundImage = 'none'; let bu = document.getElementById('bgUpload'); if(bu) bu.value = ''; playAudioCue('mainPulse'); }
+        function uploadBackground(e) { if (e.target.files[0]) { const r = new FileReader(); r.onload = ev => { let bl = document.getElementById('bg-layer'); if(bl) bl.style.backgroundImage = `url('${ev.target.result}')`; playAudioCue('glassBell'); }; r.readAsDataURL(e.target.files[0]); } }
+        
+        function downloadGraph(id) { 
+            const c = document.getElementById(id); if(!c) return; 
+            
+            let btn = document.querySelector('.btn-camera-snap');
+            if (btn) {
+                let flash = document.createElement('div');
+                flash.className = 'camera-flash-overlay';
+                flash.style.animation = 'flashAnim 0.4s ease-out';
+                c.parentElement.appendChild(flash);
+                setTimeout(() => flash.remove(), 400);
+            }
+
+            const l = document.createElement('a'); l.download = 'HarmoniX_Graph.png'; 
+            const tc = document.createElement('canvas'); tc.width = c.width; tc.height = c.height; 
+            const tCtx = tc.getContext('2d'); tCtx.fillStyle = '#ffffff'; tCtx.fillRect(0,0,tc.width,tc.height); 
+            tCtx.drawImage(c,0,0); l.href = tc.toDataURL(); l.click(); 
+        }
+
+        function getWaveValue(type, phase) {
+            switch (type) {
+                case 'square': return Math.sign(Math.sin(phase));
+                case 'sawtooth': return 2 * (phase / (2 * Math.PI) - Math.floor(phase / (2 * Math.PI) + 0.5));
+                case 'triangle': return 1 - 4 * Math.abs(Math.round(phase / (2 * Math.PI)) - phase / (2 * Math.PI));
+                case 'sine':
+                default: return Math.sin(phase);
+            }
+        }
+
+        let lastTelemUpdate = 0;
+        function draw() {
+            if (!isPaused) time += (BASE_ANIM_SPEED * animSpeedMultiplier);
+            let c1 = document.getElementById('canvas-single'); let c2 = document.getElementById('canvas-sum'); let c3 = document.getElementById('canvas-spectrum');
+            
+            let ctx1 = c1 ? c1.getContext('2d') : null; if(ctx1) ctx1.clearRect(0, 0, c1.width, c1.height);
+            let ctx2 = c2 ? c2.getContext('2d') : null; if(ctx2) ctx2.clearRect(0, 0, c2.width, c2.height);
+            let ctx3 = c3 ? c3.getContext('2d') : null; if(ctx3) ctx3.clearRect(0, 0, c3.width, c3.height);
+
+            let baseColor = cachedBaseColor; let sumColor = "#E91E63"; let gridColor = "rgba(128,128,128,0.22)";
+            const wParams = waves.map(w => ({ vf: (w.f / 200) || 1, pr: w.p * (Math.PI / 180), amp: (w.a / 100), type: w.type || 'sine' }));
+            const c1mid = c1 ? c1.height / 2 : 0; const c1amp = c1 ? c1.height / 2.5 : 0;
+            const c2mid = c2 ? c2.height / 2 : 0; const c2amp = c2 ? c2.height / 2.5 : 0;
+
+            if (isGridOn) {
+                if(ctx1) { ctx1.beginPath(); ctx1.strokeStyle = gridColor; ctx1.moveTo(0, c1mid); ctx1.lineTo(c1.width, c1mid); ctx1.stroke(); }
+                if(ctx2) { ctx2.beginPath(); ctx2.strokeStyle = gridColor; ctx2.moveTo(0, c2mid); ctx2.lineTo(c2.width, c2mid); ctx2.stroke(); }
+                if(ctx3) { ctx3.beginPath(); ctx3.strokeStyle = gridColor; ctx3.moveTo(0, c3.height - 18); ctx3.lineTo(c3.width, c3.height - 18); ctx3.stroke(); }
+            }
+
+            if (isGlowOn) {
+                if(ctx1) { ctx1.shadowBlur = 10; ctx1.shadowColor = baseColor; }
+                if(ctx2) { ctx2.shadowBlur = 10; ctx2.shadowColor = sumColor; }
+                if(ctx3) { ctx3.shadowBlur = 10; ctx3.shadowColor = "#4CAF50"; }
+            } else {
+                if(ctx1) ctx1.shadowBlur = 0; if(ctx2) ctx2.shadowBlur = 0; if(ctx3) ctx3.shadowBlur = 0;
+            }
+
+            let singleInstantY = 0;
+            if(ctx1 && c1.width > 0) {
+                ctx1.beginPath(); ctx1.strokeStyle = baseColor; ctx1.lineWidth = 2.5;
+                if (isLissajous) {
+                    ctx1.moveTo(c1.width/2 + Math.cos(-time + wParams[0].pr) * wParams[0].amp * (c1.width/3), c1mid - Math.sin(-time + wParams[1].pr) * wParams[1].amp * c1amp);
+                    for (let t = 0; t < Math.PI * 4; t += 0.05) { let lx = c1.width/2 + Math.cos(t * wParams[0].vf - time + wParams[0].pr) * wParams[0].amp * (c1.width/3); let ly = c1mid - Math.sin(t * wParams[1].vf - time + wParams[1].pr) * wParams[1].amp * c1amp; ctx1.lineTo(lx, ly); }
+                } else {
+                    for (let x = 0; x < c1.width; x += 2) {
+                        let phaseCalc = x * 0.02 * wParams[currentWave].vf - time + wParams[currentWave].pr;
+                        let y = getWaveValue(wParams[currentWave].type, phaseCalc) * wParams[currentWave].amp * c1amp;
+                        if (x === 0) { ctx1.moveTo(x, c1mid - y); singleInstantY = y / c1amp; } else ctx1.lineTo(x, c1mid - y);
+                    }
+                }
+                ctx1.stroke();
+            }
+
+            let sumInstantY = 0;
+            if(ctx2 && c2.width > 0) {
+                let clipLimit = c2.height / 4; ctx2.beginPath(); 
+                ctx2.strokeStyle = isMaskingTZI ? '#00E676' : sumColor; ctx2.lineWidth = isMaskingTZI ? 1.5 : 2.5;
+                for (let x = 0; x < c2.width; x += 2) {
+                    let sumY = 0; 
+                    for (let i = 0; i < 3; i++) { 
+                        let phaseCalc = x * 0.02 * wParams[i].vf - time + wParams[i].pr;
+                        sumY += getWaveValue(wParams[i].type, phaseCalc) * wParams[i].amp * c2amp;
+                    }
+                    if (isClipped) { if (sumY > clipLimit) sumY = clipLimit; if (sumY < -clipLimit) sumY = -clipLimit; }
+                    if (isMaskingTZI) { sumY += (Math.random() * 40 - 20); }
+                    if (x === 0) { ctx2.moveTo(x, c2mid - sumY/1.5); sumInstantY = sumY / c2amp; } else ctx2.lineTo(x, c2mid - sumY/1.5);
+                }
+                ctx2.stroke();
+            }
+
+            let nowTime = performance.now();
+            if (showLabels && (nowTime - lastTelemUpdate > 90)) {
+                lastTelemUpdate = nowTime;
+                let tY = document.getElementById('telY'); if(tY) tY.innerText = isLissajous ? "2D" : (singleInstantY >= 0 ? "+" : "") + singleInstantY.toFixed(2);
+                let tSY = document.getElementById('telSumY'); if(tSY) tSY.innerText = (sumInstantY >= 0 ? "+" : "") + sumInstantY.toFixed(2);
+                let activePeaks = waves.filter(item => item.a > 0).length; if (isClipped && waves[0].a > 0) activePeaks += 4;
+                let tSP = document.getElementById('telSpecPeaks'); if(tSP) tSP.innerText = activePeaks;
+
+                let thdEl = document.getElementById('telemTHD');
+                let limitEl = document.getElementById('telemLimit');
+                if (isClipped) {
+                    if(thdEl) { thdEl.style.display = 'inline-flex'; document.getElementById('telTHDVal').innerText = "≈ 43%"; }
+                    if(limitEl) { limitEl.style.display = 'inline-flex'; document.getElementById('telLimitVal').innerText = "± 25%"; }
+                } else {
+                    if(thdEl) thdEl.style.display = 'none';
+                    if(limitEl) limitEl.style.display = 'none';
+                }
+            }
+
+            if(ctx3 && c3.width > 0) {
+                ctx3.shadowBlur = 0;
+                if (showLabels) { ctx3.fillStyle = "rgba(128,128,128,0.85)"; ctx3.font = "10px Arial"; ctx3.fillText("5k", (5000 / 20000) * c3.width, c3.height - 3); ctx3.fillText("10k", (10000 / 20000) * c3.width, c3.height - 3); ctx3.fillText("15k", (15000 / 20000) * c3.width, c3.height - 3); }
+
+                ctx3.fillStyle = "#4CAF50";
+                if (isGlowOn) { ctx3.shadowBlur = 10; ctx3.shadowColor = "#4CAF50"; }
+                for (let i = 0; i < 3; i++) { if (wParams[i].amp > 0) { let xPos = (waves[i].f / 20000) * c3.width; let h = wParams[i].amp * (c3.height - 32); ctx3.fillRect(Math.max(xPos, 5), c3.height - 18 - h, 10, h); } }
+
+                if (isClipped) {
+                    ctx3.fillStyle = "rgba(255, 87, 34, 0.9)";
+                    if (isGlowOn) { ctx3.shadowBlur = 10; ctx3.shadowColor = "rgba(255, 87, 34, 1)"; }
+                    for (let w = 0; w < 3; w++) {
+                        if (wParams[w].amp > 0) {
+                            for (let i = 3; i <= 15; i += 2) { 
+                                let fakeF = waves[w].f * i; 
+                                if (fakeF > 20000) break; 
+                                let xPos = (fakeF / 20000) * c3.width; 
+                                let h = (waves[w].a / (i*1.5) / 100) * (c3.height - 32); 
+                                ctx3.fillRect(Math.max(xPos, 5), c3.height - 18 - h, 6, h); 
+                            }
+                        }
+                    }
+                }
+
+                if (isMaskingTZI) {
+                    ctx3.fillStyle = "rgba(0, 230, 118, 0.4)";
+                    for(let i=0; i< c3.width; i+=8) { let noiseH = Math.random() * (c3.height / 3); ctx3.fillRect(i, c3.height - 18 - noiseH, 4, noiseH); }
+                }
+                ctx3.shadowBlur = 0;
+            }
+            animationFrameId = requestAnimationFrame(draw);
+        }
+
+        function generateDynamicQuestion(index) {
+            const freqs = [10, 20, 50, 100, 200, 440, 500, 1000]; const f = freqs[index % freqs.length]; const v = [340, 1480, 5900][index % 3]; const isRu = currentLang === 'ru';
+            const templates = [
+                () => { let T = (1/f).toFixed(4).replace(/\.?0+$/, ""); return { q: isRu ? `Чему равен период (T) при частоте ${f} Гц?` : `What is the period (T) at frequency ${f} Hz?`, opts: [{t: `${T} ${isRu?'с':'s'}`, c:true}, {t: `${(2/f).toFixed(4)} ${isRu?'с':'s'}`, c:false}, {t: `${(1/(f*2)).toFixed(4)} ${isRu?'с':'s'}`, c:false}], reason: isRu ? `T = 1 / V = 1 / ${f} = ${T} с.` : `T = 1 / V = 1 / ${f} = ${T} s.`, link: isRu ? 'https://ru.wikipedia.org/wiki/Период_колебаний' : 'https://en.wikipedia.org/wiki/Frequency' } },
+                () => { let l = (v/f).toFixed(2); return { q: isRu ? `Скорость звука ${v} м/с. Какова длина волны при ${f} Гц?` : `Sound speed is ${v} m/s. What is the wavelength at ${f} Hz?`, opts: [{t: `${l} ${isRu?'м':'m'}`, c:true}, {t: `${(v*f).toFixed(0)} ${isRu?'м':'m'}`, c:false}, {t: `${(v/(f*2)).toFixed(2)} ${isRu?'м':'m'}`, c:false}], reason: isRu ? `λ = v / V = ${v} / ${f} = ${l} м.` : `λ = v / V = ${v} / ${f} = ${l} m.`, link: isRu ? 'https://ru.wikipedia.org/wiki/Длина_волны' : 'https://en.wikipedia.org/wiki/Wavelength' } },
+                () => { let w = (2 * Math.PI * f).toFixed(1); return { q: isRu ? `Циклическая частота (w) при ${f} Гц?` : `Angular frequency (w) at ${f} Hz?`, opts: [{t: `≈ ${w} ${isRu?'рад/с':'rad/s'}`, c:true}, {t: `≈ ${(Math.PI * f).toFixed(1)} ${isRu?'рад/с':'rad/s'}`, c:false}, {t: `≈ ${(f / (2*Math.PI)).toFixed(1)} ${isRu?'рад/с':'rad/s'}`, c:false}], reason: isRu ? `w = 2πV = 2 * 3.14 * ${f} ≈ ${w}` : `w = 2πV = 2 * 3.14 * ${f} ≈ ${w}`, link: isRu ? 'https://ru.wikipedia.org/wiki/Круговая_частота' : 'https://en.wikipedia.org/wiki/Angular_frequency' } },
+                () => { return isRu ? { q: "Что утверждает теорема Фурье?", opts: [{t:"Любой периодический сигнал — это сумма синусоид", c:true}, {t:"Частота обратно пропорциональна амплитуде", c:false}, {t:"Энергия всегда константа", c:false}], reason: "Фурье доказал, что любую периодическую волну можно собрать из простых синусов.", link: 'https://ru.wikipedia.org/wiki/Ряд_Фурье' } : { q: "What does Fourier's theorem state?", opts: [{t:"Any periodic signal is a sum of sine waves", c:true}, {t:"Frequency is inversely proportional to amplitude", c:false}, {t:"Energy is always constant", c:false}], reason: "Fourier proved any periodic wave can be built from simple sines.", link: 'https://en.wikipedia.org/wiki/Fourier_series' } },
+                () => { return isRu ? { q: "Какая разность фаз вызывает полное гашение волн?", opts: [{t:"180°", c:true}, {t:"0°", c:false}, {t:"90°", c:false}], reason: "Сдвиг 180° (противофаза) означает, что гребень совпадает со впадиной.", link: 'https://ru.wikipedia.org/wiki/Интерференция_волн' } : { q: "What phase difference causes complete destructive interference?", opts: [{t:"180°", c:true}, {t:"0°", c:false}, {t:"90°", c:false}], reason: "A 180° shift means a crest perfectly overlaps a trough, canceling the wave.", link: 'https://en.wikipedia.org/wiki/Wave_interference' } },
+                () => { return isRu ? { q: "К чему приводит клиппинг (ограничение амплитуды)?", opts: [{t:"К появлению нелинейных гармоник", c:true}, {t:"К сдвигу частоты вниз", c:false}, {t:"К плавному затуханию", c:false}], reason: "Обрезанная синусоида становится похожа на меандр, который содержит множество обертонов.", link: 'https://ru.wikipedia.org/wiki/Клиппинг_(аудио)' } : { q: "What is the result of amplitude clipping?", opts: [{t:"Generation of non-linear harmonics", c:true}, {t:"Frequency downshift", c:false}, {t:"Smooth fading", c:false}], reason: "A clipped sine wave resembles a square wave, which contains many overtones.", link: 'https://en.wikipedia.org/wiki/Clipping_(audio)' } },
+                () => { return isRu ? { q: "Как получить фигуры Лиссажу?", opts: [{t:"Подать сигналы на оси X и Y", c:true}, {t:"Увеличить амплитуду", c:false}, {t:"Применить спектральный фильтр", c:false}], reason: "Фигуры Лиссажу строятся при сложении двух взаимно перпендикулярных колебаний.", link: 'https://ru.wikipedia.org/wiki/Фигуры_Лиссажу' } : { q: "How to generate Lissajous figures?", opts: [{t:"Apply signals to X and Y axes", c:true}, {t:"Increase amplitude to max", c:false}, {t:"Apply a spectral filter", c:false}], reason: "Lissajous figures are drawn by combining two mutually perpendicular oscillations.", link: 'https://en.wikipedia.org/wiki/Lissajous_curve' } },
+                () => { return isRu ? { q: "Что определяет высоту тона в звуковой волне?", opts: [{t:"Частота (V)", c:true}, {t:"Амплитуда (A)", c:false}, {t:"Фаза (θ)", c:false}], reason: "Чем выше частота колебаний, тем выше воспринимаемый тон звука.", link: 'https://ru.wikipedia.org/wiki/Высота_звука' } : { q: "What determines the pitch of a sound wave?", opts: [{t:"Frequency (V)", c:true}, {t:"Amplitude (A)", c:false}, {t:"Phase (θ)", c:false}], reason: "Higher frequency corresponds to a higher perceived pitch.", link: 'https://en.wikipedia.org/wiki/Pitch_(music)' } }
+            ];
+            return templates[index % templates.length]();
+        }
+
+        function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
+
+        let quizAnswers = {}; let quizQuestionsList = []; let currentQuestionIdx = 0;
+        let quizTimerInterval = null; let quizTimeLeft = 0; let quizTotalTime = 0;
+
+        function startQuizTimer(seconds) {
+            clearInterval(quizTimerInterval);
+            const bar = document.getElementById('quizTimerBar'); const val = document.getElementById('quizTimerVal'); const prog = document.getElementById('quizTimerProgress');
+            if(!bar || !val) return;
+            val.className = 'timer-display';
+            if(prog) { prog.style.width = '100%'; prog.style.background = 'linear-gradient(90deg, #00E676 0%, #00B0FF 100%)'; prog.style.boxShadow = '0 0 12px rgba(0, 230, 118, 0.6)'; }
+            if (seconds <= 0) { bar.style.display = 'none'; return; }
+            bar.style.display = 'flex'; quizTimeLeft = seconds; quizTotalTime = seconds;
+
+            function updateTimerDisplay() {
+                let m = Math.floor(quizTimeLeft / 60); let s = quizTimeLeft % 60;
+                val.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                if(prog) {
+                    let pct = (quizTimeLeft / quizTotalTime) * 100; prog.style.width = `${pct}%`;
+                    if(pct > 50) { prog.style.background = 'linear-gradient(90deg, #00E676 0%, #00B0FF 100%)'; prog.style.boxShadow = '0 0 12px rgba(0, 230, 118, 0.6)'; } 
+                    else if(pct <= 50 && pct > 20) { prog.style.background = 'linear-gradient(90deg, #FFEA00 0%, #FF9800 100%)'; prog.style.boxShadow = '0 0 12px rgba(255, 152, 0, 0.6)'; } 
+                    else { prog.style.background = 'linear-gradient(90deg, #FF5722 0%, #F44336 100%)'; prog.style.boxShadow = '0 0 12px rgba(244, 67, 54, 0.8)'; }
+                }
+                if (quizTimeLeft <= 10) { val.className = 'timer-display timer-red-blink'; playAudioCue('tick'); } 
+                else if (quizTimeLeft <= 30) { val.className = 'timer-display timer-orange'; } 
+                else if (quizTimeLeft === 60) { playAudioCue('warn'); val.className = 'timer-display timer-orange'; } 
+                else { val.className = 'timer-display'; }
+            }
+
+            updateTimerDisplay();
+            quizTimerInterval = setInterval(() => {
+                quizTimeLeft--;
+                if (quizTimeLeft <= 0) { clearInterval(quizTimerInterval); checkTest(); alert(i18n[currentLang].testTimeUp); } 
+                else { updateTimerDisplay(); }
+            }, 1000);
+        }
+
+        function openTestMenu(){
+            clearInterval(quizTimerInterval); let ov = document.getElementById('test-overlay'); if(!ov) return;
+            ov.style.display = 'flex'; setTimeout(()=> ov.classList.add('show'), 10);
+            
+            const startMenu = document.getElementById('test-start-menu'); if (startMenu) startMenu.style.display = 'block';
+            const modesBox = document.getElementById('testModesContainer'); if (modesBox) modesBox.style.display = 'grid';
+
+            document.getElementById('quiz-process').style.display = 'none';
+            document.getElementById('test-result-screen').style.display = 'none';
+            document.getElementById('quiz-card-wrapper').style.display = 'block';
+            document.getElementById('quiz-nav-controls').style.display = 'flex';
+            
+            let mc = document.querySelector('#test-overlay .modal-content'); if(mc) mc.classList.add('pop-animation');
+            playAudioCue('menuClick');
+        }
+
+        function startQuiz(n){
+            document.getElementById('test-start-menu').style.display = 'none';
+            document.getElementById('quiz-process').style.display = 'block';
+            document.getElementById('test-result-screen').style.display = 'none';
+            document.getElementById('quiz-card-wrapper').style.display = 'block';
+            document.getElementById('quiz-nav-controls').style.display = 'flex';
+
+            quizAnswers = {}; quizQuestionsList = []; currentQuestionIdx = 0;
+
+            for (let i = 0; i < n; i++) {
+                let randomIdx = Math.floor(Math.random() * 1000);
+                const item = generateDynamicQuestion(randomIdx); 
+                item.opts = shuffle([...item.opts]); 
+                quizQuestionsList.push(item);
+            }
+            renderCurrentQuestion();
+
+            if (n === 5) startQuizTimer(0); else if (n === 15) startQuizTimer(300); else if (n === 30) startQuizTimer(600); else if (n === 50) startQuizTimer(900);
+            playAudioCue('glassBell');
+        }
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('quiz-container'); if(!container) return; container.innerHTML = '';
+            const item = quizQuestionsList[currentQuestionIdx]; const total = quizQuestionsList.length;
+
+            let card = document.createElement('div'); card.className = 'question glass-element pop-animation';
+            let meta = document.createElement('div'); meta.className = 'question-meta';
+            meta.innerHTML = `<span>${i18n[currentLang].qWord} ${currentQuestionIdx + 1} ${i18n[currentLang].qOf} ${total}</span>`;
+            card.appendChild(meta);
+
+            let qText = document.createElement('p'); qText.innerText = item.q; card.appendChild(qText);
+
+            item.opts.forEach((opt, optIdx) => {
+                let lbl = document.createElement('label'); lbl.className = 'quiz-option glass-element smooth-transition';
+                if (quizAnswers[currentQuestionIdx] !== undefined && quizAnswers[currentQuestionIdx] === optIdx) { lbl.classList.add('selected'); }
+                lbl.onclick = function() {
+                    quizAnswers[currentQuestionIdx] = optIdx;
+                    card.querySelectorAll('.quiz-option').forEach(el => el.classList.remove('selected'));
+                    lbl.classList.add('selected'); playAudioCue('calcKey');
+                };
+                lbl.innerHTML = `<input type="radio" name="q_opt" ${quizAnswers[currentQuestionIdx] === optIdx ? 'checked' : ''}><div class="custom-radio"></div><span class="option-text">${opt.t}</span>`;
+                card.appendChild(lbl);
+            });
+            container.appendChild(card); updateQuizStepIndicator();
+        }
+
+        function updateQuizStepIndicator() {
+            const total = quizQuestionsList.length;
+            const ind = document.getElementById('quiz-step-indicator'); if(ind) ind.innerText = `${currentQuestionIdx + 1} / ${total}`;
+            const btnPrev = document.getElementById('btnPrevQ'); if(btnPrev) btnPrev.disabled = (currentQuestionIdx === 0);
+            const btnNext = document.getElementById('btnNextQ');
+            if(btnNext) {
+                if (currentQuestionIdx === total - 1) {
+                    btnNext.innerHTML = `<span>${i18n[currentLang].btnCheck}</span> ✅`;
+                    btnNext.onclick = function() { checkTest(); playAudioCue('glassBell'); };
+                } else {
+                    btnNext.innerHTML = `<span>${i18n[currentLang].btnNext}</span> ▶`;
+                    btnNext.onclick = function() { nextQuestion(); playAudioCue('mainPulse'); };
+                }
+            }
+        }
+
+        function nextQuestion() { if (currentQuestionIdx < quizQuestionsList.length - 1) { currentQuestionIdx++; renderCurrentQuestion(); } }
+        function prevQuestion() { if (currentQuestionIdx > 0) { currentQuestionIdx--; renderCurrentQuestion(); } }
+
+        function closeTest(){
+            clearInterval(quizTimerInterval); let ov = document.getElementById('test-overlay'); if(!ov) return;
+            ov.classList.remove('show');
+            setTimeout(()=> { ov.style.display = 'none'; let mc = document.querySelector('#test-overlay .modal-content'); if(mc) mc.classList.remove('pop-animation'); }, 300);
+            playAudioCue('click');
+        }
+
+        function animateScoreCounter(targetPercent, onFinish) {
+            const text = document.getElementById('scoreCircleText');
+            const circle = document.getElementById('scoreProgress');
+            
+            let color = '#f44336';
+            if (targetPercent >= 90) color = '#00E676';
+            else if (targetPercent >= 60) color = '#FF9800';
+
+            circle.style.stroke = color;
+            text.style.color = color;
+            text.style.textShadow = `0 0 15px ${color}`;
+            circle.parentElement.style.filter = `drop-shadow(0 0 12px ${color})`;
+
+            const circumference = 2 * Math.PI * 54;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            
+            let current = 0; text.innerText = "0%";
+            circle.style.strokeDashoffset = circumference;
+
+            setTimeout(() => { circle.style.strokeDashoffset = circumference - (targetPercent / 100) * circumference; }, 50);
+
+            const stepTime = Math.max(15, Math.floor(1200 / (targetPercent || 1)));
+            const timer = setInterval(() => {
+                if (current < targetPercent) {
+                    current++; text.innerText = `${current}%`; 
+                    if (current % 4 === 0) playAudioCue('calcKey');
+                } else {
+                    clearInterval(timer); text.innerText = `${targetPercent}%`; 
+                    if (onFinish) onFinish();
+                }
+            }, stepTime);
+        }
+
+        function checkTest(){
+            clearInterval(quizTimerInterval);
+            const total = quizQuestionsList.length; let score = 0;
+            let explanationHTML = `<h4 style='margin-top:0; color:var(--accent); font-size:16px;'>${i18n[currentLang].testReviewTitle}</h4><ul style='padding-left: 18px; line-height:1.6;'>`;
+
+            quizQuestionsList.forEach((item, idx) => {
+                const chosenOptIdx = quizAnswers[idx]; const isAnswered = (chosenOptIdx !== undefined); const isCorrect = isAnswered && item.opts[chosenOptIdx].c;
+                if (isCorrect) { score++; } else {
+                    const correctOpt = item.opts.find(o => o.c);
+                    const skippedTag = !isAnswered ? ` <span style="color:#f44336; font-weight:bold;">[${i18n[currentLang].testSkipped}]</span>` : '';
+                    explanationHTML += `<li style='margin-bottom: 8px;'><b>№${idx + 1}:</b> ${item.q}${skippedTag}<br><span style='color:#00E676;'>✔ ${correctOpt ? correctOpt.t : ''}</span> — <i>${item.reason}</i> <br><a href="${item.link}" target="_blank" style="color:var(--base-wave); font-size:13px; text-decoration:none;">${i18n[currentLang].wikiLink}</a></li>`;
+                }
+            });
+            explanationHTML += `</ul>`;
+
+            document.getElementById('quiz-card-wrapper').style.display = 'none';
+            document.getElementById('quiz-nav-controls').style.display = 'none';
+            document.getElementById('quizTimerBar').style.display = 'none';
+            
+            const resScreen = document.getElementById('test-result-screen');
+            resScreen.style.display = 'block'; resScreen.classList.add('pop-animation');
+
+            let pct = Math.round((score / total) * 100);
+            const resText = document.getElementById('test-result-text');
+            resText.innerHTML = `${i18n[currentLang].testResTitle} ${score} ${i18n[currentLang].testResOf} ${total}<br>`;
+
+            animateScoreCounter(pct, () => {
+                if (pct >= 90) { resText.innerHTML += `<span style="color:#00E676;">${i18n[currentLang].testRes90}</span>`; playAudioCue('glassBell'); } 
+                else if (pct >= 60) { resText.innerHTML += `<span style="color:#FF9800;">${i18n[currentLang].testRes60}</span>`; playAudioCue('glassBell'); } 
+                else { resText.innerHTML += `<span style="color:#f44336;">${i18n[currentLang].testResLow}</span>`; playAudioCue('warn'); }
+            });
+
+            document.getElementById('quiz-explanation').innerHTML = explanationHTML;
+        }
+
+    </script>
+</body>
+</html>
